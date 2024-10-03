@@ -16,7 +16,7 @@ services:
       MARIADB_ROOT_PASSWORD: five1234
 
   application:
-    container_name: docker-compose-test
+    container_name: fiveguys_backend_container
     restart: on-failure
     build:
       context: ./
