@@ -1,0 +1,34 @@
+version: '3.8'
+services:
+  mariadb:
+    container_name: "mariadb_container"
+    image: mariadb
+    restart: always
+    ports:
+      - 3306:3306
+    volumes:
+      - "./mariadb/conf.d:/etc/mysql/conf.d"
+      - "./mariadb/data:/var/lib/mysql"
+    environment:
+      MARIADB_DATABASE: fiveguysdb
+      MARIADB_USER: fiveguys
+      MARIADB_PASSWORD: fiveguys1234
+      MARIADB_ROOT_PASSWORD: five1234
+
+  application:
+    container_name: docker-compose-test
+    restart: on-failure
+    build:
+      context: ./
+      dockerfile: Dockerfile
+    ports:
+      - "8080:8080"
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:mariadb://maria_db:3306/fiveguysdb
+      SPRING_DATASOURCE_USERNAME: "fiveguys"
+      SPRING_DATASOURCE_PASSWORD: "fiveguys1234"
+    depends_on:
+      - mariadb
+    volumes:
+      - ./src/main/resources/application.yml:/app/config/application.yml
+    command: ["java", "-jar", "app.jar", "--spring.config.location=file:/app/config/application.yml"]
