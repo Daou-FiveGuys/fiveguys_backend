@@ -22,7 +22,7 @@ services:
       context: ./
       dockerfile: Dockerfile
     ports:
-      - "8080:8080"
+      - "22:8080"
     environment:
       SPRING_DATASOURCE_URL: jdbc:mariadb://mariadb:3306/fiveguysdb
       SPRING_DATASOURCE_USERNAME: "fiveguys"
