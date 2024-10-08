@@ -40,5 +40,7 @@ out/
 ### logs
 /logs
 
+/src/main/resources/application-secret.yml
+/src/main/resources/static
 ### json
 service-account.json

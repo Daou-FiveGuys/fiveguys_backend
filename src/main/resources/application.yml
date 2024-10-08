@@ -6,4 +6,4 @@ spring:
   application:
     name: fiveguys_backend
   profiles:
-    active: local
+    active: secret
