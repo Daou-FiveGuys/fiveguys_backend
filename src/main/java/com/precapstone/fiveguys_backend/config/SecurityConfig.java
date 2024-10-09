@@ -5,14 +5,18 @@ import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.config.annotation.web.configurers.HeadersConfigurer;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.core.AuthenticationException;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.AuthenticationEntryPoint;
 import org.springframework.security.web.SecurityFilterChain;
 
@@ -20,29 +24,28 @@ import java.io.IOException;
 
 @Configuration
 @EnableWebSecurity
-@RequiredArgsConstructor
 public class SecurityConfig {
     private final PrincipalOauth2UserService userService;
+
+    public SecurityConfig(PrincipalOauth2UserService userService) {
+        this.userService = userService;
+    }
+
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
-        http.csrf(AbstractHttpConfigurer::disable)
-            .formLogin(AbstractHttpConfigurer::disable)
-            .authorizeHttpRequests(authorizeRequest ->
-                authorizeRequest.requestMatchers("/shopping").authenticated()
-                                .anyRequest().permitAll())
-            .headers(c -> c.frameOptions(
-                    HeadersConfigurer.FrameOptionsConfig::disable).disable())
-            .sessionManagement(c ->
-                    c.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-            .exceptionHandling(handler -> handler.authenticationEntryPoint(new AuthenticationEntryPoint() {
-                    @Override
-                    public void commence(HttpServletRequest request, HttpServletResponse response, AuthenticationException authException) throws IOException, ServletException, IOException {
-                        response.sendError(HttpServletResponse.SC_UNAUTHORIZED, "UnAuthorized");
-                    }
-                }))
-            .oauth2Login(oauth2 -> oauth2
-                .userInfoEndpoint(userInfoEndpointConfig -> userInfoEndpointConfig
-                .userService(userService)));
+        http
+                .csrf(AbstractHttpConfigurer::disable)
+                .formLogin(AbstractHttpConfigurer::disable)
+                .httpBasic(AbstractHttpConfigurer::disable)
+                .oauth2Login(oauth2 ->
+                        oauth2.loginPage("/custom-login") // 로그인 페이지를 명확히 다른 경로로 설정
+                                .userInfoEndpoint(userInfoEndpointConfig ->
+                                        userInfoEndpointConfig.userService(userService)))
+                .authorizeHttpRequests(auth ->
+                        auth.requestMatchers("/", "/index.html", "/oauth2/**", "/login/**") // 허용 경로 설정
+                                .permitAll()
+                                .anyRequest()
+                                .authenticated());
         return http.build();
     }
 }
