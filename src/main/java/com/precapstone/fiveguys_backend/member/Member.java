@@ -21,4 +21,6 @@ public class Member {
     private String password;
     private String provider;
     private String providerId;
+    private String phoneNumber;
+    private Boolean isValid;
 }

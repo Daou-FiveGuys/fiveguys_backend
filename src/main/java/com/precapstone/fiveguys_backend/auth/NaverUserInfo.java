@@ -33,4 +33,8 @@ public class NaverUserInfo implements OAuth2UserInfo{
     public String getProviderName() {
         return attributes.get("name").toString();
     }
+
+    public String getPhoneNumber(){
+        return attributes.get("phoneNumber").toString();
+    }
 }

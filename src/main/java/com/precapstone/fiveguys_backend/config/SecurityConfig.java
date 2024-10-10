@@ -38,7 +38,7 @@ public class SecurityConfig {
                 .formLogin(AbstractHttpConfigurer::disable)
                 .httpBasic(AbstractHttpConfigurer::disable)
                 .oauth2Login(oauth2 ->
-                        oauth2.loginPage("/custom-login") // 로그인 페이지를 명확히 다른 경로로 설정
+                        oauth2
                                 .userInfoEndpoint(userInfoEndpointConfig ->
                                         userInfoEndpointConfig.userService(userService)))
                 .authorizeHttpRequests(auth ->
