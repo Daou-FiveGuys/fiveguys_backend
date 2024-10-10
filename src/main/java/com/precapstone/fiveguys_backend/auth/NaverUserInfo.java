@@ -6,11 +6,6 @@ public class NaverUserInfo implements OAuth2UserInfo{
     private Map<String, Object> attributes;
 
     public NaverUserInfo(Map<String, Object> attributes){
-//        try {
-//            this.attributes = (Map<String, Object>) attributes.get("response");
-//        } catch (Exception e) {
-//            throw new Exception(e.getMessage());
-//        }
         this.attributes = (Map<String, Object>) attributes.get("response");
     }
 
@@ -30,7 +25,7 @@ public class NaverUserInfo implements OAuth2UserInfo{
     }
 
     @Override
-    public String getProviderName() {
+    public String getName() {
         return attributes.get("name").toString();
     }
 

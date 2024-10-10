@@ -33,19 +33,38 @@ public class SecurityConfig {
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+//        http
+//                .csrf(AbstractHttpConfigurer::disable)
+//                .formLogin(AbstractHttpConfigurer::disable)
+//                .httpBasic(AbstractHttpConfigurer::disable)
+//                .oauth2Login(oauth2 ->
+//                        oauth2
+//                                .userInfoEndpoint(userInfoEndpointConfig ->
+//                                        userInfoEndpointConfig.userService(userService)))
+//                .authorizeHttpRequests(auth ->
+//                        auth.requestMatchers("/", "/index.html", "/oauth2/**", "/login/**") // 허용 경로 설정
+//                                .permitAll()
+//                                .anyRequest()
+//                                .authenticated());
+//        return http.build();
+
         http
-                .csrf(AbstractHttpConfigurer::disable)
-                .formLogin(AbstractHttpConfigurer::disable)
-                .httpBasic(AbstractHttpConfigurer::disable)
-                .oauth2Login(oauth2 ->
-                        oauth2
-                                .userInfoEndpoint(userInfoEndpointConfig ->
-                                        userInfoEndpointConfig.userService(userService)))
-                .authorizeHttpRequests(auth ->
-                        auth.requestMatchers("/", "/index.html", "/oauth2/**", "/login/**") // 허용 경로 설정
-                                .permitAll()
-                                .anyRequest()
-                                .authenticated());
+                .csrf(csrf -> csrf.disable())  // CSRF 비활성화 (필요 시 활성화)
+                .authorizeHttpRequests(auth -> auth
+                        .requestMatchers("/login", "/signup", "/oauth2/**", "/css/**", "/js/**").permitAll()  // 로그인, 회원가입 페이지 접근 허용
+                        .anyRequest().authenticated()  // 나머지 요청은 인증 필요
+                )
+                .formLogin(form -> form
+                        .loginPage("/login")  // 로그인 페이지 지정
+                        .defaultSuccessUrl("/", true)  // 로그인 성공 시 리다이렉트
+                )
+                .oauth2Login(oauth2 -> oauth2
+                        .loginPage("/login")  // OAuth2 로그인 페이지
+                        .userInfoEndpoint(userInfo -> userInfo
+                                .userService(userService)  // OAuth2 사용자 서비스 설정
+                        )
+                );
+
         return http.build();
     }
 }
