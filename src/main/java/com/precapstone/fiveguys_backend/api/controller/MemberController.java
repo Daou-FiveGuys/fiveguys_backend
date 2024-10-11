@@ -1,11 +1,13 @@
-package com.precapstone.fiveguys_backend.controller;
+package com.precapstone.fiveguys_backend.api.controller;
 
+import com.precapstone.fiveguys_backend.api.service.MemberService;
 import com.precapstone.fiveguys_backend.common.CommonResponse;
 import com.precapstone.fiveguys_backend.common.PasswordValidator;
 import com.precapstone.fiveguys_backend.common.ResponseMessage;
-import com.precapstone.fiveguys_backend.member.UserRepository;
-import com.precapstone.fiveguys_backend.member.UserService;
+import com.precapstone.fiveguys_backend.entity.Member;
 import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpSession;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -13,22 +15,15 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
 @Controller
-public class MainController {
-    private final UserService userService;
-
-    public MainController(UserService userService, UserRepository userRepository) {
-        this.userService = userService;
-    }
-
-    @GetMapping("/")
-    public String index() {
-        return "index";  // index.html 렌더링
-    }
+@RequiredArgsConstructor
+public class MemberController {
+    private final MemberService memberService;
 
     @GetMapping("/signup")
     public String signupForm() {
         return "signup";  // signup.html 렌더링
     }
+
 
     @PostMapping("/signup")
     public String signup(@RequestParam String email,
@@ -47,7 +42,7 @@ public class MainController {
             return "signup";
         }
 
-        userService.register(email, name, password);
+        memberService.register(email, name, password);
 
         return "redirect:/login";
     }
@@ -55,24 +50,28 @@ public class MainController {
     @GetMapping("/login")
     public String login(HttpServletRequest request) {
         if (request.getUserPrincipal() != null) {
-            return "redirect:/profile";
+            return "redirect:/";
         }
         return "login";
     }
 
-    @PostMapping("/login")
-    public String login(@RequestParam String email,
-                        @RequestParam String password,
-                        Model model) {
-
+    @PostMapping("/login-process")
+    public String loginForm(@RequestParam String email,
+                            @RequestParam String password,
+                            HttpSession session,
+                            Model model) {
         try {
-            CommonResponse response = userService.login("fiveguys_" + email, password);
+            CommonResponse response = memberService.login("fiveguys_" + email, password);
             switch (response.getMessage()){
                 case ResponseMessage.SUCCESS -> {
-                    return "redirect:/profile";
+                    return "redirect:/";
                 }
                 case ResponseMessage.EMAIL_VERIFICAITION_REQUIRED -> {
-                    return "redirect:/email_verification";
+                    Member member = (Member)response.getData();
+                    session.setAttribute("userId", member.getUserId());
+                    session.setAttribute("name", member.getName());
+                    session.setAttribute("email", member.getEmail());
+                    return "redirect:/verification";
                 }
                 default -> {
                     return "redirect:/login";
@@ -82,5 +81,16 @@ public class MainController {
             model.addAttribute("error", e.getMessage());
             return "login";
         }
+    }
+    
+    //TODO User Role 설정해서 !(google || naver || verified) -> 진입 시키기
+    @GetMapping("/verification")
+    public String verification(HttpServletRequest request, HttpSession session, Model model) {
+        if (request.getUserPrincipal() != null) {
+            return "redirect:/";
+        }
+        String email = session.getAttribute("email").toString();
+        model.addAttribute("email", email);
+        return "verification";
     }
 }

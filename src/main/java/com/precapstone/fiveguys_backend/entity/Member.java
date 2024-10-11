@@ -1,21 +1,18 @@
-package com.precapstone.fiveguys_backend.member;
+package com.precapstone.fiveguys_backend.entity;
 
 import jakarta.annotation.Nullable;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 @Entity
 @Getter
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class User {
+public class Member {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -25,5 +22,6 @@ public class User {
     @Nullable
     private String password;
     private String provider;
+    @Setter
     private Boolean emailVerified = false;
 }

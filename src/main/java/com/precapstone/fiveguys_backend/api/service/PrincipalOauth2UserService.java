@@ -1,7 +1,10 @@
-package com.precapstone.fiveguys_backend.auth;
+package com.precapstone.fiveguys_backend.api.service;
 
-import com.precapstone.fiveguys_backend.member.User;
-import com.precapstone.fiveguys_backend.member.UserService;
+import com.precapstone.fiveguys_backend.common.auth.GoogleUserInfo;
+import com.precapstone.fiveguys_backend.common.auth.NaverUserInfo;
+import com.precapstone.fiveguys_backend.common.auth.OAuth2UserInfo;
+import com.precapstone.fiveguys_backend.common.auth.PrincipalDetails;
+import com.precapstone.fiveguys_backend.entity.Member;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
@@ -16,7 +19,7 @@ import org.springframework.stereotype.Service;
 public class PrincipalOauth2UserService extends DefaultOAuth2UserService {
 
     private final BCryptPasswordEncoder passwordEncoder;
-    private final UserService userService;
+    private final MemberService memberService;
 
     @Value("${app.oauth2.password}")
     private String oauth2Password;
@@ -31,7 +34,7 @@ public class PrincipalOauth2UserService extends DefaultOAuth2UserService {
             default -> throw new OAuth2AuthenticationException("Unsupported provider");
         };
 
-        User user = userService.register(oAuth2UserInfo, provider);
-        return new PrincipalDetails(user, oAuth2User.getAttributes());
+        Member member = memberService.register(oAuth2UserInfo, provider);
+        return new PrincipalDetails(member, oAuth2User.getAttributes());
     }
 }

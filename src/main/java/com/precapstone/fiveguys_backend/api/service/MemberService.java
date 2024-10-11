@@ -1,36 +1,49 @@
-package com.precapstone.fiveguys_backend.member;
+package com.precapstone.fiveguys_backend.api.service;
 
-import com.precapstone.fiveguys_backend.auth.OAuth2UserInfo;
+import com.precapstone.fiveguys_backend.api.repository.MemberRepository;
+import com.precapstone.fiveguys_backend.common.auth.OAuth2UserInfo;
 import com.precapstone.fiveguys_backend.common.CommonResponse;
 import com.precapstone.fiveguys_backend.common.ResponseMessage;
+import com.precapstone.fiveguys_backend.entity.Member;
 import jakarta.transaction.Transactional;
 import lombok.Getter;
+import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.Optional;
 
 @Service
-public class UserService {
-    @Getter
-    private final UserRepository userRepository;
+@RequiredArgsConstructor
+public class MemberService {
+    private final MemberRepository memberRepository;
     private final BCryptPasswordEncoder passwordEncoder;
 
-    public UserService(UserRepository userRepository, BCryptPasswordEncoder passwordEncoder) {
-        this.userRepository = userRepository;
-        this.passwordEncoder = passwordEncoder;
+    @Transactional
+    public void verifiedEmail(String email) {
+        Optional<Member> optionalMember = memberRepository.findByUserId("fiveguys_"+email);
+        optionalMember.ifPresent(member -> {
+            member.setEmailVerified(true);
+            memberRepository.save(member);
+        });
     }
-
 
     @Transactional
     public CommonResponse login(String userId, String password) {
-        Optional<User> optionalMember = userRepository.findByUserId(userId);
+        Optional<Member> optionalMember = memberRepository.findByUserId(userId);
         if(optionalMember.isPresent()) {
-            User user = optionalMember.get();
-            if (passwordEncoder.matches(password, user.getPassword())) {
+            Member member = optionalMember.get();
+            if (passwordEncoder.matches(password, member.getPassword())) {
+                String responseMessage = null;
+                if (member.getEmailVerified())
+                    responseMessage = ResponseMessage.SUCCESS;
+                else
+                    responseMessage = ResponseMessage.EMAIL_VERIFICAITION_REQUIRED;
                 return CommonResponse.builder()
                         .code(200)
-                        .message(ResponseMessage.SUCCESS)
+                        .data(optionalMember.get())
+                        .message(responseMessage)
                         .build();
             } else {
                 return CommonResponse.builder()
@@ -54,14 +67,14 @@ public class UserService {
      * @return Member
      */
     @Transactional
-    public User register(String email, String name, String password) {
+    public Member register(String email, String name, String password) {
         String encodedPassword = passwordEncoder.encode(password);
         String userId = "fiveguys_" + email;
 
         //TODO 이메일이 이미 존재하면 가입 방지 처리
-        Optional<User> optionalMember = userRepository.findByUserId(userId);
+        Optional<Member> optionalMember = memberRepository.findByUserId(userId);
         return optionalMember.orElseGet(() -> {
-            User newUser = User.builder()
+            Member newMember = Member.builder()
                     .email(email)
                     .emailVerified(false)
                     .password(encodedPassword)
@@ -69,7 +82,7 @@ public class UserService {
                     .name(name)
                     .userId(userId)
                     .build();
-            return userRepository.save(newUser);
+            return memberRepository.save(newMember);
         });
     }
 
@@ -81,15 +94,15 @@ public class UserService {
      * @return Member
      */
     @Transactional
-    public User register(OAuth2UserInfo oAuth2UserInfo, String provider) {
+    public Member register(OAuth2UserInfo oAuth2UserInfo, String provider) {
         String providerId = oAuth2UserInfo.getProviderId();
         String userId = provider + "_" + providerId;
         String name = oAuth2UserInfo.getName();
         String email = oAuth2UserInfo.getProviderEmail();
 
-        Optional<User> optionalMember = userRepository.findByUserId(userId);
+        Optional<Member> optionalMember = memberRepository.findByUserId(userId);
         return optionalMember.orElseGet(() -> {
-                    User newUser = User.builder()
+                    Member newMember = Member.builder()
                             .email(email)
                             .emailVerified(true)
                             .password(null) // 비밀번호는 null로 설정
@@ -97,7 +110,7 @@ public class UserService {
                             .name(name)
                             .userId(userId)
                             .build();
-                    return userRepository.save(newUser);
+                    return memberRepository.save(newMember);
                 });
     }
 }

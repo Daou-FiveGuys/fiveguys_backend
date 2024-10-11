@@ -1,4 +1,4 @@
-package com.precapstone.fiveguys_backend.auth;
+package com.precapstone.fiveguys_backend.common.auth;
 
 import java.util.Map;
 

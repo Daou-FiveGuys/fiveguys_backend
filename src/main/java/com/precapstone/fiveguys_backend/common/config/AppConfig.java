@@ -1,4 +1,4 @@
-package com.precapstone.fiveguys_backend.config;
+package com.precapstone.fiveguys_backend.common.config;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
