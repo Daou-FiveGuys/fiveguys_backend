@@ -1,9 +1,11 @@
 package com.precapstone.fiveguys_backend.controller;
 
+import com.precapstone.fiveguys_backend.common.CommonResponse;
 import com.precapstone.fiveguys_backend.common.PasswordValidator;
-import com.precapstone.fiveguys_backend.member.Member;
-import com.precapstone.fiveguys_backend.member.MemberRepository;
-import com.precapstone.fiveguys_backend.member.MemberService;
+import com.precapstone.fiveguys_backend.common.ResponseMessage;
+import com.precapstone.fiveguys_backend.member.UserRepository;
+import com.precapstone.fiveguys_backend.member.UserService;
+import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -12,10 +14,10 @@ import org.springframework.web.bind.annotation.RequestParam;
 
 @Controller
 public class MainController {
-    private final MemberService memberService;
+    private final UserService userService;
 
-    public MainController(MemberService memberService, MemberRepository memberRepository) {
-        this.memberService = memberService;
+    public MainController(UserService userService, UserRepository userRepository) {
+        this.userService = userService;
     }
 
     @GetMapping("/")
@@ -23,33 +25,9 @@ public class MainController {
         return "index";  // index.html 렌더링
     }
 
-    @GetMapping("/login")
-    public String login() {
-        return "login";  // login.html 렌더링
-    }
-
     @GetMapping("/signup")
     public String signupForm() {
         return "signup";  // signup.html 렌더링
-    }
-
-    @PostMapping("/login")
-    public String login(@RequestParam String email,
-                        @RequestParam String password,
-                        Model model) {
-
-        try {
-            Member member = memberService.login("fiveguys_" + email, password);
-            if (!member.getEmailVerified()) {
-                model.addAttribute("error", "이메일 인증이 필요합니다.");
-                return "login";
-            }
-            return "redirect:/index";
-
-        } catch (IllegalArgumentException e) {
-            model.addAttribute("error", e.getMessage());
-            return "login";
-        }
     }
 
     @PostMapping("/signup")
@@ -57,7 +35,7 @@ public class MainController {
                          @RequestParam String name,
                          @RequestParam String password,
                          @RequestParam String confirmPassword,
-                            Model model) {
+                         Model model) {
 
         if (!password.equals(confirmPassword)) {
             model.addAttribute("error", "Passwords do not match");
@@ -69,8 +47,40 @@ public class MainController {
             return "signup";
         }
 
-        memberService.register(email, name, password);
+        userService.register(email, name, password);
 
         return "redirect:/login";
+    }
+
+    @GetMapping("/login")
+    public String login(HttpServletRequest request) {
+        if (request.getUserPrincipal() != null) {
+            return "redirect:/profile";
+        }
+        return "login";
+    }
+
+    @PostMapping("/login")
+    public String login(@RequestParam String email,
+                        @RequestParam String password,
+                        Model model) {
+
+        try {
+            CommonResponse response = userService.login("fiveguys_" + email, password);
+            switch (response.getMessage()){
+                case ResponseMessage.SUCCESS -> {
+                    return "redirect:/profile";
+                }
+                case ResponseMessage.EMAIL_VERIFICAITION_REQUIRED -> {
+                    return "redirect:/email_verification";
+                }
+                default -> {
+                    return "redirect:/login";
+                }
+            }
+        } catch (IllegalArgumentException e) {
+            model.addAttribute("error", e.getMessage());
+            return "login";
+        }
     }
 }

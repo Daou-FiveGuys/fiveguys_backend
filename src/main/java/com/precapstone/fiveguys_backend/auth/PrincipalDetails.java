@@ -1,6 +1,6 @@
 package com.precapstone.fiveguys_backend.auth;
 
-import com.precapstone.fiveguys_backend.member.Member;
+import com.precapstone.fiveguys_backend.member.User;
 import lombok.Getter;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -12,18 +12,18 @@ import java.util.Map;
 
 @Getter
 public class PrincipalDetails implements UserDetails, OAuth2User {
-    private Member member;
+    private User user;
     private Map<String, Object> attributes;
 
     // oauth 로그인
-    public PrincipalDetails(Member member, Map<String, Object> attributes) {
-        this.member = member;
+    public PrincipalDetails(User user, Map<String, Object> attributes) {
+        this.user = user;
         this.attributes = attributes;
     }
 
     @Override
     public String getName() {
-        return "";
+        return user.getName();
     }
 
     @Override
@@ -33,11 +33,11 @@ public class PrincipalDetails implements UserDetails, OAuth2User {
 
     @Override
     public String getPassword() {
-        return "";
+        return user.getPassword();
     }
 
     @Override
     public String getUsername() {
-        return "";
+        return user.getUserId();
     }
 }
