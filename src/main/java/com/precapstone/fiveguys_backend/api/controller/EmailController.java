@@ -2,8 +2,8 @@ package com.precapstone.fiveguys_backend.api.controller;
 
 import com.precapstone.fiveguys_backend.api.service.MailService;
 import com.precapstone.fiveguys_backend.api.service.MemberService;
+import com.precapstone.fiveguys_backend.common.CommonResponse;
 import jakarta.mail.MessagingException;
-import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
@@ -26,8 +26,9 @@ public class EmailController {
     @PostMapping("/verify")
     public String verify(@RequestParam("email") String email,
                          @RequestParam("code") String code) {
-        boolean isVerify = mailService.verifyCode(email, code);
-        if (isVerify){
+        CommonResponse commonResponse = mailService.verifyCode(email, code);
+        if ((Boolean) commonResponse.getData()){
+            //TODO 리다이렉션 오류 해결
             memberService.verifiedEmail(email);
             return "redirect:/";
         } else {

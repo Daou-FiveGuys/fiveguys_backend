@@ -5,10 +5,9 @@ import com.precapstone.fiveguys_backend.common.auth.OAuth2UserInfo;
 import com.precapstone.fiveguys_backend.common.CommonResponse;
 import com.precapstone.fiveguys_backend.common.ResponseMessage;
 import com.precapstone.fiveguys_backend.entity.Member;
+import jakarta.persistence.EntityNotFoundException;
 import jakarta.transaction.Transactional;
-import lombok.Getter;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -21,12 +20,16 @@ public class MemberService {
     private final BCryptPasswordEncoder passwordEncoder;
 
     @Transactional
-    public void verifiedEmail(String email) {
-        Optional<Member> optionalMember = memberRepository.findByUserId("fiveguys_"+email);
-        optionalMember.ifPresent(member -> {
-            member.setEmailVerified(true);
-            memberRepository.save(member);
-        });
+    public CommonResponse verifiedEmail(String email) {
+        Member member = memberRepository.findByUserId("fiveguys_"+email)
+                        .orElseThrow(() -> new EntityNotFoundException("Member not found"));
+        member.setEmailVerified(true);
+        memberRepository.save(member);
+        return CommonResponse.builder()
+                .code(200)
+                .data(member)
+                .message("Email Verified Successfully")
+                .build();
     }
 
     @Transactional
@@ -67,23 +70,41 @@ public class MemberService {
      * @return Member
      */
     @Transactional
-    public Member register(String email, String name, String password) {
+    public CommonResponse register(String email, String name, String password) {
         String encodedPassword = passwordEncoder.encode(password);
         String userId = "fiveguys_" + email;
 
-        //TODO 이메일이 이미 존재하면 가입 방지 처리
+        /**
+         * 가입 여부 확인
+         */
         Optional<Member> optionalMember = memberRepository.findByUserId(userId);
-        return optionalMember.orElseGet(() -> {
-            Member newMember = Member.builder()
-                    .email(email)
-                    .emailVerified(false)
-                    .password(encodedPassword)
-                    .provider("fiveguys")
-                    .name(name)
-                    .userId(userId)
+        if (optionalMember.isPresent()) {
+            return CommonResponse.builder()
+                    .code(500)
+                    .message("Registered Failed: Already Registered Email")
+                    .data(optionalMember.get().getEmail())
                     .build();
-            return memberRepository.save(newMember);
-        });
+        }
+
+        /**
+         * 신규 회원
+         */
+        Member newMember = Member.builder()
+                .email(email)
+                .emailVerified(false)
+                .password(encodedPassword)
+                .provider("fiveguys")
+                .name(name)
+                .userId(userId)
+                .build();
+
+        memberRepository.save(newMember);
+
+        return CommonResponse.builder()
+                .code(200)
+                .message("Registered Successfully")
+                .data(newMember)
+                .build();
     }
 
     /**
@@ -101,16 +122,13 @@ public class MemberService {
         String email = oAuth2UserInfo.getProviderEmail();
 
         Optional<Member> optionalMember = memberRepository.findByUserId(userId);
-        return optionalMember.orElseGet(() -> {
-                    Member newMember = Member.builder()
-                            .email(email)
-                            .emailVerified(true)
-                            .password(null) // 비밀번호는 null로 설정
-                            .provider(provider)
-                            .name(name)
-                            .userId(userId)
-                            .build();
-                    return memberRepository.save(newMember);
-                });
+        return optionalMember.orElseGet(() -> Member.builder()
+            .email(email)
+            .emailVerified(true)
+            .password(null)
+            .provider(provider)
+            .name(name)
+            .userId(userId)
+            .build());
     }
 }
