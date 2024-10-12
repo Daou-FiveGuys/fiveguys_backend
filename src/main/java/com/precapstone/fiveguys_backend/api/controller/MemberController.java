@@ -54,43 +54,4 @@ public class MemberController {
         }
         return "login";
     }
-
-    @PostMapping("/login-process")
-    public String loginForm(@RequestParam String email,
-                            @RequestParam String password,
-                            HttpSession session,
-                            Model model) {
-        try {
-            CommonResponse response = memberService.login("fiveguys_" + email, password);
-            switch (response.getMessage()){
-                case ResponseMessage.SUCCESS -> {
-                    return "redirect:/";
-                }
-                case ResponseMessage.EMAIL_VERIFICAITION_REQUIRED -> {
-                    Member member = (Member)response.getData();
-                    session.setAttribute("userId", member.getUserId());
-                    session.setAttribute("name", member.getName());
-                    session.setAttribute("email", member.getEmail());
-                    return "redirect:/verification";
-                }
-                default -> {
-                    return "redirect:/login";
-                }
-            }
-        } catch (IllegalArgumentException e) {
-            model.addAttribute("error", e.getMessage());
-            return "login";
-        }
-    }
-    
-    //TODO User Role 설정해서 !(google || naver || verified) -> 진입 시키기
-    @GetMapping("/verification")
-    public String verification(HttpServletRequest request, HttpSession session, Model model) {
-        if (request.getUserPrincipal() != null) {
-            return "redirect:/";
-        }
-        String email = session.getAttribute("email").toString();
-        model.addAttribute("email", email);
-        return "verification";
-    }
 }

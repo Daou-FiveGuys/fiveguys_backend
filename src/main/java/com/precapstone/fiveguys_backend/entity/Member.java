@@ -1,11 +1,11 @@
 package com.precapstone.fiveguys_backend.entity;
 
+import com.precapstone.fiveguys_backend.common.enums.UserRole;
 import jakarta.annotation.Nullable;
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
+import jakarta.persistence.*;
 import lombok.*;
+
+import java.time.LocalDateTime;
 
 @Entity
 @Getter
@@ -23,5 +23,11 @@ public class Member {
     private String password;
     private String provider;
     @Setter
+    @Enumerated(EnumType.STRING)
+    private UserRole userRole;
+    @Setter
     private Boolean emailVerified = false;
+    private LocalDateTime createdAt;
+    @Setter
+    private LocalDateTime updatedAt;
 }

@@ -6,10 +6,13 @@ import jakarta.mail.internet.MimeMessage;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.mail.MailException;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.stereotype.Service;
+import org.thymeleaf.TemplateEngine;
+import org.thymeleaf.context.Context;
 
 import java.util.Random;
 
@@ -18,6 +21,8 @@ import java.util.Random;
 public class MailService {
     private static final Logger log = LoggerFactory.getLogger(MailService.class);
     private final JavaMailSender mailSender;
+    @Autowired
+    private final TemplateEngine templateEngine;
     private final String sender = "daou.fiveguys@gmail.com";
     private final RedisService redisService;
 
@@ -92,8 +97,9 @@ public class MailService {
         if(redisService.exists(toEmail))
             redisService.delete(toEmail);
         String authNumber = createVerificationNumber();
-        redisService.setDataExpire(toEmail,authNumber,60 * 30L);
-        return sendEmail(toEmail, "FiveGuys 이메일 인증", authNumber); // CommonResponse
+        String body = createVerificationMessage(authNumber);
+        redisService.setDataExpire(toEmail, authNumber,60 * 30L);
+        return sendEmail(toEmail, "FiveGuys 이메일 인증", body); // CommonResponse
     }
 
     private SimpleMailMessage createSimpleEmailForm(String toEmail, String title, String body) {
@@ -114,6 +120,12 @@ public class MailService {
         return message;
     }
 
+    private String createVerificationMessage(String authNumber){
+        Context context = new Context();
+        context.setVariable("authNumber", authNumber);
+        return templateEngine.process("email_verification", context);
+    }
+
     public static String createVerificationNumber(){
         Random random = new Random();
         StringBuilder number = new StringBuilder();
@@ -122,11 +134,4 @@ public class MailService {
         return number.toString();
     }
 
-    private static String createVerificationMessage(String authNumber){
-        String body = "";
-        body += "<h3>요청하신 인증 번호입니다.</h3>";
-        body += "<h1>" + authNumber + "</h1>";
-        body += "<h3>감사합니다.</h3>";
-        return body;
-    }
 }

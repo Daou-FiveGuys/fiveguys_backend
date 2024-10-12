@@ -4,6 +4,7 @@ import com.precapstone.fiveguys_backend.api.repository.MemberRepository;
 import com.precapstone.fiveguys_backend.common.auth.OAuth2UserInfo;
 import com.precapstone.fiveguys_backend.common.CommonResponse;
 import com.precapstone.fiveguys_backend.common.ResponseMessage;
+import com.precapstone.fiveguys_backend.common.enums.UserRole;
 import com.precapstone.fiveguys_backend.entity.Member;
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.transaction.Transactional;
@@ -11,6 +12,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
 import java.util.Optional;
 
 @Service
@@ -19,11 +21,17 @@ public class MemberService {
     private final MemberRepository memberRepository;
     private final BCryptPasswordEncoder passwordEncoder;
 
+    public Optional<Member> findByUserId(String userId){
+        return memberRepository.findByUserId(userId);
+    }
+
     @Transactional
     public CommonResponse verifiedEmail(String email) {
         Member member = memberRepository.findByUserId("fiveguys_"+email)
                         .orElseThrow(() -> new EntityNotFoundException("Member not found"));
         member.setEmailVerified(true);
+        member.setUserRole(UserRole.USER);
+        member.setUpdatedAt(LocalDateTime.now());
         memberRepository.save(member);
         return CommonResponse.builder()
                 .code(200)
@@ -86,6 +94,7 @@ public class MemberService {
                     .build();
         }
 
+        LocalDateTime now = LocalDateTime.now();
         /**
          * 신규 회원
          */
@@ -95,6 +104,9 @@ public class MemberService {
                 .password(encodedPassword)
                 .provider("fiveguys")
                 .name(name)
+                .userRole(UserRole.VISITOR)
+                .createdAt(now)
+                .updatedAt(now)
                 .userId(userId)
                 .build();
 
@@ -121,6 +133,8 @@ public class MemberService {
         String name = oAuth2UserInfo.getName();
         String email = oAuth2UserInfo.getProviderEmail();
 
+
+        LocalDateTime now = LocalDateTime.now();
         Optional<Member> optionalMember = memberRepository.findByUserId(userId);
         return optionalMember.orElseGet(() -> Member.builder()
             .email(email)
@@ -128,6 +142,9 @@ public class MemberService {
             .password(null)
             .provider(provider)
             .name(name)
+            .createdAt(now)
+            .updatedAt(now)
+            .userRole(UserRole.USER)
             .userId(userId)
             .build());
     }

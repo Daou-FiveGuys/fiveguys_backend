@@ -5,27 +5,16 @@ import lombok.Getter;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.security.oauth2.core.user.OAuth2User;
 
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
-import java.util.Map;
 
 @Getter
-public class PrincipalDetails implements UserDetails, OAuth2User {
-    private Member member;
-    private Map<String, Object> attributes;
-
-    // oauth 로그인
-    public PrincipalDetails(Member member, Map<String, Object> attributes) {
+public class CustomUserDetails implements UserDetails {
+    private final Member member;
+    public CustomUserDetails(Member member) {
         this.member = member;
-        this.attributes = attributes;
-    }
-
-    @Override
-    public String getName() {
-        return member.getName();
     }
 
     @Override
