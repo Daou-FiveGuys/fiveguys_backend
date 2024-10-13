@@ -1,11 +1,11 @@
 version: '3.8'
 services:
   mariadb:
-    container_name: "mariadb_container"
+    container_name: mariadb_container
     image: mariadb
     restart: always
     ports:
-      - 3306:3306
+      - "3306:3306"
     volumes:
       - "./mariadb/conf.d:/etc/mysql/conf.d"
       - "./mariadb/data:/var/lib/mysql"
@@ -14,6 +14,18 @@ services:
       MARIADB_USER: fiveguys
       MARIADB_PASSWORD: fiveguys1234
       MARIADB_ROOT_PASSWORD: five1234
+
+  redis:
+    container_name: redis_container
+    image: redis
+    restart: always
+    ports :
+      - "6379:6379"
+    command:
+      - redis-server /usr/local/etc/redis/redis.conf
+    volumes:
+      - ./redis/data:/data
+      - ./redis/conf/redis.conf:/usr/local/conf/redis.conf
 
   application:
     container_name: fiveguys_backend_container
