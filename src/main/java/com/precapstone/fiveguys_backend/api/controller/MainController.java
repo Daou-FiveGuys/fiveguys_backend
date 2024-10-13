@@ -21,7 +21,7 @@ public class MainController {
 
     @GetMapping("/verification")
     public String verification(HttpServletRequest request, HttpSession session, Model model) {
-        if(!request.getUserPrincipal().equals("ROLE_VISITOR")){
+        if(!request.isUserInRole("ROLE_VISITOR")){
             return "redirect:/";
         }
         String email = session.getAttribute("email").toString();

@@ -56,7 +56,7 @@
 
     document.getElementById('sendButton').addEventListener('click', () => {
         const email = document.getElementById('emailInput').value; // 이메일 값을 가져옴
-
+        document.getElementById('sendButton').disabled = true;
         fetch('/send', {
             method: 'POST',
             headers: {
@@ -81,7 +81,7 @@
     });
 
     document.getElementById('verifyButton').addEventListener('click', () => {
-        const email = document.getElementById('emailInput').value; // 이메일 값을 가져옴
+        const email = document.getElementById('emailInput').value;
         const code = document.getElementById('verificationCode').value;
         fetch('/verify', {
             method: 'POST',
@@ -100,7 +100,7 @@
                     countdown = 180; // 카운트다운 초기화
                     resendButton.disabled = true;
                     resendButton.classList.add('disabled');
-                    startCountdown();
+                    window.location.href = "/"
                 } else {
                     alert('인증에 실패했습니다.. 다시 시도해 주세요.');
                 }

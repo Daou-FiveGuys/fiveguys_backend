@@ -7,12 +7,9 @@ import com.precapstone.fiveguys_backend.common.enums.UserRole;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.security.authentication.AuthenticationManager;
-import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
-import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.web.SecurityFilterChain;
 
 @Configuration
@@ -65,7 +62,6 @@ public class SecurityConfig {
     }
 
     private boolean isEmailVerificationRequired(CustomUserDetails userDetails) {
-        // 예시: 사용자의 역할이 "UNVERIFIED"인 경우 이메일 인증이 필요하다고 가정
         return userDetails.getAuthorities().stream()
                 .anyMatch(grantedAuthority ->
                         grantedAuthority.getAuthority().equals("ROLE_"+UserRole.VISITOR.getRole()));
