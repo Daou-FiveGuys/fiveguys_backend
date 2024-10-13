@@ -22,10 +22,10 @@ services:
     ports :
       - "6379:6379"
     command:
-      - redis-server /usr/local/conf/redis.conf
+      - redis-server ./redis/conf/redis.conf
     volumes:
-      - ./redis/data:/data
-      - ./redis/conf/redis.conf:/usr/local/conf/redis.conf
+      - "./redis/data:/var/lib/redis"
+      - "./redis/conf/redis.conf:/etc/mysql/conf.d"
 
 
   application:
