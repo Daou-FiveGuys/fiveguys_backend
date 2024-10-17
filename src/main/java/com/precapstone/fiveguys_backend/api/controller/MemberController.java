@@ -1,6 +1,6 @@
 package com.precapstone.fiveguys_backend.api.controller;
 
-import com.precapstone.fiveguys_backend.api.dto.MemberDTO;
+import com.precapstone.fiveguys_backend.api.dto.MemberParam;
 import com.precapstone.fiveguys_backend.api.service.MemberService;
 import com.precapstone.fiveguys_backend.common.CommonResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -17,7 +17,7 @@ public class MemberController {
     private final MemberService memberService;
 
     @PostMapping("/signup")
-    public ResponseEntity<CommonResponse> signup(@RequestBody MemberDTO memberDTO, Model model) {
-        return ResponseEntity.ok(memberService.register(memberDTO));
+    public ResponseEntity<CommonResponse> signup(@RequestBody MemberParam memberParam, Model model) {
+        return ResponseEntity.ok(memberService.register(memberParam));
     }
 }
