@@ -31,26 +31,22 @@ public class MailService {
      * Redis 조회 -> 인증번호 비교 -> 결과 리턴
      *
      * @param toEmail 수신자 이메일
-     * @param userCode 입력된 인증 코드
+     * @param verificationCode 입력된 인증 코드
      * @return CommonResponse
      */
-    public CommonResponse verifyCode(String toEmail, String userCode) {
+    public CommonResponse verifyCode(String toEmail, String verificationCode) {
         String verifyCode = redisService.get(toEmail);
-        if(verifyCode == null) {
-            //TODO 예외처리
-            /**
-             * redis에 이메일에 해당하는 데이터 없음
-             */
+        if(verifyCode == null || !verifyCode.equals(verificationCode)) {
             return CommonResponse.builder()
                     .code(200)
-                    .message("Verification Data Does Not Exist")
+                    .message("Failed to verify")
                     .data(false)
                     .build();
         }
         return CommonResponse.builder()
                     .code(200)
-                    .message("Verification Data Exist")
-                    .data(verifyCode.equals(userCode))
+                    .message("Verified Successfully")
+                    .data(true)
                     .build();
     }
 

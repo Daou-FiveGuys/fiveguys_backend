@@ -1,6 +1,8 @@
 package com.precapstone.fiveguys_backend.api.service;
 
+import com.precapstone.fiveguys_backend.api.dto.MemberDTO;
 import com.precapstone.fiveguys_backend.api.repository.MemberRepository;
+import com.precapstone.fiveguys_backend.common.PasswordValidator;
 import com.precapstone.fiveguys_backend.common.auth.OAuth2UserInfo;
 import com.precapstone.fiveguys_backend.common.CommonResponse;
 import com.precapstone.fiveguys_backend.common.ResponseMessage;
@@ -71,16 +73,22 @@ public class MemberService {
 
     /**
      * FiveGuys 일반 회원가입
+     * @param memberDTO
      *
-     * @param email 이메일
-     * @param name 가입자 이름
-     * @param password 비밀번호
-     * @return Member
+     * @return CommonResponse 회원가입 여부
      */
     @Transactional
-    public CommonResponse register(String email, String name, String password) {
-        String encodedPassword = passwordEncoder.encode(password);
-        String userId = "fiveguys_" + email;
+    public CommonResponse register(MemberDTO memberDTO) {
+        String result = checkPasswordValidation(memberDTO.getPassword(), memberDTO.getConfirmPassword());
+        if(result != null){
+            return CommonResponse.builder()
+                        .code(400)
+                        .message(result)
+                        .build();
+        }
+
+        String encodedPassword = passwordEncoder.encode(memberDTO.getPassword());
+        String userId = "fiveguys_" + memberDTO.getEmail();
 
         /**
          * 가입 여부 확인
@@ -99,11 +107,11 @@ public class MemberService {
          * 신규 회원
          */
         Member newMember = Member.builder()
-                .email(email)
+                .email(memberDTO.getEmail())
                 .emailVerified(false)
                 .password(encodedPassword)
                 .provider("fiveguys")
-                .name(name)
+                .name(memberDTO.getName())
                 .userRole(UserRole.VISITOR)
                 .createdAt(now)
                 .updatedAt(now)
@@ -147,5 +155,17 @@ public class MemberService {
             .userRole(UserRole.USER)
             .userId(userId)
             .build());
+    }
+
+    private String checkPasswordValidation(String password, String confirmPassword) {
+        if (!password.equals(confirmPassword)) {
+            return "Passwords do not match";
+        }
+
+        if (!PasswordValidator.isValidPassword(password)) {
+            return "Invalid password";
+        }
+
+        return null;
     }
 }

@@ -14,6 +14,11 @@ public class MainController {
         return "index";
     }
 
+    @GetMapping("/signup")
+    public String signupForm() {
+        return "signup";  // signup.html 렌더링
+    }
+
     @GetMapping("/success")
     public String success() {
         return "success";
@@ -27,5 +32,14 @@ public class MainController {
         String email = session.getAttribute("email").toString();
         model.addAttribute("email", email);
         return "verification";
+    }
+
+
+    @GetMapping("/login")
+    public String login(HttpServletRequest request) {
+        if (request.getUserPrincipal() != null) {
+            return "redirect:/";
+        }
+        return "login";
     }
 }
