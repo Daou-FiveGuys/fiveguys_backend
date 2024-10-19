@@ -17,7 +17,12 @@ public class MemberController {
     private final MemberService memberService;
 
     @PostMapping("/signup")
-    public ResponseEntity<CommonResponse> signup(@RequestBody MemberParam memberParam, Model model) {
+    public ResponseEntity<CommonResponse> signup(@RequestBody MemberParam memberParam) {
         return ResponseEntity.ok(memberService.register(memberParam));
+    }
+
+    @DeleteMapping("/delete")
+    public ResponseEntity<CommonResponse> delete(@RequestHeader String userId, @RequestHeader String password) {
+        return ResponseEntity.ok(memberService.deleteByUserId(userId, password));
     }
 }

@@ -43,8 +43,8 @@ public class MemberService {
     }
 
     @Transactional
-    public CommonResponse login(String userId, String password) {
-        Optional<Member> optionalMember = memberRepository.findByUserId(userId);
+    public CommonResponse login(String email, String password) {
+        Optional<Member> optionalMember = memberRepository.findByUserId(email);
         if(optionalMember.isPresent()) {
             Member member = optionalMember.get();
             if (passwordEncoder.matches(password, member.getPassword())) {
@@ -155,6 +155,16 @@ public class MemberService {
             .userRole(UserRole.USER)
             .userId(userId)
             .build());
+    }
+
+    @Transactional
+    public CommonResponse deleteByUserId(String userId, String password) {
+        //TODO 검증로직 추가
+        Member member = memberRepository.findByUserId(userId).orElseThrow();
+        return CommonResponse.builder()
+                .code(200)
+                .message("Member deleted successfully")
+                .build();
     }
 
     private String checkPasswordValidation(String password, String confirmPassword) {

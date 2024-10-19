@@ -16,7 +16,7 @@ public class MainController {
 
     @GetMapping("/signup")
     public String signupForm() {
-        return "signup";  // signup.html 렌더링
+        return "signup";
     }
 
     @GetMapping("/success")

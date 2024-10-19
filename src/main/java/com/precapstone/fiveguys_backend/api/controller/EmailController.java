@@ -12,7 +12,9 @@ import org.slf4j.LoggerFactory;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-
+/**
+ * @author 6-keem
+ */
 @Tag(name = "Email Verification", description = "이메일 인증")
 @RestController
 @RequiredArgsConstructor
