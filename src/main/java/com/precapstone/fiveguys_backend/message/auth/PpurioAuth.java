@@ -2,6 +2,7 @@ package com.precapstone.fiveguys_backend.message.auth;
 
 import io.github.cdimascio.dotenv.Dotenv;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.stereotype.Service;
@@ -15,7 +16,9 @@ public class PpurioAuth {
     private RestTemplate restTemplate;
 
     String url = "https://message.ppurio.com";
-    String ppurioAuthorization = Dotenv.load().get("PPURIO_AUTHORIZATION");
+
+    @Value("${spring.ppurio.auth}")
+    String ppurioAuthorization;
 
     public String createPost() {
         HttpHeaders headers = new HttpHeaders();
