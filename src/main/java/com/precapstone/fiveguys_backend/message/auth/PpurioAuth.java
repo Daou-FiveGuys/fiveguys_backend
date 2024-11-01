@@ -1,7 +1,7 @@
 package com.precapstone.fiveguys_backend.message.auth;
 
-import io.github.cdimascio.dotenv.Dotenv;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
@@ -13,7 +13,7 @@ import java.util.Base64;
 @Service
 @RequiredArgsConstructor
 public class PpurioAuth {
-    private RestTemplate restTemplate;
+    private final RestTemplate restTemplate;
 
     String url = "https://message.ppurio.com";
 

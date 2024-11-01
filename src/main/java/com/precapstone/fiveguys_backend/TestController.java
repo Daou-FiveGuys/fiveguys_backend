@@ -11,11 +11,11 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping("/api/v1/test/")
 @RequiredArgsConstructor
 public class TestController {
-    PpurioAuth a;
+    private final PpurioAuth ppurioAuth;
 
     @GetMapping("test")
     public ResponseEntity test() {
-        String result = a.createPost();
+        String result = ppurioAuth.createPost();
         return ResponseEntity.builder().status(200).message("테스트 성공").data(result).build();
     }
 }
