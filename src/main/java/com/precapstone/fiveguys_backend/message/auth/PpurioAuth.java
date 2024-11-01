@@ -17,24 +17,19 @@ public class PpurioAuth {
 
     String url = "https://message.ppurio.com";
 
-    @Value("${spring.ppurio.auth}")
-    String ppurioAuthorization;
-
     @Value("${spring.ppurio.account}")
     String ppurioAccount;
 
+    @Value("${spring.ppurio.auth}")
+    String ppurioAuthorization;
+
     public String createPost() {
         HttpHeaders headers = new HttpHeaders();
-        headers.set("Authorization", "Basic "+encode(ppurioAccount+" : "+ppurioAuthorization));
+        headers.set("Authorization", "Basic "+Base64.getEncoder().encodeToString((ppurioAccount + ":" + ppurioAuthorization).getBytes()));
 
         String requestBody = "";
         HttpEntity<String> request = new HttpEntity<>(requestBody, headers);
 
         return restTemplate.postForObject(url+"/v1/token", request, String.class);
     }
-
-    public static String encode(String input) {
-        return Base64.getEncoder().encodeToString((input).getBytes());
-    }
-
 }
