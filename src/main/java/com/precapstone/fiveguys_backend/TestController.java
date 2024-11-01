@@ -1,6 +1,6 @@
 package com.precapstone.fiveguys_backend;
 
-import com.precapstone.fiveguys_backend.common.ResponseEntity;
+import com.precapstone.fiveguys_backend.common.CommonResponse;
 import com.precapstone.fiveguys_backend.message.auth.PpurioAuth;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -14,8 +14,8 @@ public class TestController {
     private final PpurioAuth ppurioAuth;
 
     @GetMapping("test")
-    public ResponseEntity test() {
+    public CommonResponse test() {
         String result = ppurioAuth.createPost();
-        return ResponseEntity.builder().status(200).message("테스트 성공").data(result).build();
+        return CommonResponse.builder().code(200).message("테스트 성공").data(result).build();
     }
 }
