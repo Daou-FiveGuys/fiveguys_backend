@@ -20,9 +20,12 @@ public class PpurioAuth {
     @Value("${spring.ppurio.auth}")
     String ppurioAuthorization;
 
+    @Value("${spring.ppurio.account}")
+    String ppurioAccount;
+
     public String createPost() {
         HttpHeaders headers = new HttpHeaders();
-        headers.set("Authorization", "Basic"+encode(ppurioAuthorization));
+        headers.set("Authorization", "Basic "+encode(ppurioAccount+" : "+ppurioAuthorization));
 
         String requestBody = "";
         HttpEntity<String> request = new HttpEntity<>(requestBody, headers);
@@ -31,8 +34,7 @@ public class PpurioAuth {
     }
 
     public static String encode(String input) {
-        byte[] encodedBytes = Base64.getEncoder().encode(input.getBytes());
-        return new String(encodedBytes);
+        return Base64.getEncoder().encodeToString((input).getBytes());
     }
 
 }

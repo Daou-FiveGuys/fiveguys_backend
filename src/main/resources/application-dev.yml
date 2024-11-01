@@ -68,6 +68,7 @@ spring:
             user-name-attribute: response
 
   ppurio:
+    account: ${PPURIO_ACCOUNT}
     auth: ${PPURIO_AUTHORIZATION}
 
 #Swagger
