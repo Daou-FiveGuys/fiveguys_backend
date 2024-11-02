@@ -17,7 +17,8 @@ public class PpurioAuth {
     private final RestTemplate restTemplate;
 
     // 뿌리오 API 이용을 위한 고정 주소
-    private String url = "https://message.ppurio.com";
+    @Value("${spring.ppurio.base-url}")
+    private String url;
 
     // 이용할 뿌리오 계정
     @Value("${spring.ppurio.account}")
@@ -28,7 +29,7 @@ public class PpurioAuth {
     private String ppurioAuthorization;
 
     // 엑세스 토큰
-    private static AccessTocken accessTocken;
+    private AccessTocken accessTocken;
 
     /**
      * 테스트를 위한 임시 함수

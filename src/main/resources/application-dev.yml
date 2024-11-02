@@ -68,6 +68,7 @@ spring:
             user-name-attribute: response
 
   ppurio:
+    base-url: https://message.ppurio.com
     account: ${PPURIO_ACCOUNT}
     auth: ${PPURIO_AUTHORIZATION}
 
