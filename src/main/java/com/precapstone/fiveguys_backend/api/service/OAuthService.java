@@ -8,6 +8,7 @@ import com.precapstone.fiveguys_backend.common.CommonResponse;
 import com.precapstone.fiveguys_backend.common.enums.LoginType;
 import com.precapstone.fiveguys_backend.common.enums.UserRole;
 import com.precapstone.fiveguys_backend.entity.Member;
+import kotlin.Pair;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpEntity;
@@ -79,16 +80,17 @@ public class OAuthService {
         String accessToken = getAccessToken(code);
         Member member = getUserInfo(accessToken);
         member = register(member);
-        String jwtToken = usersAuthorization(member);
+        Pair<String, String> tokens = usersAuthorization(member);
         Boolean isMember = checkIsMember(member.getUserId());
 
         return CommonResponse.builder()
                 .code(200)
                 .data(OAuthResponseDTO.builder()
                         .userId(member.getUserId())
-                        .accessToken(jwtToken)
-                        .refreshToken("")
-                        .isMember(isMember))
+                        .accessToken(tokens.component1())
+                        .refreshToken(tokens.component2())
+                        .name(member.getName())
+                        .build())
                 .build();
     }
 
@@ -96,7 +98,7 @@ public class OAuthService {
         return null;
     }
 
-    private String usersAuthorization(Member member) {
+    private Pair<String, String> usersAuthorization(Member member) {
         UserDetails userDetails = customUserDetailService.loadUserByUserId(member.getUserId());
         Authentication authentication = new UsernamePasswordAuthenticationToken(
                 userDetails,
@@ -109,7 +111,7 @@ public class OAuthService {
         String accessToken = jwtTokenProvider.createAccessToken(authentication);
         String refreshToken = jwtTokenProvider.createRefreshToken(authentication);
         redisService.setDataExpire(member.getUserId() + "_refreshToken", refreshToken, 604800);
-        return accessToken;
+        return new Pair<>(accessToken,refreshToken);
     }
 
     private Member register(Member member){
@@ -132,6 +134,8 @@ public class OAuthService {
         try {
             ObjectMapper objectMapper = new ObjectMapper();
             Map<String, Object> attributes = objectMapper.readValue(responseBody, Map.class);
+            if(type == LoginType.NAVER)
+                attributes = (Map<String,Object>) attributes.get("response");
             return Member.builder()
                     .userId(type.getType().toLowerCase()+"_"+attributes.get("id").toString())
                     .userRole(UserRole.USER)
@@ -142,7 +146,6 @@ public class OAuthService {
                     .createdAt(LocalDateTime.now())
                     .updatedAt(LocalDateTime.now())
                     .build();
-
         } catch (Exception e) {
             e.printStackTrace();
         }

@@ -1,21 +1,13 @@
 package com.precapstone.fiveguys_backend.api.dto;
 
 import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+import lombok.Data;
 
-@Getter
+@Data
 @Builder
-@NoArgsConstructor
 public class OAuthResponseDTO {
-    private String userId;
-    private String accessToken;
-    private String refreshToken;
-    private Boolean isMember;
-    public OAuthResponseDTO(String userId, String accessToken, String refreshToken, Boolean isMember) {
-        this.userId = userId;
-        this.accessToken = accessToken;
-        this.refreshToken = refreshToken;
-        this.isMember = isMember;
-    }
+    private final String name;
+    private final String userId;
+    private final String accessToken;
+    private final String refreshToken;
 }
