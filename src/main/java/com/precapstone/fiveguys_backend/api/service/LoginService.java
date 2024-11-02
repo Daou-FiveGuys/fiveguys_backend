@@ -29,7 +29,7 @@ import java.util.Map;
 
 @RequiredArgsConstructor
 @Service
-public class OAuthService {
+public class LoginService {
 
     private final MemberRepository memberRepository;
     private final CustomUserDetailService customUserDetailService;
