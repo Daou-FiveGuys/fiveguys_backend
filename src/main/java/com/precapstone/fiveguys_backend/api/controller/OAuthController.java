@@ -1,9 +1,8 @@
 package com.precapstone.fiveguys_backend.api.controller;
 
-import com.precapstone.fiveguys_backend.api.service.FiveGuysOAuthService;
-import com.precapstone.fiveguys_backend.api.service.GoogleOAuthService;
-import com.precapstone.fiveguys_backend.api.service.NaverOAuthService;
+import com.precapstone.fiveguys_backend.api.service.OAuthService;
 import com.precapstone.fiveguys_backend.common.CommonResponse;
+import com.precapstone.fiveguys_backend.common.enums.LoginType;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
@@ -13,24 +12,17 @@ import org.springframework.web.bind.annotation.RequestParam;
 
 @Controller
 @RequiredArgsConstructor
-@RequestMapping("/api/v1")
+@RequestMapping("/api/v1/oauth")
 public class OAuthController {
-    private final NaverOAuthService naverOAuthService;
-    private final GoogleOAuthService googleOAuthService;
-    private final FiveGuysOAuthService fiveGuysOAuthService;
+    private final OAuthService OAuthService;
 
     @GetMapping("/naver")
     public ResponseEntity<CommonResponse> naverLogin(@RequestParam String code, @RequestParam String state) {
-        return ResponseEntity.ok(CommonResponse.builder().build());
+        return ResponseEntity.ok(OAuthService.signIn(code, LoginType.NAVER));
     }
 
     @GetMapping("/google")
     public ResponseEntity<CommonResponse> googleLogin(@RequestParam String code) {
-        return ResponseEntity.ok(CommonResponse.builder().build());
-    }
-
-    @GetMapping("/fiveguys")
-    public ResponseEntity<CommonResponse> fiveguysLogin(@RequestParam String code) {
-        return ResponseEntity.ok(CommonResponse.builder().build());
+        return ResponseEntity.ok(OAuthService.signIn(code, LoginType.GOOGLE));
     }
 }
