@@ -2,13 +2,14 @@ package com.precapstone.fiveguys_backend.api.service;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.precapstone.fiveguys_backend.api.dto.LoginInfoDTO;
 import com.precapstone.fiveguys_backend.api.dto.OAuthResponseDTO;
 import com.precapstone.fiveguys_backend.api.repository.MemberRepository;
 import com.precapstone.fiveguys_backend.common.CommonResponse;
+import com.precapstone.fiveguys_backend.common.ResponseMessage;
 import com.precapstone.fiveguys_backend.common.enums.LoginType;
 import com.precapstone.fiveguys_backend.common.enums.UserRole;
 import com.precapstone.fiveguys_backend.entity.Member;
-import kotlin.Pair;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpEntity;
@@ -19,22 +20,26 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.client.RestTemplate;
 
 import java.time.LocalDateTime;
+import java.util.HashMap;
 import java.util.Map;
+import java.util.Optional;
 
 @RequiredArgsConstructor
 @Service
-public class LoginService {
+public class OAuthService {
 
     private final MemberRepository memberRepository;
     private final CustomUserDetailService customUserDetailService;
     private final JwtTokenProvider jwtTokenProvider;
     private final RedisService redisService;
+    private final BCryptPasswordEncoder passwordEncoder;
 
     @Value("${spring.security.oauth2.client.registration.naver.client-id}")
     private String naverClientId;
@@ -57,7 +62,53 @@ public class LoginService {
     private String tokenUri;
     private String userInfoRequestUri;
 
+    /**
+     * fiveguys OAuth
+     * @param loginInfoDTO email, password
+     * @return CommonResponse
+     */
+    public CommonResponse signIn(LoginInfoDTO loginInfoDTO){
+        Optional<Member> optionalMember = memberRepository.findByUserId("fiveguys_" + loginInfoDTO.getEmail());
+        if(optionalMember.isPresent()) {
+            Member member = optionalMember.get();
+            if (passwordEncoder.matches(loginInfoDTO.getPassword(), member.getPassword())) {
+                String responseMessage = null;
+                if (member.getEmailVerified())
+                    responseMessage = ResponseMessage.SUCCESS;
+                else
+                    responseMessage = ResponseMessage.EMAIL_VERIFICAITION_REQUIRED;
+                Map<String, String> tokens = usersAuthorization(member);
+                return CommonResponse.builder()
+                        .code(200)
+                        .message(responseMessage)
+                        .data(OAuthResponseDTO.builder()
+                                .name(member.getName())
+                                .userId(member.getUserId())
+                                .accessToken(tokens.get("access_token"))
+                                .refreshToken(tokens.get("refresh_token"))
+                                .isVerified(member.getEmailVerified())
+                                .build()
+                        )
+                        .build();
+            } else {
+                return CommonResponse.builder()
+                        .code(401)
+                        .message("Invalid email or password")
+                        .build();
+            }
+        }
+        return CommonResponse.builder()
+                .code(401)
+                .message("Member not found")
+                .build();
+    }
 
+    /**
+     * Naver, Google OAuth SignIn
+     * @param code Access Code
+     * @param type naver, google...
+     * @return CommonResponse
+     */
     public CommonResponse signIn(String code, LoginType type){
         this.type = type;
         switch (type){
@@ -80,25 +131,37 @@ public class LoginService {
         String accessToken = getAccessToken(code);
         Member member = getUserInfo(accessToken);
         member = register(member);
-        Pair<String, String> tokens = usersAuthorization(member);
-        Boolean isMember = checkIsMember(member.getUserId());
+        Map<String,String> tokens = usersAuthorization(member);
 
         return CommonResponse.builder()
                 .code(200)
                 .data(OAuthResponseDTO.builder()
-                        .userId(member.getUserId())
-                        .accessToken(tokens.component1())
-                        .refreshToken(tokens.component2())
                         .name(member.getName())
+                        .userId(member.getUserId())
+                        .accessToken(tokens.get("access_token"))
+                        .refreshToken(tokens.get("refresh_token"))
+                        .isVerified(true)
                         .build())
                 .build();
     }
 
-    private Boolean checkIsMember(String userId){
-        return null;
+    public CommonResponse logout(String userId) {
+        try{
+            redisService.delete(userId + ":refreshToken");
+            return CommonResponse.builder()
+                    .code(200)
+                    .message("logged out successfully")
+                    .build();
+        } catch (Exception e) {
+            e.printStackTrace();
+            return CommonResponse.builder()
+                    .code(401)
+                    .message("logged out failed")
+                    .build();
+        }
     }
 
-    private Pair<String, String> usersAuthorization(Member member) {
+    private Map<String, String> usersAuthorization(Member member) {
         UserDetails userDetails = customUserDetailService.loadUserByUserId(member.getUserId());
         Authentication authentication = new UsernamePasswordAuthenticationToken(
                 userDetails,
@@ -111,7 +174,11 @@ public class LoginService {
         String accessToken = jwtTokenProvider.createAccessToken(authentication);
         String refreshToken = jwtTokenProvider.createRefreshToken(authentication);
         redisService.setDataExpire(member.getUserId() + "_refreshToken", refreshToken, 604800);
-        return new Pair<>(accessToken,refreshToken);
+
+        Map<String, String> tokens = new HashMap<>();
+        tokens.put("access_token", accessToken);
+        tokens.put("refresh_token", refreshToken);
+        return tokens;
     }
 
     private Member register(Member member){
@@ -149,7 +216,7 @@ public class LoginService {
         } catch (Exception e) {
             e.printStackTrace();
         }
-        return new Member();
+        throw new RuntimeException("Invalid access token");
     }
 
     public String getAccessToken(String code) {
@@ -175,7 +242,4 @@ public class LoginService {
         }
     }
 
-    public void logout(String userId) {
-        redisService.delete(userId + ":refreshToken");
-    }
 }
