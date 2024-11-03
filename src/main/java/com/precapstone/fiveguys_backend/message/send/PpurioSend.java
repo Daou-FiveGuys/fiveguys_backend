@@ -46,13 +46,13 @@ public class PpurioSend {
         System.out.println("RefKey: "+messageResponse.getRefKey());
     }
 
-    private Map<String, Object> createSendTestParams(String fromNumber, String toNumber, String filePath) throws IOException {;
+    private Map<String, Object> createSendTestParams(String fromNumber, String toNumber, String filePath) throws IOException {
         String name = "TestName";
         String var1 = "var1 항목 내용입니다.";
 
         HashMap<String, Object> params = new HashMap<>();
         params.put("account", ppurioAccount);
-        params.put("messageType", "MMS");
+        params.put("messageType", "LMS");
         params.put("from", fromNumber);
         params.put("content", "[*이름*], hello this is [*1*]");
         params.put("duplicateFlag", "Y");
@@ -64,9 +64,9 @@ public class PpurioSend {
                         "changeWord", Map.of(
                                 "var1", var1)))
         );
-        params.put("files", List.of(
-                createFileTestParams(filePath)
-        ));
+//        params.put("files", List.of(
+//                createFileTestParams(filePath)
+//        ));
         params.put("refKey", RandomStringUtils.random(32, true, true)); // refKey 생성, 32자 이내로 아무 값이든 상관 없음
 
         return params;
