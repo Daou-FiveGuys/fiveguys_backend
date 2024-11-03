@@ -1,8 +1,9 @@
-package com.precapstone.fiveguys_backend;
+package com.precapstone.fiveguys_backend.message;
 
+import com.precapstone.fiveguys_backend.message.send.PpurioSendParam;
 import com.precapstone.fiveguys_backend.common.CommonResponse;
 import com.precapstone.fiveguys_backend.message.auth.PpurioAuth;
-import com.precapstone.fiveguys_backend.message.send.PpurioSend;
+import com.precapstone.fiveguys_backend.message.send.PpurioSendService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -12,21 +13,22 @@ import org.springframework.web.bind.annotation.RestController;
 import java.io.IOException;
 
 @RestController
-@RequestMapping("/api/v1/test/")
+@RequestMapping("/api/v1/ppurio/")
 @RequiredArgsConstructor
-public class TestController {
+public class PpurioSendController {
     private final PpurioAuth ppurioAuth;
-    private final PpurioSend ppurioSend;
+    private final PpurioSendService ppurioSendService;
 
-    @PostMapping("test/auth")
+    @PostMapping("auth")
     public CommonResponse test() {
         String result = ppurioAuth.createPost();
         return CommonResponse.builder().code(200).message("테스트 성공").data(result).build();
     }
 
-    @PostMapping("test/mms")
-    public CommonResponse send(@RequestBody SendParam sendParam) throws IOException {
-        ppurioSend.sendMessage(sendParam.fromNumber, sendParam.getToNumber() , "./test.jpg");
+    @PostMapping("send")
+    public CommonResponse send(@RequestBody PpurioSendParam ppurioSendParam) throws IOException {
+        System.out.println(ppurioSendParam.getTargets().get(0).get());
+        ppurioSendService.sendMessage(ppurioSendParam);
         return CommonResponse.builder().code(200).message("테스트 성공").build();
     }
 }
