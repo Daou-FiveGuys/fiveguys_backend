@@ -39,11 +39,7 @@ public class PpurioSend {
 
         HttpEntity<Map> request = new HttpEntity<>(requestBody, headers);
 
-        MessageResponse messageResponse = restTemplate.postForObject(url+"/v1/message", request, MessageResponse.class);
-        System.out.println("Code: "+messageResponse.getCode());
-        System.out.println("Description: "+messageResponse.getDescription());
-        System.out.println("MessageKey: "+messageResponse.getMessageKey());
-        System.out.println("RefKey: "+messageResponse.getRefKey());
+        restTemplate.postForObject(url+"/v1/message", request, MessageResponse.class);
     }
 
     private Map<String, Object> createSendTestParams(String fromNumber, String toNumber, String filePath) throws IOException {
