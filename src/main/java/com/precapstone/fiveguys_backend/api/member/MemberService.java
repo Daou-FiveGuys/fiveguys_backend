@@ -1,7 +1,6 @@
-package com.precapstone.fiveguys_backend.api.service;
+package com.precapstone.fiveguys_backend.api.member;
 
 import com.precapstone.fiveguys_backend.api.dto.MemberParam;
-import com.precapstone.fiveguys_backend.api.repository.MemberRepository;
 import com.precapstone.fiveguys_backend.common.PasswordValidator;
 import com.precapstone.fiveguys_backend.common.auth.OAuth2UserInfo;
 import com.precapstone.fiveguys_backend.common.CommonResponse;

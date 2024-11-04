@@ -1,4 +1,4 @@
-package com.precapstone.fiveguys_backend.api.controller;
+package com.precapstone.fiveguys_backend.api;
 
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpSession;

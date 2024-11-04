@@ -1,6 +1,6 @@
 package com.precapstone.fiveguys_backend.common.auth;
 
-import com.precapstone.fiveguys_backend.api.service.JwtTokenProvider;
+import com.precapstone.fiveguys_backend.api.auth.JwtTokenProvider;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;

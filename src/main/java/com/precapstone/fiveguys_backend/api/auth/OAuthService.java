@@ -1,12 +1,14 @@
-package com.precapstone.fiveguys_backend.api.service;
+package com.precapstone.fiveguys_backend.api.auth;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.precapstone.fiveguys_backend.api.dto.LoginInfoDTO;
 import com.precapstone.fiveguys_backend.api.dto.OAuthResponseDTO;
-import com.precapstone.fiveguys_backend.api.repository.MemberRepository;
+import com.precapstone.fiveguys_backend.api.member.MemberRepository;
+import com.precapstone.fiveguys_backend.api.redis.RedisService;
 import com.precapstone.fiveguys_backend.common.CommonResponse;
 import com.precapstone.fiveguys_backend.common.ResponseMessage;
+import com.precapstone.fiveguys_backend.common.auth.CustomUserDetails;
 import com.precapstone.fiveguys_backend.common.enums.LoginType;
 import com.precapstone.fiveguys_backend.common.enums.UserRole;
 import com.precapstone.fiveguys_backend.entity.Member;
@@ -242,4 +244,24 @@ public class OAuthService {
         }
     }
 
+    public CommonResponse isVerified(String accessToken) {
+        if(!jwtTokenProvider.validateToken(accessToken)){
+            return CommonResponse.builder()
+                    .data(401)
+                    .message("Invalid access token")
+                    .build();
+        }
+        CustomUserDetails userDetails = (CustomUserDetails) jwtTokenProvider.getAuthentication(accessToken).getPrincipal();
+        if(!userDetails.getMember().getEmailVerified()){
+            return CommonResponse.builder()
+                    .data(400)
+                    .message("Not verified")
+                    .build();
+        } else {
+            return CommonResponse.builder()
+                    .data(200)
+                    .message("Verified")
+                    .build();
+        }
+    }
 }

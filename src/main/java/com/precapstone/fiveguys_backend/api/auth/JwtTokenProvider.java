@@ -1,4 +1,4 @@
-package com.precapstone.fiveguys_backend.api.service;
+package com.precapstone.fiveguys_backend.api.auth;
 
 import com.precapstone.fiveguys_backend.common.auth.CustomUserDetails;
 import io.jsonwebtoken.Claims;

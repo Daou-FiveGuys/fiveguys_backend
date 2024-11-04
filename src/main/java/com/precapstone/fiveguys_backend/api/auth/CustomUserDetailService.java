@@ -1,6 +1,6 @@
-package com.precapstone.fiveguys_backend.api.service;
+package com.precapstone.fiveguys_backend.api.auth;
 
-import com.precapstone.fiveguys_backend.api.repository.MemberRepository;
+import com.precapstone.fiveguys_backend.api.member.MemberRepository;
 import com.precapstone.fiveguys_backend.common.auth.CustomUserDetails;
 import com.precapstone.fiveguys_backend.entity.Member;
 import lombok.RequiredArgsConstructor;

@@ -1,8 +1,8 @@
-package com.precapstone.fiveguys_backend.api.controller;
+package com.precapstone.fiveguys_backend.api.auth;
 
 import com.precapstone.fiveguys_backend.api.dto.LoginInfoDTO;
-import com.precapstone.fiveguys_backend.api.service.OAuthService;
 import com.precapstone.fiveguys_backend.common.CommonResponse;
+import com.precapstone.fiveguys_backend.common.auth.JwtFilter;
 import com.precapstone.fiveguys_backend.common.enums.LoginType;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -14,6 +14,12 @@ import org.springframework.web.bind.annotation.*;
 @RequestMapping("/api/v1/oauth")
 public class LoginController {
     private final OAuthService OAuthService;
+
+    @GetMapping("/isVerified")
+    public ResponseEntity<CommonResponse> isVerified(@RequestHeader("Authorization") String authorization) {
+        String accessToken = authorization.replace(JwtFilter.TOKEN_PREFIX, "");
+        return ResponseEntity.ok(OAuthService.isVerified(accessToken));
+    }
 
     @GetMapping("/naver")
     public ResponseEntity<CommonResponse> naverLogin(@RequestParam String code, @RequestParam String state) {

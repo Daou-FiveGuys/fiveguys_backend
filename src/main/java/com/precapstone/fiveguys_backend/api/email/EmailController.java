@@ -1,8 +1,7 @@
-package com.precapstone.fiveguys_backend.api.controller;
+package com.precapstone.fiveguys_backend.api.email;
 
 import com.precapstone.fiveguys_backend.api.dto.EmailParam;
 import com.precapstone.fiveguys_backend.api.dto.EmailVerificationParam;
-import com.precapstone.fiveguys_backend.api.service.MailService;
 import com.precapstone.fiveguys_backend.common.CommonResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.mail.MessagingException;

@@ -1,7 +1,6 @@
-package com.precapstone.fiveguys_backend.api.controller;
+package com.precapstone.fiveguys_backend.api.member;
 
 import com.precapstone.fiveguys_backend.api.dto.MemberParam;
-import com.precapstone.fiveguys_backend.api.service.MemberService;
 import com.precapstone.fiveguys_backend.common.CommonResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;

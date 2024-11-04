@@ -1,4 +1,4 @@
-package com.precapstone.fiveguys_backend.api.repository;
+package com.precapstone.fiveguys_backend.api.member;
 
 import com.precapstone.fiveguys_backend.entity.Member;
 import org.springframework.data.jpa.repository.JpaRepository;

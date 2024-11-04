@@ -1,6 +1,6 @@
-package com.precapstone.fiveguys_backend.api.service;
+package com.precapstone.fiveguys_backend.api.auth;
 
-import com.precapstone.fiveguys_backend.common.CommonResponse;
+import com.precapstone.fiveguys_backend.api.member.MemberService;
 import com.precapstone.fiveguys_backend.common.auth.GoogleUserInfo;
 import com.precapstone.fiveguys_backend.common.auth.NaverUserInfo;
 import com.precapstone.fiveguys_backend.common.auth.OAuth2UserInfo;

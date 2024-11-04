@@ -1,8 +1,8 @@
 package com.precapstone.fiveguys_backend.common.config;
 
-import com.precapstone.fiveguys_backend.api.service.CustomUserDetailService;
-import com.precapstone.fiveguys_backend.api.service.JwtTokenProvider;
-import com.precapstone.fiveguys_backend.api.service.PrincipalOauth2UserService;
+import com.precapstone.fiveguys_backend.api.auth.CustomUserDetailService;
+import com.precapstone.fiveguys_backend.api.auth.JwtTokenProvider;
+import com.precapstone.fiveguys_backend.api.auth.PrincipalOauth2UserService;
 import com.precapstone.fiveguys_backend.common.auth.CustomUserDetails;
 import com.precapstone.fiveguys_backend.common.auth.JwtFilter;
 import com.precapstone.fiveguys_backend.common.enums.UserRole;

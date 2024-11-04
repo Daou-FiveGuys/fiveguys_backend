@@ -1,5 +1,6 @@
-package com.precapstone.fiveguys_backend.api.service;
+package com.precapstone.fiveguys_backend.api.email;
 
+import com.precapstone.fiveguys_backend.api.redis.RedisService;
 import com.precapstone.fiveguys_backend.common.CommonResponse;
 import jakarta.mail.MessagingException;
 import jakarta.mail.internet.MimeMessage;
