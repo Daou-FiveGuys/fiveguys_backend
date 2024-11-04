@@ -7,7 +7,6 @@ import lombok.Setter;
 @Data
 @Getter
 @Setter
-public class EmailVerificationParam {
+public class EmailDTO {
     private String email;
-    private String code;
 }

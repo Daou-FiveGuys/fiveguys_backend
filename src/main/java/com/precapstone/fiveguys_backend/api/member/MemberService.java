@@ -1,6 +1,6 @@
 package com.precapstone.fiveguys_backend.api.member;
 
-import com.precapstone.fiveguys_backend.api.dto.MemberParam;
+import com.precapstone.fiveguys_backend.api.dto.MemberDTO;
 import com.precapstone.fiveguys_backend.common.PasswordValidator;
 import com.precapstone.fiveguys_backend.common.auth.OAuth2UserInfo;
 import com.precapstone.fiveguys_backend.common.CommonResponse;
@@ -72,13 +72,13 @@ public class MemberService {
 
     /**
      * FiveGuys 일반 회원가입
-     * @param memberParam
+     * @param memberDTO
      *
      * @return CommonResponse 회원가입 여부
      */
     @Transactional
-    public CommonResponse register(MemberParam memberParam) {
-        String result = checkPasswordValidation(memberParam.getPassword(), memberParam.getConfirmPassword());
+    public CommonResponse register(MemberDTO memberDTO) {
+        String result = checkPasswordValidation(memberDTO.getPassword(), memberDTO.getConfirmPassword());
         if(result != null){
             return CommonResponse.builder()
                         .code(400)
@@ -86,8 +86,8 @@ public class MemberService {
                         .build();
         }
 
-        String encodedPassword = passwordEncoder.encode(memberParam.getPassword());
-        String userId = "fiveguys_" + memberParam.getEmail();
+        String encodedPassword = passwordEncoder.encode(memberDTO.getPassword());
+        String userId = "fiveguys_" + memberDTO.getEmail();
 
         /**
          * 가입 여부 확인
@@ -106,11 +106,11 @@ public class MemberService {
          * 신규 회원
          */
         Member newMember = Member.builder()
-                .email(memberParam.getEmail())
+                .email(memberDTO.getEmail())
                 .emailVerified(false)
                 .password(encodedPassword)
                 .provider("fiveguys")
-                .name(memberParam.getName())
+                .name(memberDTO.getName())
                 .userRole(UserRole.VISITOR)
                 .createdAt(now)
                 .updatedAt(now)

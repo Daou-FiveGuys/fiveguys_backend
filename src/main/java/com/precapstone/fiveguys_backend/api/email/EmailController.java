@@ -1,7 +1,7 @@
 package com.precapstone.fiveguys_backend.api.email;
 
-import com.precapstone.fiveguys_backend.api.dto.EmailParam;
-import com.precapstone.fiveguys_backend.api.dto.EmailVerificationParam;
+import com.precapstone.fiveguys_backend.api.dto.EmailDTO;
+import com.precapstone.fiveguys_backend.api.dto.EmailVerificationDTO;
 import com.precapstone.fiveguys_backend.common.CommonResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.mail.MessagingException;
@@ -25,14 +25,14 @@ public class EmailController {
     /**
      * 이메일 전송 컨트롤러
      *
-     * @param emailParam 수취자 이메일
+     * @param emailDTO 수취자 이메일
      * @return ResponseEntity<CommonResponse> 메일 전송 성공 여부
      * @throws MessagingException
      */
     @PostMapping("/send")
-    public ResponseEntity<CommonResponse> mailSend(@RequestBody EmailParam emailParam) throws MessagingException {
+    public ResponseEntity<CommonResponse> mailSend(@RequestBody EmailDTO emailDTO) throws MessagingException {
         try {
-            String email = emailParam.getEmail();
+            String email = emailDTO.getEmail();
             return ResponseEntity.ok(mailService.sendVerificationEmail(email));
         } catch (RuntimeException runtimeException) {
             return ResponseEntity.ok(CommonResponse.builder()
@@ -43,15 +43,15 @@ public class EmailController {
     }
 
     /**
-     * @param emailVerificationParam 이메일, 인증코드 클래스
+     * @param emailVerificationDTO 이메일, 인증코드 클래스
      * @return ResponseEntity<CommonResponse> 인증 성공 여부
      */
     //TODO redirect -> client 단에서 수행
     @PostMapping("/verify")
-    public ResponseEntity<CommonResponse> verify(@RequestBody EmailVerificationParam emailVerificationParam){
+    public ResponseEntity<CommonResponse> verify(@RequestBody EmailVerificationDTO emailVerificationDTO){
         try {
-            String email = emailVerificationParam.getEmail();
-            String code = emailVerificationParam.getCode();
+            String email = emailVerificationDTO.getEmail();
+            String code = emailVerificationDTO.getCode();
             return ResponseEntity.ok(mailService.verifyCode(email,code));
         } catch (RuntimeException runtimeException) {
             return ResponseEntity.ok(CommonResponse.builder()
