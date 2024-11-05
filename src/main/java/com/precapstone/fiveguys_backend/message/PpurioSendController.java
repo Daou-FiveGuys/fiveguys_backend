@@ -19,12 +19,15 @@ public class PpurioSendController {
     private final PpurioAuth ppurioAuth;
     private final PpurioSendService ppurioSendService;
 
-    @PostMapping("auth")
-    public CommonResponse test() {
-        String result = ppurioAuth.createPost();
-        return CommonResponse.builder().code(200).message("테스트 성공").data(result).build();
-    }
-
+    /**
+     * 이미지를 전송하는 서비스
+     * 
+     * @param ppurioSendParam 서비스를 이용하기 위한 정보가 담겨있는 객체
+     *
+     * @return 응답 정보 전달 200(성공)
+     *
+     * @throws IOException
+     */
     @PostMapping("send")
     public CommonResponse send(@RequestBody PpurioSendParam ppurioSendParam) throws IOException {
         System.out.println(ppurioSendParam.getTargets().get(0).get());
