@@ -15,4 +15,16 @@ public class SMS extends MessageType {
 
         params.put("messageType", "SMS");
     }
+
+    /**
+     * 각 형식에 대한 에러처리 (잘못된 형식의 요청인지 판단한다.)
+     *
+     * @return
+     */
+    public boolean errorCheck() {
+        super.errorCheck();
+
+        //TODO()
+        return true;
+    }
 }
