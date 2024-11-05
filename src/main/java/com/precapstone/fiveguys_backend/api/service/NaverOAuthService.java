@@ -11,7 +11,7 @@ public class NaverOAuthService {
     @Value("${naver.client.secret}")
     private String clientSecret;
 
-    @Value("${naver.redirect.uri}")
+    @Value("${spring.security.oauth2.client.registration.naver.redirect_uri}")
     private String redirectUri;
 
     public String getAccessToken(String code) {
