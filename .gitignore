@@ -44,3 +44,5 @@ out/
 /src/main/resources/static
 ### json
 service-account.json
+
+.env
