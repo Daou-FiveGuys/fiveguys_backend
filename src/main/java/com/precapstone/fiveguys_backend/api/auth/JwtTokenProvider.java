@@ -1,6 +1,8 @@
 package com.precapstone.fiveguys_backend.api.auth;
 
+import com.precapstone.fiveguys_backend.api.member.MemberRepository;
 import com.precapstone.fiveguys_backend.common.auth.CustomUserDetails;
+import com.precapstone.fiveguys_backend.entity.Member;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
@@ -13,14 +15,12 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 
-import java.util.Base64;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 
 @RequiredArgsConstructor
 @Service
 public class JwtTokenProvider {
+    private final MemberRepository memberRepository;
     @Value("${jwt.secret.key}")
     private String secretKey;
     @Value("${jwt.secret.access_token_validity}") // 30분
@@ -40,11 +40,12 @@ public class JwtTokenProvider {
         CustomUserDetails userDetails = (CustomUserDetails) authentication.getPrincipal();
         String userId = userDetails.getMember().getUserId();
         claims.put("auth", authentication.getAuthorities());
+        //TODO 토큰 유효기간 설정 오류
         return Jwts.builder()
                 .setClaims(claims)
                 .setSubject(userId)
                 .setIssuedAt(new Date())
-                .setExpiration(new Date(System.currentTimeMillis() + accessTokenValidityInMilliseconds))
+                .setExpiration(new Date(System.currentTimeMillis() + 30 * 60 * 1000000))
                 .signWith(SignatureAlgorithm.HS512, secretKey)
                 .compact();
     }
@@ -65,6 +66,7 @@ public class JwtTokenProvider {
             Jwts.parser().setSigningKey(secretKey).parseClaimsJws(token);
             return true;
         } catch (Exception e) {
+            e.printStackTrace();
             return false;
         }
     }
@@ -87,5 +89,24 @@ public class JwtTokenProvider {
     public Authentication getAuthentication(String token) {
         UserDetails userDetails = customUserDetailService.loadUserByUserId(getUserPk(token));
         return new UsernamePasswordAuthenticationToken(userDetails, "", userDetails.getAuthorities());
+    }
+
+    public Authentication getAuthenticationByAccesstoken(String accessToken) {
+        String userId = (String) getClaimsFromToken(accessToken).get("sub");
+        UserDetails userDetails = customUserDetailService.loadUserByUserId(userId);
+        return new UsernamePasswordAuthenticationToken(
+                userDetails,
+                "",
+                userDetails.getAuthorities()
+        );
+    }
+
+    public String getEmailFromToken(String token) {
+        String userId = getClaimsFromToken(token).getSubject();
+        Optional<Member> optionalMember = memberRepository.findByUserId(userId);
+        return optionalMember.map(Member::getEmail).orElse(null);
+    }
+    public String getUserIdFromToken(String token) {
+        return getClaimsFromToken(token).getSubject();
     }
 }
