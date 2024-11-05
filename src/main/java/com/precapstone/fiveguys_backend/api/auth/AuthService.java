@@ -33,11 +33,6 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
 
-
-/**
-    TODO 서버에서 refresh_token 검사 -> 없거나 만료 -> 재발급
-    로그인 시에는 무조건 재발급 있으면 삭제 -> why? 로그아웃 할 때 삭제해야하기 때문에
- */
 @RequiredArgsConstructor
 @Service
 public class AuthService {
@@ -80,7 +75,7 @@ public class AuthService {
             Member member = optionalMember.get();
             if (passwordEncoder.matches(loginInfoDTO.getPassword(), member.getPassword())) {
                 String responseMessage = null;
-                if (member.getEmailVerified())
+                if (member.getUserRole() == UserRole.USER)
                     responseMessage = ResponseMessage.SUCCESS;
                 else
                     responseMessage = ResponseMessage.EMAIL_VERIFICAITION_REQUIRED;
@@ -144,8 +139,9 @@ public class AuthService {
                 .build();
     }
 
-    public CommonResponse logout(String userId) {
+    public CommonResponse logout(String accessToken) {
         try{
+            String userId = (String) jwtTokenProvider.getClaimsFromToken(accessToken).get("sub");
             redisService.delete(userId + ":refreshToken");
             return CommonResponse.builder()
                     .code(200)
@@ -223,7 +219,6 @@ public class AuthService {
                     .name(attributes.get("name").toString())
                     .email(attributes.get("email").toString())
                     .provider(type.getType().toLowerCase())
-                    .emailVerified(true)
                     .createdAt(LocalDateTime.now())
                     .updatedAt(LocalDateTime.now())
                     .build();
@@ -274,7 +269,7 @@ public class AuthService {
                     .build();
         }
         CustomUserDetails userDetails = (CustomUserDetails) jwtTokenProvider.getAuthentication(accessToken).getPrincipal();
-        if(!userDetails.getMember().getEmailVerified()){
+        if(userDetails.getMember().getUserRole() != UserRole.USER){
             return CommonResponse.builder()
                     .data(400)
                     .message("Not verified")
