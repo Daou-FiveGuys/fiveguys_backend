@@ -6,38 +6,43 @@ import com.precapstone.fiveguys_backend.common.auth.JwtFilter;
 import com.precapstone.fiveguys_backend.common.enums.LoginType;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
-import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
-@Controller
+@RestController
 @RequiredArgsConstructor
 @RequestMapping("/api/v1/oauth")
-public class LoginController {
-    private final OAuthService OAuthService;
+public class AuthController {
+    private final AuthService authService;
 
     @GetMapping("/isVerified")
     public ResponseEntity<CommonResponse> isVerified(@RequestHeader("Authorization") String authorization) {
         String accessToken = authorization.replace(JwtFilter.TOKEN_PREFIX, "");
-        return ResponseEntity.ok(OAuthService.isVerified(accessToken));
+        return ResponseEntity.ok(authService.isVerified(accessToken));
+    }
+
+    @PostMapping("/refresh-token")
+    public ResponseEntity<CommonResponse> refreshToken(@RequestHeader("Authorization") String authorization) {
+        String accessToken = authorization.replace(JwtFilter.TOKEN_PREFIX, "");
+        return ResponseEntity.ok(authService.refreshAccessToken(accessToken));
     }
 
     @GetMapping("/naver")
     public ResponseEntity<CommonResponse> naverLogin(@RequestParam String code, @RequestParam String state) {
-        return ResponseEntity.ok(OAuthService.signIn(code, LoginType.NAVER));
+        return ResponseEntity.ok(authService.signIn(code, LoginType.NAVER));
     }
 
     @GetMapping("/google")
     public ResponseEntity<CommonResponse> googleLogin(@RequestParam String code) {
-        return ResponseEntity.ok(OAuthService.signIn(code, LoginType.GOOGLE));
+        return ResponseEntity.ok(authService.signIn(code, LoginType.GOOGLE));
     }
 
     @GetMapping("/logout")
     public ResponseEntity<CommonResponse> logout(@RequestParam String userId) {
-        return ResponseEntity.ok(OAuthService.logout(userId));
+        return ResponseEntity.ok(authService.logout(userId));
     }
 
     @PostMapping
     public ResponseEntity<CommonResponse> fiveguyLogin(@RequestBody LoginInfoDTO loginInfoDTO) {
-        return ResponseEntity.ok(OAuthService.signIn(loginInfoDTO));
+        return ResponseEntity.ok(authService.signIn(loginInfoDTO));
     }
 }

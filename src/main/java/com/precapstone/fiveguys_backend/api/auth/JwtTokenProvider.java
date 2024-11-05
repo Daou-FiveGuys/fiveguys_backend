@@ -24,9 +24,9 @@ public class JwtTokenProvider {
     @Value("${jwt.secret.key}")
     private String secretKey;
     @Value("${jwt.secret.access_token_validity}") // 30분
-    private long accessTokenValidityInMilliseconds;
+    static public long accessTokenValidityInMilliseconds;
     @Value("${jwt.secret.refresh_token_validity}") // 7일
-    private long refreshTokenValidityInMilliseconds;
+    static public long refreshTokenValidityInMilliseconds;
 
     private final CustomUserDetailService customUserDetailService;
 
@@ -50,7 +50,6 @@ public class JwtTokenProvider {
     }
 
     public String createRefreshToken(Authentication authentication) {
-
         CustomUserDetails userDetails = (CustomUserDetails) authentication.getPrincipal();
         String userId = userDetails.getMember().getUserId();
         return Jwts.builder()

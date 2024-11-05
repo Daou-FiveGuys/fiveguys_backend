@@ -18,7 +18,7 @@ public class WebConfig {
                         .allowedMethods("GET", "POST", "PUT", "DELETE")
                         .allowCredentials(true);
 
-                registry.addMapping("/v3/api-docs/**")
+                registry.addMapping("/api-docs/**")
                         .allowedOrigins("*")
                         .allowedMethods("GET", "POST", "PUT", "DELETE", "OPTIONS");
             }

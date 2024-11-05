@@ -33,9 +33,14 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
 
+
+/**
+    TODO 서버에서 refresh_token 검사 -> 없거나 만료 -> 재발급
+    로그인 시에는 무조건 재발급 있으면 삭제 -> why? 로그아웃 할 때 삭제해야하기 때문에
+ */
 @RequiredArgsConstructor
 @Service
-public class OAuthService {
+public class AuthService {
 
     private final MemberRepository memberRepository;
     private final CustomUserDetailService customUserDetailService;
@@ -65,8 +70,8 @@ public class OAuthService {
     private String userInfoRequestUri;
 
     /**
-     * fiveguys OAuth
-     * @param loginInfoDTO email, password
+     * 일반 로그인
+     * @param loginInfoDTO 이메일, 비밀번호
      * @return CommonResponse
      */
     public CommonResponse signIn(LoginInfoDTO loginInfoDTO){
@@ -84,11 +89,7 @@ public class OAuthService {
                         .code(200)
                         .message(responseMessage)
                         .data(OAuthResponseDTO.builder()
-                                .name(member.getName())
-                                .userId(member.getUserId())
                                 .accessToken(tokens.get("access_token"))
-                                .refreshToken(tokens.get("refresh_token"))
-                                .isVerified(member.getEmailVerified())
                                 .build()
                         )
                         .build();
@@ -106,9 +107,9 @@ public class OAuthService {
     }
 
     /**
-     * Naver, Google OAuth SignIn
-     * @param code Access Code
-     * @param type naver, google...
+     * 소셜 연동 로그인
+     * @param code 소셜 로그인 코드
+     * @param type 네이버, 구글...
      * @return CommonResponse
      */
     public CommonResponse signIn(String code, LoginType type){
@@ -138,11 +139,7 @@ public class OAuthService {
         return CommonResponse.builder()
                 .code(200)
                 .data(OAuthResponseDTO.builder()
-                        .name(member.getName())
-                        .userId(member.getUserId())
                         .accessToken(tokens.get("access_token"))
-                        .refreshToken(tokens.get("refresh_token"))
-                        .isVerified(true)
                         .build())
                 .build();
     }
@@ -163,6 +160,11 @@ public class OAuthService {
         }
     }
 
+    /**
+     * access, refresh 토큰 발급
+     * @param member
+     * @return {"access_token", "refresh_token"}
+     */
     private Map<String, String> usersAuthorization(Member member) {
         UserDetails userDetails = customUserDetailService.loadUserByUserId(member.getUserId());
         Authentication authentication = new UsernamePasswordAuthenticationToken(
@@ -183,11 +185,21 @@ public class OAuthService {
         return tokens;
     }
 
+    /**
+     * 소셜 회원가입 처리
+     * @param member 소셜에서 받은 회원 정보
+     * @return 회원가입 된 회원 정보
+     */
     private Member register(Member member){
         return memberRepository.findByUserId(member.getUserId())
                 .orElseGet(() -> memberRepository.save(member));
     }
 
+    /**
+     * 액세스 토큰으로 회원 정보 조회
+     * @param accessToken 액세스 토큰
+     * @return 회원 정보
+     */
     private Member getUserInfo(String accessToken){
         HttpHeaders headers = new HttpHeaders();
         headers.add("Authorization", "Bearer " + accessToken);
@@ -221,6 +233,11 @@ public class OAuthService {
         throw new RuntimeException("Invalid access token");
     }
 
+    /**
+     * 소셜 로그인 시 액세스 토큰 발급
+     * @param code 소셜 로그인 코드
+     * @return 소셜 액세스 토큰
+     */
     public String getAccessToken(String code) {
         HttpHeaders headers = new HttpHeaders();
         headers.add("Content-type", "application/x-www-form-urlencoded;charset=utf-8");
@@ -244,6 +261,11 @@ public class OAuthService {
         }
     }
 
+    /**
+     * 액세스 토큰으로 이메일 인증 여부 조회
+     * @param accessToken 액세스 토큰
+     * @return 이메일 인증 여부
+     */
     public CommonResponse isVerified(String accessToken) {
         if(!jwtTokenProvider.validateToken(accessToken)){
             return CommonResponse.builder()
@@ -261,6 +283,43 @@ public class OAuthService {
             return CommonResponse.builder()
                     .data(200)
                     .message("Verified")
+                    .build();
+        }
+    }
+
+    /**
+     * 액세스 토큰 재발급
+     * @param accessToken 유저 아이디
+     * @return 액세스 토큰
+     */
+    public CommonResponse refreshAccessToken(String accessToken){
+        try {
+            String userId = (String) jwtTokenProvider.getClaimsFromToken(accessToken).get("sub");
+            UserDetails userDetails = customUserDetailService.loadUserByUserId(userId);
+            Authentication authentication = new UsernamePasswordAuthenticationToken(
+                    userDetails,
+                    "",
+                    userDetails.getAuthorities()
+            );
+            // 레디스에 refresh_token 존재하는지
+            String storedRefreshToken = redisService.get(userId + "_refreshToken");
+            if (storedRefreshToken == null || !jwtTokenProvider.validateToken(storedRefreshToken)) {
+                // 없거나 만료되었으면 리프레시 토큰 발급, 저장 -> 액세스 토큰 발급 후 리턴
+                String refreshToken = jwtTokenProvider.createRefreshToken(authentication);
+                redisService.setDataExpire(userId + "_refreshToken", refreshToken, JwtTokenProvider.refreshTokenValidityInMilliseconds);
+            }
+            String newAccessToken = jwtTokenProvider.createAccessToken(authentication);
+            // 새로운 액세스 토큰 반환
+            return CommonResponse.builder()
+                    .code(200)
+                    .data(OAuthResponseDTO.builder()
+                            .accessToken(newAccessToken)
+                            .build())
+                    .build();
+        } catch (RuntimeException e) {
+            return CommonResponse.builder()
+                    .code(403)
+                    .message("Bad Request")
                     .build();
         }
     }
