@@ -11,8 +11,10 @@ import lombok.Getter;
 public class AccessTocken {
     // 인증 토큰
     private final String tocken;
-    // Bearer
+
+    // Bearer 고정
     private final String type;
+
     // 토큰 만료 시간 [yyyyMMddHHmmss]
     private final String expired;
 
