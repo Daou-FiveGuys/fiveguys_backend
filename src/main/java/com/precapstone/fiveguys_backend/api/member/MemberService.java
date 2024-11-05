@@ -30,7 +30,6 @@ public class MemberService {
     public CommonResponse verifiedEmail(String email) {
         Member member = memberRepository.findByUserId("fiveguys_"+email)
                         .orElseThrow(() -> new EntityNotFoundException("Member not found"));
-        member.setEmailVerified(true);
         member.setUserRole(UserRole.USER);
         member.setUpdatedAt(LocalDateTime.now());
         memberRepository.save(member);
@@ -48,7 +47,7 @@ public class MemberService {
             Member member = optionalMember.get();
             if (passwordEncoder.matches(password, member.getPassword())) {
                 String responseMessage = null;
-                if (member.getEmailVerified())
+                if (member.getUserRole() == UserRole.USER)
                     responseMessage = ResponseMessage.SUCCESS;
                 else
                     responseMessage = ResponseMessage.EMAIL_VERIFICAITION_REQUIRED;
@@ -107,7 +106,6 @@ public class MemberService {
          */
         Member newMember = Member.builder()
                 .email(memberDTO.getEmail())
-                .emailVerified(false)
                 .password(encodedPassword)
                 .provider("fiveguys")
                 .name(memberDTO.getName())
@@ -145,7 +143,6 @@ public class MemberService {
         Optional<Member> optionalMember = memberRepository.findByUserId(userId);
         return optionalMember.orElseGet(() -> Member.builder()
             .email(email)
-            .emailVerified(true)
             .password(null)
             .provider(provider)
             .name(name)
