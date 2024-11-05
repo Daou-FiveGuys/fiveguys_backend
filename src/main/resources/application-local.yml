@@ -28,10 +28,9 @@ spring:
       host: localhost
       port: 6379
 
-  gmail: smtp.gmail.com
-
   # 이메일 인증
   mail:
+    host: smtp.gmail.com
     port: 587
     username: ${MAIL_USERNAME}
     password: ${MAIL_PASSWORD}
