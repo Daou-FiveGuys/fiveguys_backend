@@ -11,11 +11,11 @@ import lombok.Setter;
 @Setter
 @Getter
 public class ChangeWord {
-    String var1 = "null";
-    String var2 = "null";
-    String var3 = "null";
-    String var4 = "null";
-    String var5 = "null";
-    String var6 = "null";
-    String var7 = "null";
+    private String var1 = "null";
+    private String var2 = "null";
+    private String var3 = "null";
+    private String var4 = "null";
+    private String var5 = "null";
+    private String var6 = "null";
+    private String var7 = "null";
 }

@@ -18,6 +18,12 @@ public class AccessTocken {
     // 토큰 만료 시간 [yyyyMMddHHmmss]
     private final String expired;
 
+    /**
+     *
+     * @param token 인증 토큰
+     * @param type Bearer 고정
+     * @param expired 토큰 만료 시간 [yyyyMMddHHmmss]
+     */
     public AccessTocken(String token, String type, String expired) {
         this.tocken = token;
         this.type = type;

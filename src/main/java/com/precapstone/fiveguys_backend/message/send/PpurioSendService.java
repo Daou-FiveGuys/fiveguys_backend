@@ -48,6 +48,15 @@ public class PpurioSendService {
         restTemplate.postForObject(url+"/v1/message", request, PpurioSendResponse.class);
     }
 
+    /**
+     * PpurioSendParam을 통해 전달받은 MessageType을 통해 메세지 정보를 분기 처리
+     * 
+     * @param ppurioSendParam 사용자가 요청한 속성 정보
+     *
+     * @return 전송할 메세지 생성 (Map)
+     * 
+     * @throws IOException
+     */
     private Map createSendParams(PpurioSendParam ppurioSendParam) throws IOException {
         // 각 메세지 타입에 맞게 requestBody 분리
         MessageType messageType = switch (ppurioSendParam.messageType) {
