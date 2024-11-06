@@ -9,8 +9,12 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
 @Configuration
 public class WebConfig {
-    @Value("${frontend.domain}")
-    private String frontendDomain;
+    @Value("${frontend.server-domain}")
+    private String serverDomain;
+
+    @Value("${frontend.local-domain}")
+    private String localDomain;
+
 
     @Bean
     public WebMvcConfigurer corsConfigurer() {
@@ -18,7 +22,7 @@ public class WebConfig {
             @Override
             public void addCorsMappings(@NotNull CorsRegistry registry) {
                 registry.addMapping("/**")
-                        .allowedOrigins(frontendDomain+":80", frontendDomain+":8080")
+                        .allowedOrigins(serverDomain, serverDomain+":80", serverDomain+":8080", localDomain+":3000", localDomain+":8080")
                         .allowedMethods("GET", "POST", "PUT", "DELETE")
                         .allowCredentials(true)
                         .allowedHeaders("*")

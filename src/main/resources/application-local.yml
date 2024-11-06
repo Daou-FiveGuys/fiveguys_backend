@@ -110,5 +110,5 @@ jwt:
     refresh_token_validity : 604800000
 
 frontend:
-  domain: http://localhost:3000
-#  domain: http://hansung-fiveguys.duckdns.org/
+  local-domain: http://localhost
+  server-domain: http://hansung-fiveguys.duckdns.org
