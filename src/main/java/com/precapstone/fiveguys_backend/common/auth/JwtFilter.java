@@ -58,15 +58,10 @@ public class JwtFilter extends OncePerRequestFilter {
         }
 
 
+
+
         Authentication authentication = jwtTokenProvider.getAuthentication(token);
         CustomUserDetails userDetails = (CustomUserDetails) authentication.getPrincipal();
-//        if(!userDetails.getMember().getEmailVerified()){
-//            response.setStatus(HttpStatus.UNAUTHORIZED.value());
-//            response.setContentType("application/json");
-//            response.getWriter().write("{\"error\": \"need to verify email\"}");
-//            return;
-//        }
-
         SecurityContextHolder.getContext().setAuthentication(authentication);
         try {
             filterChain.doFilter(request, response);

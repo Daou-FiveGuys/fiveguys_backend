@@ -2,8 +2,9 @@ package com.precapstone.fiveguys_backend.api.auth;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.precapstone.fiveguys_backend.api.dto.LoginInfoDTO;
 import com.precapstone.fiveguys_backend.api.dto.AuthResponseDTO;
+import com.precapstone.fiveguys_backend.api.dto.LoginInfoDTO;
+import com.precapstone.fiveguys_backend.api.email.MailService;
 import com.precapstone.fiveguys_backend.api.member.MemberRepository;
 import com.precapstone.fiveguys_backend.api.redis.RedisService;
 import com.precapstone.fiveguys_backend.common.CommonResponse;
@@ -42,6 +43,7 @@ public class AuthService {
     private final JwtTokenProvider jwtTokenProvider;
     private final RedisService redisService;
     private final BCryptPasswordEncoder passwordEncoder;
+    private final MailService mailService;
 
     @Value("${spring.security.oauth2.client.registration.naver.client-id}")
     private String naverClientId;
@@ -188,7 +190,15 @@ public class AuthService {
      */
     private Member register(Member member){
         return memberRepository.findByUserId(member.getUserId())
-                .orElseGet(() -> memberRepository.save(member));
+                .orElseGet(() -> {
+                    memberRepository.save(member);
+                    try{
+                        mailService.sendWelcomeEmail(member.getEmail());
+                    } catch (Exception e){
+                        e.printStackTrace();
+                    }
+                    return member;
+                });
     }
 
     /**
@@ -298,10 +308,11 @@ public class AuthService {
             );
             // 레디스에 refresh_token 존재하는지
             String storedRefreshToken = redisService.get(userId + "_refreshToken");
-            if (storedRefreshToken == null || !jwtTokenProvider.validateToken(storedRefreshToken)) {
-                // 없거나 만료되었으면 리프레시 토큰 발급, 저장 -> 액세스 토큰 발급 후 리턴
-                String refreshToken = jwtTokenProvider.createRefreshToken(authentication);
-                redisService.setDataExpire(userId + "_refreshToken", refreshToken, JwtTokenProvider.refreshTokenValidityInMilliseconds);
+            if (storedRefreshToken == null) {
+                return CommonResponse.builder()
+                        .code(401)
+                        .message("Invalid Access Token")
+                        .build();
             }
             String newAccessToken = jwtTokenProvider.createAccessToken(authentication);
             // 새로운 액세스 토큰 반환

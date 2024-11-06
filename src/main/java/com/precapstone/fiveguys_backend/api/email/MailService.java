@@ -125,6 +125,20 @@ public class MailService {
         return sendEmail(toEmail, "FiveGuys 이메일 인증", body); // CommonResponse
     }
 
+    /**
+     * 가입 축하 이메일
+     * @param toEmail
+     * @throws MessagingException
+     */
+    public void sendWelcomeEmail(String toEmail) {
+        try {
+            String body = createWelcomeMessage();
+            sendEmail(toEmail, "FiveGuys에 오신 것을 환영합니다!", body);
+        } catch (Exception e){
+            e.printStackTrace();
+        }
+    }
+
     private SimpleMailMessage createSimpleEmailForm(String toEmail, String title, String body) {
         SimpleMailMessage emailForm = new SimpleMailMessage();
         emailForm.setFrom(sender);
@@ -147,6 +161,11 @@ public class MailService {
         Context context = new Context();
         context.setVariable("authNumber", authNumber);
         return templateEngine.process("email_verification", context);
+    }
+
+    private String createWelcomeMessage(){
+        Context context = new Context();
+        return templateEngine.process("welcome", context);
     }
 
     public static String createVerificationNumber(){
