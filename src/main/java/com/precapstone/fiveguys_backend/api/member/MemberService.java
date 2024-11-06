@@ -1,71 +1,30 @@
 package com.precapstone.fiveguys_backend.api.member;
 
+import com.precapstone.fiveguys_backend.api.auth.AuthService;
+import com.precapstone.fiveguys_backend.api.dto.AuthResponseDTO;
 import com.precapstone.fiveguys_backend.api.dto.MemberDTO;
-import com.precapstone.fiveguys_backend.common.PasswordValidator;
 import com.precapstone.fiveguys_backend.common.CommonResponse;
-import com.precapstone.fiveguys_backend.common.ResponseMessage;
+import com.precapstone.fiveguys_backend.common.PasswordValidator;
 import com.precapstone.fiveguys_backend.common.enums.UserRole;
 import com.precapstone.fiveguys_backend.entity.Member;
-import jakarta.persistence.EntityNotFoundException;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
+import java.util.Map;
 import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
 public class MemberService {
+    private final AuthService authService;
     private final MemberRepository memberRepository;
     private final BCryptPasswordEncoder passwordEncoder;
 
     public Optional<Member> findByUserId(String userId){
         return memberRepository.findByUserId(userId);
-    }
-
-    @Transactional
-    public CommonResponse verifiedEmail(String email) {
-        Member member = memberRepository.findByUserId("fiveguys_"+email)
-                        .orElseThrow(() -> new EntityNotFoundException("Member not found"));
-        member.setUserRole(UserRole.USER);
-        member.setUpdatedAt(LocalDateTime.now());
-        memberRepository.save(member);
-        return CommonResponse.builder()
-                .code(200)
-                .data(member)
-                .message("Email Verified Successfully")
-                .build();
-    }
-
-    @Transactional
-    public CommonResponse login(String email, String password) {
-        Optional<Member> optionalMember = memberRepository.findByUserId(email);
-        if(optionalMember.isPresent()) {
-            Member member = optionalMember.get();
-            if (passwordEncoder.matches(password, member.getPassword())) {
-                String responseMessage = null;
-                if (member.getUserRole() == UserRole.USER)
-                    responseMessage = ResponseMessage.SUCCESS;
-                else
-                    responseMessage = ResponseMessage.EMAIL_VERIFICAITION_REQUIRED;
-                return CommonResponse.builder()
-                        .code(200)
-                        .data(optionalMember.get())
-                        .message(responseMessage)
-                        .build();
-            } else {
-                return CommonResponse.builder()
-                        .code(401)
-                        .message("Invalid email or password")
-                        .build();
-            }
-        }
-        return CommonResponse.builder()
-                .code(401)
-                .message("Member not found")
-                .build();
     }
 
     /**
@@ -115,11 +74,14 @@ public class MemberService {
                 .build();
 
         memberRepository.save(newMember);
-
+        Map<String, String> tokens = authService.usersAuthorization(newMember);
         return CommonResponse.builder()
                 .code(200)
-                .message("Registered Successfully")
-                .data(newMember)
+                .message("Registered Success")
+                .data(AuthResponseDTO.builder()
+                        .accessToken(tokens.get("access_token"))
+                        .build()
+                )
                 .build();
     }
 

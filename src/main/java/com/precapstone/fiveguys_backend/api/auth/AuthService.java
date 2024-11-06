@@ -161,7 +161,7 @@ public class AuthService {
      * @param member
      * @return {"access_token", "refresh_token"}
      */
-    private Map<String, String> usersAuthorization(Member member) {
+    public Map<String, String> usersAuthorization(Member member) {
         UserDetails userDetails = customUserDetailService.loadUserByUserId(member.getUserId());
         Authentication authentication = new UsernamePasswordAuthenticationToken(
                 userDetails,

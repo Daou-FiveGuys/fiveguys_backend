@@ -24,7 +24,7 @@ public class JwtFilter extends OncePerRequestFilter {
     private static final List<String> EXCLUDE_URL = List.of(
         "/login",
         "/swagger-ui/**", "/api-docs/**", "/swagger-resources/**"
-        ,"/api/v1/oauth/**","/api/v1/oauth/refresh-token"
+        ,"/api/v1/oauth/**","/api/v1/member/signup"
     );
 
     public static final String TOKEN_PREFIX = "Bearer ";

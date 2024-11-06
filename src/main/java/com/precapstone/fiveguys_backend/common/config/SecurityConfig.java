@@ -1,6 +1,5 @@
 package com.precapstone.fiveguys_backend.common.config;
 
-import com.precapstone.fiveguys_backend.api.auth.CustomUserDetailService;
 import com.precapstone.fiveguys_backend.api.auth.JwtTokenProvider;
 import com.precapstone.fiveguys_backend.common.auth.JwtFilter;
 import lombok.RequiredArgsConstructor;
@@ -29,9 +28,10 @@ public class SecurityConfig {
                 .sessionManagement((httpSecuritySessionManagementConfigurer) -> {
                     httpSecuritySessionManagementConfigurer.sessionCreationPolicy(SessionCreationPolicy.STATELESS);
                 })
+                //TODO 추후 수정
                 .authorizeHttpRequests(authorize -> authorize
                         .requestMatchers("/login", "/swagger-ui/**", "/api-docs/**", "/swagger-resources/**").permitAll()
-                        .requestMatchers("/api/v1/oauth/**").permitAll()
+                        .requestMatchers("/api/v1/oauth/**","/api/v1/**", "/signup").permitAll()
                         .anyRequest().authenticated()
                 )
                 .addFilterBefore(new JwtFilter(jwtTokenProvider), UsernamePasswordAuthenticationFilter.class);
