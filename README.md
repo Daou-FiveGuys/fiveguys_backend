@@ -24,7 +24,7 @@ docker-compose down
 
 ### 5. Docker 이미지 생성
 ```sh
-docker build -t your-image-name .
+docker build -t fiveguys_backend .
 ```
 
 ### 6. Docker Compose 실행
