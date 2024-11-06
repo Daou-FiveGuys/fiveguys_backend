@@ -22,7 +22,7 @@ public class JwtFilter extends OncePerRequestFilter {
 
     private final JwtTokenProvider jwtTokenProvider;
     private static final List<String> EXCLUDE_URL = List.of(
-        "/login",
+        "/login", "/signup",
         "/swagger-ui/**", "/api-docs/**", "/swagger-resources/**"
         ,"/api/v1/oauth/**","/api/v1/member/signup"
     );
