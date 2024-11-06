@@ -3,6 +3,7 @@ package com.precapstone.fiveguys_backend.api.member;
 import com.precapstone.fiveguys_backend.api.auth.AuthService;
 import com.precapstone.fiveguys_backend.api.dto.AuthResponseDTO;
 import com.precapstone.fiveguys_backend.api.dto.MemberDTO;
+import com.precapstone.fiveguys_backend.api.email.MailService;
 import com.precapstone.fiveguys_backend.common.CommonResponse;
 import com.precapstone.fiveguys_backend.common.PasswordValidator;
 import com.precapstone.fiveguys_backend.common.enums.UserRole;
@@ -22,6 +23,7 @@ public class MemberService {
     private final AuthService authService;
     private final MemberRepository memberRepository;
     private final BCryptPasswordEncoder passwordEncoder;
+    private final MailService mailService;
 
     public Optional<Member> findByUserId(String userId){
         return memberRepository.findByUserId(userId);
@@ -74,6 +76,7 @@ public class MemberService {
                 .build();
 
         memberRepository.save(newMember);
+        mailService.sendWelcomeEmail(newMember.getEmail());
         Map<String, String> tokens = authService.usersAuthorization(newMember);
         return CommonResponse.builder()
                 .code(200)
@@ -82,6 +85,20 @@ public class MemberService {
                         .accessToken(tokens.get("access_token"))
                         .build()
                 )
+                .build();
+    }
+
+    public CommonResponse emailExists(String email) {
+        //TODO 소셜 계정 + 일반 계정 이메일 중복 허용
+        Optional<Member> optionalMember = memberRepository.findByUserId("fiveguys_" + email);
+        if(optionalMember.isPresent()){
+            return CommonResponse.builder()
+                    .code(400)
+                    .message("Email Already Exists")
+                    .build();
+        }
+        return CommonResponse.builder()
+                .code(200)
                 .build();
     }
 

@@ -19,6 +19,11 @@ public class MemberController {
         return ResponseEntity.ok(memberService.register(memberDTO));
     }
 
+    @GetMapping("/exists")
+    public ResponseEntity<CommonResponse> emailExists(@RequestParam String email) {
+        return ResponseEntity.ok(memberService.emailExists(email));
+    }
+
     @DeleteMapping("/delete")
     public ResponseEntity<CommonResponse> delete(@RequestHeader String userId, @RequestHeader String password) {
         return ResponseEntity.ok(memberService.deleteByUserId(userId, password));
