@@ -2,6 +2,7 @@ package com.precapstone.fiveguys_backend.api.auth;
 
 import com.precapstone.fiveguys_backend.api.member.MemberRepository;
 import com.precapstone.fiveguys_backend.common.auth.CustomUserDetails;
+import com.precapstone.fiveguys_backend.common.auth.JwtFilter;
 import com.precapstone.fiveguys_backend.entity.Member;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
@@ -108,5 +109,9 @@ public class JwtTokenProvider {
     }
     public String getUserIdFromToken(String token) {
         return getClaimsFromToken(token).getSubject();
+    }
+
+    public static String stripTokenPrefix(String authorization){
+        return authorization.replace(JwtFilter.TOKEN_PREFIX, "");
     }
 }
