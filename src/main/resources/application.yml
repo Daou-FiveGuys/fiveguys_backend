@@ -14,9 +14,15 @@ spring:
         format_sql: true
         show_sql: true
       dialect: org.hibernate.dialect.MariaDBDialect
+
   jackson:
     serialization:
       FAIL_ON_EMPTY_BEANS: false
+
+  ppurio:
+    base-url: https://message.ppurio.com
+    account: ${PPURIO_ACCOUNT}
+    auth: ${PPURIO_AUTHORIZATION}
 
   ##  Redis
   ## 서버
