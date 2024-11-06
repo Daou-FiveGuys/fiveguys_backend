@@ -24,12 +24,12 @@ spring:
     account: ${PPURIO_ACCOUNT}
     auth: ${PPURIO_AUTHORIZATION}
 
-  ##  Redis
-  ## 서버
-    data:
-      redis:
-        host: redis
-        port: 6379
+##  Redis
+## 서버
+  data:
+    redis:
+      host: redis
+      port: 6379
 
   ### 로컬
 #  data:
