@@ -1,19 +1,26 @@
-package com.precapstone.fiveguys_backend.api.service;
+package com.precapstone.fiveguys_backend.api.email;
 
+import com.precapstone.fiveguys_backend.api.auth.JwtTokenProvider;
+import com.precapstone.fiveguys_backend.api.dto.AuthResponseDTO;
+import com.precapstone.fiveguys_backend.api.member.MemberRepository;
+import com.precapstone.fiveguys_backend.api.redis.RedisService;
 import com.precapstone.fiveguys_backend.common.CommonResponse;
+import com.precapstone.fiveguys_backend.common.enums.UserRole;
+import com.precapstone.fiveguys_backend.entity.Member;
 import jakarta.mail.MessagingException;
 import jakarta.mail.internet.MimeMessage;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.mail.MailException;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
+import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
 import org.thymeleaf.TemplateEngine;
 import org.thymeleaf.context.Context;
 
+import java.util.Optional;
 import java.util.Random;
 
 @Service
@@ -21,32 +28,42 @@ import java.util.Random;
 public class MailService {
     private static final Logger log = LoggerFactory.getLogger(MailService.class);
     private final JavaMailSender mailSender;
-    @Autowired
     private final TemplateEngine templateEngine;
     private final String sender = "daou.fiveguys@gmail.com";
     private final RedisService redisService;
+    private final JwtTokenProvider jwtTokenProvider;
+    private final MemberRepository memberRepository;
 
     /**
      * 인증로직
      * Redis 조회 -> 인증번호 비교 -> 결과 리턴
      *
-     * @param toEmail 수신자 이메일
+     * @param accessToken 수신자 이메일
      * @param verificationCode 입력된 인증 코드
      * @return CommonResponse
      */
-    public CommonResponse verifyCode(String toEmail, String verificationCode) {
-        String verifyCode = redisService.get(toEmail);
-        if(verifyCode == null || !verifyCode.equals(verificationCode)) {
+    public CommonResponse verifyCode(String accessToken, String verificationCode) {
+        String email = jwtTokenProvider.getEmailFromToken(accessToken);
+        String verifyCode = redisService.get(email);
+        Optional<Member> optionalMember =  memberRepository.findByUserId(jwtTokenProvider.getUserIdFromToken(accessToken));
+        if(verifyCode == null || !verifyCode.equals(verificationCode) || optionalMember.isEmpty()) {
             return CommonResponse.builder()
-                    .code(200)
+                    .code(401)
                     .message("Failed to verify")
                     .data(false)
                     .build();
         }
+        Member member = optionalMember.get();
+        member.setUserRole(UserRole.USER);
+        memberRepository.save(member);
+
+        Authentication authentication = jwtTokenProvider.getAuthenticationByAccesstoken(accessToken);
         return CommonResponse.builder()
                     .code(200)
                     .message("Verified Successfully")
-                    .data(true)
+                    .data(AuthResponseDTO.builder()
+                            .accessToken(jwtTokenProvider.createAccessToken(authentication))
+                            .build())
                     .build();
     }
 
@@ -76,6 +93,16 @@ public class MailService {
                     .message("Email Sending Failed")
                     .build();
         }
+    }
+
+    public CommonResponse sendEmailWithAccessToken(String accessToken) throws MessagingException {
+        String email = jwtTokenProvider.getEmailFromToken(accessToken);
+        if(email == null)
+            return CommonResponse.builder()
+                    .code(401)
+                    .message("Bad Request")
+                    .build();
+        return sendVerificationEmail(email);
     }
 
     /**

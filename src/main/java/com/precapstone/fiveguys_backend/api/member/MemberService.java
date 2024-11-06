@@ -1,9 +1,7 @@
-package com.precapstone.fiveguys_backend.api.service;
+package com.precapstone.fiveguys_backend.api.member;
 
-import com.precapstone.fiveguys_backend.api.dto.MemberParam;
-import com.precapstone.fiveguys_backend.api.repository.MemberRepository;
+import com.precapstone.fiveguys_backend.api.dto.MemberDTO;
 import com.precapstone.fiveguys_backend.common.PasswordValidator;
-import com.precapstone.fiveguys_backend.common.auth.OAuth2UserInfo;
 import com.precapstone.fiveguys_backend.common.CommonResponse;
 import com.precapstone.fiveguys_backend.common.ResponseMessage;
 import com.precapstone.fiveguys_backend.common.enums.UserRole;
@@ -31,7 +29,6 @@ public class MemberService {
     public CommonResponse verifiedEmail(String email) {
         Member member = memberRepository.findByUserId("fiveguys_"+email)
                         .orElseThrow(() -> new EntityNotFoundException("Member not found"));
-        member.setEmailVerified(true);
         member.setUserRole(UserRole.USER);
         member.setUpdatedAt(LocalDateTime.now());
         memberRepository.save(member);
@@ -49,7 +46,7 @@ public class MemberService {
             Member member = optionalMember.get();
             if (passwordEncoder.matches(password, member.getPassword())) {
                 String responseMessage = null;
-                if (member.getEmailVerified())
+                if (member.getUserRole() == UserRole.USER)
                     responseMessage = ResponseMessage.SUCCESS;
                 else
                     responseMessage = ResponseMessage.EMAIL_VERIFICAITION_REQUIRED;
@@ -73,13 +70,13 @@ public class MemberService {
 
     /**
      * FiveGuys 일반 회원가입
-     * @param memberParam
+     * @param memberDTO
      *
      * @return CommonResponse 회원가입 여부
      */
     @Transactional
-    public CommonResponse register(MemberParam memberParam) {
-        String result = checkPasswordValidation(memberParam.getPassword(), memberParam.getConfirmPassword());
+    public CommonResponse register(MemberDTO memberDTO) {
+        String result = checkPasswordValidation(memberDTO.getPassword(), memberDTO.getConfirmPassword());
         if(result != null){
             return CommonResponse.builder()
                         .code(400)
@@ -87,8 +84,8 @@ public class MemberService {
                         .build();
         }
 
-        String encodedPassword = passwordEncoder.encode(memberParam.getPassword());
-        String userId = "fiveguys_" + memberParam.getEmail();
+        String encodedPassword = passwordEncoder.encode(memberDTO.getPassword());
+        String userId = "fiveguys_" + memberDTO.getEmail();
 
         /**
          * 가입 여부 확인
@@ -107,11 +104,10 @@ public class MemberService {
          * 신규 회원
          */
         Member newMember = Member.builder()
-                .email(memberParam.getEmail())
-                .emailVerified(false)
+                .email(memberDTO.getEmail())
                 .password(encodedPassword)
                 .provider("fiveguys")
-                .name(memberParam.getName())
+                .name(memberDTO.getName())
                 .userRole(UserRole.VISITOR)
                 .createdAt(now)
                 .updatedAt(now)
@@ -125,36 +121,6 @@ public class MemberService {
                 .message("Registered Successfully")
                 .data(newMember)
                 .build();
-    }
-
-    /**
-     * OAuth2 회원가입
-     *
-     * @param oAuth2UserInfo 사용자 정보 -> NaverUserInfo || GoogleUserInfo
-     * @param provider oAuth2 제공 기업 -> naver || google
-     * @return Member
-     */
-    @Transactional
-    public Member register(OAuth2UserInfo oAuth2UserInfo, String provider) {
-        String providerId = oAuth2UserInfo.getProviderId();
-        String userId = provider + "_" + providerId;
-        String name = oAuth2UserInfo.getName();
-        String email = oAuth2UserInfo.getProviderEmail();
-
-
-        LocalDateTime now = LocalDateTime.now();
-        Optional<Member> optionalMember = memberRepository.findByUserId(userId);
-        return optionalMember.orElseGet(() -> Member.builder()
-            .email(email)
-            .emailVerified(true)
-            .password(null)
-            .provider(provider)
-            .name(name)
-            .createdAt(now)
-            .updatedAt(now)
-            .userRole(UserRole.USER)
-            .userId(userId)
-            .build());
     }
 
     @Transactional

@@ -14,24 +14,22 @@ spring:
         format_sql: true
         show_sql: true
       dialect: org.hibernate.dialect.MariaDBDialect
-
-  # Mail에 관한 오류 발생 해결
   jackson:
     serialization:
       FAIL_ON_EMPTY_BEANS: false
 
-  ## 서버
   ##  Redis
-  #  data:
-  #    redis:
-  #      host: redis
-  #      port: 6379
+  ## 서버
+    data:
+      redis:
+        host: redis
+        port: 6379
 
-  ## 로컬
-  data:
-    redis:
-      host: localhost
-      port: 6379
+  ### 로컬
+#  data:
+#    redis:
+#      host: localhost
+#      port: 6379
 
   # 이메일 인증
   mail:
@@ -50,12 +48,6 @@ spring:
           timeout: 5000
           writetimeout: 5000
     auth-code-expiration-millis: 1800000
-
-  # 뿌리오 계정 및 인증
-  ppurio:
-    base-url: https://message.ppurio.com
-    account: ${PPURIO_ACCOUNT}
-    auth: ${PPURIO_AUTHORIZATION}
 
   #oauth2 login
   security:
@@ -117,3 +109,6 @@ jwt:
     access_token_validity : 1800000
     refresh_token_validity : 604800000
 
+frontend:
+  local-domain: http://localhost
+  server-domain: http://hansung-fiveguys.duckdns.org
