@@ -1,3 +1,7 @@
 spring:
+  config:
+    import:
+     -classpath:application-local.yml
+
   profiles:
     active: local
