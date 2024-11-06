@@ -15,6 +15,11 @@ spring:
         show_sql: true
       dialect: org.hibernate.dialect.MariaDBDialect
 
+  # Mail에 관한 오류 발생 해결
+  jackson:
+    serialization:
+      FAIL_ON_EMPTY_BEANS: false
+
   ## 서버
   ##  Redis
   #  data:
@@ -111,3 +116,4 @@ jwt:
     key: ${JWT_SECRET_KEY}
     access_token_validity : 1800000
     refresh_token_validity : 604800000
+
