@@ -6,15 +6,15 @@ cd ~/fiveguys_backend/
 git pull origin
 ```
 
-### 2. Docker 시스템 정리 (불필요한 데이터 제거)
+### 2. Docker Compose 중지 및 컨테이너 제거
+```sh
+docker-compose down
+```
+
+### 3. Docker 시스템 정리 (불필요한 데이터 제거)
 ```sh
 # 사용하지 않는 Docker 이미지, 네트워크, 볼륨, 컨테이너를 정리
 docker system prune -a
-```
-
-### 3. Docker Compose 중지 및 컨테이너 제거
-```sh
-docker-compose down
 ```
 
 ### 4. 프로젝트 빌드
