@@ -2,7 +2,6 @@ package com.precapstone.fiveguys_backend.api.member;
 
 import com.precapstone.fiveguys_backend.api.dto.MemberDTO;
 import com.precapstone.fiveguys_backend.common.PasswordValidator;
-import com.precapstone.fiveguys_backend.common.auth.OAuth2UserInfo;
 import com.precapstone.fiveguys_backend.common.CommonResponse;
 import com.precapstone.fiveguys_backend.common.ResponseMessage;
 import com.precapstone.fiveguys_backend.common.enums.UserRole;
@@ -122,35 +121,6 @@ public class MemberService {
                 .message("Registered Successfully")
                 .data(newMember)
                 .build();
-    }
-
-    /**
-     * OAuth2 회원가입
-     *
-     * @param oAuth2UserInfo 사용자 정보 -> NaverUserInfo || GoogleUserInfo
-     * @param provider oAuth2 제공 기업 -> naver || google
-     * @return Member
-     */
-    @Transactional
-    public Member register(OAuth2UserInfo oAuth2UserInfo, String provider) {
-        String providerId = oAuth2UserInfo.getProviderId();
-        String userId = provider + "_" + providerId;
-        String name = oAuth2UserInfo.getName();
-        String email = oAuth2UserInfo.getProviderEmail();
-
-
-        LocalDateTime now = LocalDateTime.now();
-        Optional<Member> optionalMember = memberRepository.findByUserId(userId);
-        return optionalMember.orElseGet(() -> Member.builder()
-            .email(email)
-            .password(null)
-            .provider(provider)
-            .name(name)
-            .createdAt(now)
-            .updatedAt(now)
-            .userRole(UserRole.USER)
-            .userId(userId)
-            .build());
     }
 
     @Transactional

@@ -3,7 +3,7 @@ package com.precapstone.fiveguys_backend.api.auth;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.precapstone.fiveguys_backend.api.dto.LoginInfoDTO;
-import com.precapstone.fiveguys_backend.api.dto.OAuthResponseDTO;
+import com.precapstone.fiveguys_backend.api.dto.AuthResponseDTO;
 import com.precapstone.fiveguys_backend.api.member.MemberRepository;
 import com.precapstone.fiveguys_backend.api.redis.RedisService;
 import com.precapstone.fiveguys_backend.common.CommonResponse;
@@ -83,7 +83,7 @@ public class AuthService {
                 return CommonResponse.builder()
                         .code(200)
                         .message(responseMessage)
-                        .data(OAuthResponseDTO.builder()
+                        .data(AuthResponseDTO.builder()
                                 .accessToken(tokens.get("access_token"))
                                 .build()
                         )
@@ -133,7 +133,7 @@ public class AuthService {
 
         return CommonResponse.builder()
                 .code(200)
-                .data(OAuthResponseDTO.builder()
+                .data(AuthResponseDTO.builder()
                         .accessToken(tokens.get("access_token"))
                         .build())
                 .build();
@@ -307,7 +307,7 @@ public class AuthService {
             // 새로운 액세스 토큰 반환
             return CommonResponse.builder()
                     .code(200)
-                    .data(OAuthResponseDTO.builder()
+                    .data(AuthResponseDTO.builder()
                             .accessToken(newAccessToken)
                             .build())
                     .build();

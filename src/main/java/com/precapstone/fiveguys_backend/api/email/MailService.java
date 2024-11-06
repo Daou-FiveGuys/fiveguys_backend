@@ -1,7 +1,7 @@
 package com.precapstone.fiveguys_backend.api.email;
 
 import com.precapstone.fiveguys_backend.api.auth.JwtTokenProvider;
-import com.precapstone.fiveguys_backend.api.dto.OAuthResponseDTO;
+import com.precapstone.fiveguys_backend.api.dto.AuthResponseDTO;
 import com.precapstone.fiveguys_backend.api.member.MemberRepository;
 import com.precapstone.fiveguys_backend.api.redis.RedisService;
 import com.precapstone.fiveguys_backend.common.CommonResponse;
@@ -61,7 +61,7 @@ public class MailService {
         return CommonResponse.builder()
                     .code(200)
                     .message("Verified Successfully")
-                    .data(OAuthResponseDTO.builder()
+                    .data(AuthResponseDTO.builder()
                             .accessToken(jwtTokenProvider.createAccessToken(authentication))
                             .build())
                     .build();
