@@ -96,5 +96,3 @@ springdoc:
 app:
   oauth2:
     password: ${PASSWORD}
-
-
