@@ -16,4 +16,16 @@ public class ImageLinkExtractor {
         }
         return null;
     }
+
+    public static String extractContentType(JsonObject jsonObject) {
+        JsonArray imagesArray = jsonObject.getAsJsonArray("content_type");
+        if (imagesArray != null && !imagesArray.isEmpty()) {
+            JsonObject firstImageObject = imagesArray.get(0).getAsJsonObject();
+            JsonElement urlElement = firstImageObject.get("url");
+            if (urlElement != null) {
+                return urlElement.getAsString(); // URL 반환
+            }
+        }
+        return null;
+    }
 }

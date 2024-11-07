@@ -1,6 +1,5 @@
 package com.precapstone.fiveguys_backend.api.aws;
 
-import com.google.gson.JsonObject;
 import com.precapstone.fiveguys_backend.api.redis.RedisService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -21,10 +20,13 @@ import java.time.Duration;
 
 /**
  * 이미지 저장 서비스
+ * 🚨 In S3, the 'key' property means 'filename'. 🚨
+ * fal.ai requestId -> key
+ *
+ *
  * @author 6-keem
  * @since 2024-11-07
  *
- * 🚨 In S3, the 'key' property means 'filename'. 🚨
  */
 @Slf4j
 @RequiredArgsConstructor
@@ -42,15 +44,17 @@ public class AwsS3Service {
 
     /**
      * 파일 업로드
-     * @param jsonObject 이미지 생성 결과 json (링크, 메타데이터 등)
-     * @param filename 파일 이름
+     * @param imageUrl 이미지 생성 결과 (링크, 메타데이터, 파일 이름)
      * @return S3 저장소 url
      * @throws IOException 예외처리
      */
-    public String upload(JsonObject jsonObject, String filename) throws IOException {
-        if(jsonObject == null)
-            throw  new IOException("파일 오류");
-        return putS3(jsonObject, filename);
+    public String upload(String imageUrl, String key) {
+        try {
+            return putS3(imageUrl, key);
+        } catch (IOException e) {
+            e.printStackTrace();
+            return null;
+        }
     }
 
     /**
@@ -115,16 +119,15 @@ public class AwsS3Service {
     }
 
     /**
-     * 이미지 삽입 프로세스
-     * @param jsonObject 이미지 생성 결과 json (링크, 메타데이터 등)
-     * @param key 파일 이름
+     * S3 저장소에 이미지 삽입
+     * @param imageUrl 이미지 생성 결과 (링크, 메타데이터, 파일 이름)
      * @return S3 저장소 url
      * @throws IOException 예외
      */
-    private String putS3(JsonObject jsonObject, String key) throws IOException {
+    private String putS3(String imageUrl, String key) throws IOException {
         PutObjectRequest objectRequest = getPutObjectRequest(key);
-        String imageUrl = ImageLinkExtractor.extractImageUrl(jsonObject);
         RequestBody requestBody = saveFileFromUrlToS3(imageUrl);
+
         if(requestBody != null){
             try {
                 s3Client.putObject(objectRequest, requestBody);
@@ -145,8 +148,8 @@ public class AwsS3Service {
         return GetObjectRequest.builder()
                 .bucket(bucketName)
                 .key(key)
+                .responseContentType("image/jpeg")
                 .build();
-
     }
 
     /**
@@ -158,13 +161,14 @@ public class AwsS3Service {
         return PutObjectRequest.builder()
                 .bucket(bucketName)
                 .key(key)
+                .contentType("image/jpeg")
                 .build();
     }
 
 
-    public RequestBody saveFileFromUrlToS3(String fileUrl) throws IOException {
+    public RequestBody saveFileFromUrlToS3(String imageUrl) throws IOException {
         // URL에서 InputStream 생성
-        URL url = new URL(fileUrl);
+        URL url = new URL(imageUrl);
         try (InputStream inputStream = url.openStream();
              ByteArrayOutputStream buffer = new ByteArrayOutputStream()) {
             // InputStream을 ByteArray로 변환

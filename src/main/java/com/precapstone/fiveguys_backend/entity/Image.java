@@ -3,10 +3,7 @@ package com.precapstone.fiveguys_backend.entity;
 
 import jakarta.annotation.Nullable;
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 @Entity
 @Getter
@@ -21,6 +18,12 @@ public class Image {
     private String requestId;
     @Column(columnDefinition = "TEXT")
     private String originalImageLink;
+    @Setter
     @Nullable
     private String editedImageLink;
+
+    public Image setOriginalImageLink(String bucketUrl) {
+        this.originalImageLink = bucketUrl;
+        return this;
+    }
 }

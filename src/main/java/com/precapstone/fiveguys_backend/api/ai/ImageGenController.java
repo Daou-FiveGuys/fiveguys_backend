@@ -20,7 +20,7 @@ public class ImageGenController {
      * 이미지 생성 컨트롤러
      * @param authorization 인증 헤더
      * @param imagePromptDTO 이미지 생성 프롬프트 (KOR)
-     * @return 이미지 정보
+     * @return ResponseEntity<CommonResponse> 이미지 정보
      */
     @PostMapping("/generate")
     public ResponseEntity<CommonResponse> generateImage(@RequestHeader("Authorization") String authorization, @RequestBody ImagePromptDTO imagePromptDTO) {
@@ -32,7 +32,7 @@ public class ImageGenController {
      * 이미지 인페인팅(수정) 컨트롤러
      * @param authorization 인증 헤더
      * @param imageInpaintDTO 이미지 아이디, 프롬프트 (KOR)
-     * @return 이미지 정보
+     * @return ResponseEntity<CommonResponse> 이미지 정보
      */
     @PostMapping("/inpaint")
     public ResponseEntity<CommonResponse> inpaint(@RequestHeader("Authorization") String authorization, @RequestBody ImageInpaintDTO imageInpaintDTO) {
@@ -43,7 +43,7 @@ public class ImageGenController {
      * 이미지 업스케일 컨트롤러
      * @param authorization 인증 헤더
      * @param imageUpscaleDTO 이미지 아이디
-     * @return 이미지 정보
+     * @return ResponseEntity<CommonResponse> 이미지 정보
      */
     @PostMapping("/upscale")
     public ResponseEntity<CommonResponse> upscale(@RequestHeader("Authorization") String authorization, @RequestBody ImageUpscaleDTO imageUpscaleDTO) {
