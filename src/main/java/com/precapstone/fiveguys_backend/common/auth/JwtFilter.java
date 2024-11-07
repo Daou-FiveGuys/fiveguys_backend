@@ -48,9 +48,7 @@ public class JwtFilter extends OncePerRequestFilter {
         }
 
         token = token.replace(TOKEN_PREFIX, "");
-
         if (!jwtTokenProvider.validateToken(token)) {
-            //TODO 토큰 유효기간 오류
             response.setStatus(HttpStatus.UNAUTHORIZED.value());
             response.setContentType("application/json");
             response.getWriter().write("{\"error\": \"Invalid Basic Authentication\"}");
@@ -60,13 +58,6 @@ public class JwtFilter extends OncePerRequestFilter {
 
         Authentication authentication = jwtTokenProvider.getAuthentication(token);
         CustomUserDetails userDetails = (CustomUserDetails) authentication.getPrincipal();
-//        if(!userDetails.getMember().getEmailVerified()){
-//            response.setStatus(HttpStatus.UNAUTHORIZED.value());
-//            response.setContentType("application/json");
-//            response.getWriter().write("{\"error\": \"need to verify email\"}");
-//            return;
-//        }
-
         SecurityContextHolder.getContext().setAuthentication(authentication);
         try {
             filterChain.doFilter(request, response);
