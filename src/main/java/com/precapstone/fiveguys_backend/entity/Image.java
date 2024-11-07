@@ -1,7 +1,6 @@
 package com.precapstone.fiveguys_backend.entity;
 
 
-import ai.fal.client.Output;
 import jakarta.annotation.Nullable;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
@@ -19,8 +18,9 @@ public class Image {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long imageId;
     private String memberId;
-    @Embedded
-    private Output originalImage;
+    private String requestId;
+    @Column(columnDefinition = "TEXT")
+    private String originalImageLink;
     @Nullable
-    private String editedImage;
+    private String editedImageLink;
 }

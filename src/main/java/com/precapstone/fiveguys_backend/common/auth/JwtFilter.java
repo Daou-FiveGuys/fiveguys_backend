@@ -39,6 +39,7 @@ public class JwtFilter extends OncePerRequestFilter {
             return;
         }
 
+        //TODO 풀기 전에 미리 prefix 떼야하는거 아님?
         String token = jwtTokenProvider.resolveToken(request);
         if (token == null) {
             response.setStatus(HttpStatus.UNAUTHORIZED.value());
@@ -48,18 +49,18 @@ public class JwtFilter extends OncePerRequestFilter {
         }
 
         token = token.replace(TOKEN_PREFIX, "");
-
-        if (!jwtTokenProvider.validateToken(token)) {
-            //TODO 토큰 유효기간 오류
-            response.setStatus(HttpStatus.UNAUTHORIZED.value());
-            response.setContentType("application/json");
-            response.getWriter().write("{\"error\": \"Invalid Basic Authentication\"}");
-            return;
-        }
-
-
-
-
+//
+//        if (!jwtTokenProvider.validateToken(token)) {
+//            //TODO 토큰 유효기간 오류
+//            response.setStatus(HttpStatus.UNAUTHORIZED.value());
+//            response.setContentType("application/json");
+//            response.getWriter().write("{\"error\": \"Invalid Basic Authentication\"}");
+//            return;
+//        }
+//
+//
+//
+//
         Authentication authentication = jwtTokenProvider.getAuthentication(token);
         CustomUserDetails userDetails = (CustomUserDetails) authentication.getPrincipal();
         SecurityContextHolder.getContext().setAuthentication(authentication);
