@@ -301,7 +301,7 @@ public class AuthService {
             if (storedRefreshToken == null || !jwtTokenProvider.validateToken(storedRefreshToken)) {
                 // 없거나 만료되었으면 리프레시 토큰 발급, 저장 -> 액세스 토큰 발급 후 리턴
                 String refreshToken = jwtTokenProvider.createRefreshToken(authentication);
-                redisService.setDataExpire(userId + "_refreshToken", refreshToken, JwtTokenProvider.refreshTokenValidityInMilliseconds);
+                redisService.setDataExpire(userId + "_refreshToken", refreshToken, 604800000);
             }
             String newAccessToken = jwtTokenProvider.createAccessToken(authentication);
             // 새로운 액세스 토큰 반환
