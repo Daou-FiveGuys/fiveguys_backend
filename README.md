@@ -14,7 +14,7 @@ docker-compose down
 ### 3. Docker 시스템 정리 (불필요한 데이터 제거)
 ```sh
 # 사용하지 않는 Docker 이미지, 네트워크, 볼륨, 컨테이너를 정리
-docker system prune -a
+docker system prune -ay
 ```
 
 ### 4. 프로젝트 빌드
