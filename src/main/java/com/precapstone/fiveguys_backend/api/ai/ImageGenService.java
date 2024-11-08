@@ -174,7 +174,7 @@ public class ImageGenService {
         try {
             System.out.println(Thread.currentThread().getName());
             imageGenRepository.save(Image.builder()
-                    .memberId(userId)
+                    .userId(userId)
                     .originalImageLink(ImageLinkExtractor.extractImageUrl(output.getData()))
                     .requestId(output.getRequestId())
                     .editedImageLink(null)
