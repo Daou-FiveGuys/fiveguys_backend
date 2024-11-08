@@ -11,5 +11,5 @@ import lombok.Setter;
 @Builder
 public class ImageResponseDTO<T>{
     private T image;
-    private Long imageId;
+    private String imageId;
 }

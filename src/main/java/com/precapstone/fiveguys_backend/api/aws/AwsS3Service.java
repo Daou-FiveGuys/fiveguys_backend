@@ -5,6 +5,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 import software.amazon.awssdk.core.sync.RequestBody;
 import software.amazon.awssdk.services.s3.S3Client;
 import software.amazon.awssdk.services.s3.S3Utilities;
@@ -43,14 +44,14 @@ public class AwsS3Service {
     private String bucketName;
 
     /**
-     * 파일 업로드
-     * @param imageUrl 이미지 생성 결과 (링크, 메타데이터, 파일 이름)
-     * @return S3 저장소 url
-     * @throws IOException 예외처리
+     * 파일 업로드 (URL 또는 MultipartFile)
+     * @param input 이미지 URL 또는 MultipartFile
+     * @param key S3에 저장될 파일 이름
+     * @return S3 저장소 URL
      */
-    public String upload(String imageUrl, String key) {
+    public <T> String upload(T input, String key) {
         try {
-            return putS3(imageUrl, key);
+            return uploadToS3(input, key);
         } catch (IOException e) {
             e.printStackTrace();
             return null;
@@ -78,11 +79,11 @@ public class AwsS3Service {
     /**
      * 조회 (임시 링크)
      * @param userId 유저 아이디
-     * @param filename 파일 이름
-     * @return 임시 링크
+     * @param key 파일 이름
+     * @return 임시 URL
      */
-    public String get(String userId, String filename) {
-        return generatePresignedUrl(userId, filename);
+    public String getUrl(String userId, String key) {
+        return generatePresignedUrl(userId, key);
     }
 
     /**
@@ -91,7 +92,7 @@ public class AwsS3Service {
      * @param key 파일 이름
      * @return 임시 링크
      */
-    public String generatePresignedUrl(String userId, String key){
+    private String generatePresignedUrl(String userId, String key){
         /**
          * TODO 이미지가 userId에 귀속된 이미지인지 확인 필요
          * 주소 생성 횟수 줄이기 위해 redis 임시 사용
@@ -118,53 +119,24 @@ public class AwsS3Service {
         }
     }
 
-    /**
-     * S3 저장소에 이미지 삽입
-     * @param imageUrl 이미지 생성 결과 (링크, 메타데이터, 파일 이름)
-     * @return S3 저장소 url
-     * @throws IOException 예외
-     */
-    private String putS3(String imageUrl, String key) throws IOException {
+    @SuppressWarnings("unchecked")
+    private <T> String uploadToS3(T input, String key) throws IOException {
         PutObjectRequest objectRequest = getPutObjectRequest(key);
-        RequestBody requestBody = saveFileFromUrlToS3(imageUrl);
+        RequestBody requestBody;
 
-        if(requestBody != null){
-            try {
-                s3Client.putObject(objectRequest, requestBody);
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-            return findUrlByKey(key);
+        if (input instanceof MultipartFile) {
+            MultipartFile multipartFile = (MultipartFile) input;
+            requestBody = RequestBody.fromInputStream(multipartFile.getInputStream(), multipartFile.getSize());
+        } else if (input instanceof String) {
+            String imageUrl = (String) input;
+            requestBody = saveFileFromUrlToS3(imageUrl);
+        } else {
+            throw new IllegalArgumentException("Unsupported input type: " + input.getClass().getName());
         }
-        return null;
-    }
 
-    /**
-     * 조회 요청 객체 생성
-     * @param key 파일 이름
-     * @return 조회 요청 객체
-     */
-    private GetObjectRequest getGetObjectRequest(String key) {
-        return GetObjectRequest.builder()
-                .bucket(bucketName)
-                .key(key)
-                .responseContentType("image/jpeg")
-                .build();
+        s3Client.putObject(objectRequest, requestBody);
+        return findUrlByKey(key);
     }
-
-    /**
-     * 추가 요청 객체 생성
-     * @param key 파일 이름
-     * @return 추가 요청 객체
-     */
-    private PutObjectRequest getPutObjectRequest(String key) {
-        return PutObjectRequest.builder()
-                .bucket(bucketName)
-                .key(key)
-                .contentType("image/jpeg")
-                .build();
-    }
-
 
     public RequestBody saveFileFromUrlToS3(String imageUrl) throws IOException {
         // URL에서 InputStream 생성
@@ -197,5 +169,32 @@ public class AwsS3Service {
                 .build();
         URL url = s3Utilities.getUrl(request);
         return url.toString();
+    }
+
+
+    /**
+     * 조회 요청 객체 생성
+     * @param key 파일 이름
+     * @return 조회 요청 객체
+     */
+    private GetObjectRequest getGetObjectRequest(String key) {
+        return GetObjectRequest.builder()
+                .bucket(bucketName)
+                .key(key)
+                .responseContentType("image/jpeg")
+                .build();
+    }
+
+    /**
+     * 추가 요청 객체 생성
+     * @param key 파일 이름
+     * @return 추가 요청 객체
+     */
+    private PutObjectRequest getPutObjectRequest(String key) {
+        return PutObjectRequest.builder()
+                .bucket(bucketName)
+                .key(key)
+                .contentType("image/jpeg")
+                .build();
     }
 }
