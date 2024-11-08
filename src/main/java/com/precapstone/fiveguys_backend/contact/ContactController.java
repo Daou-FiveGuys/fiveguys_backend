@@ -1,7 +1,6 @@
 package com.precapstone.fiveguys_backend.contact;
 
 import com.precapstone.fiveguys_backend.common.CommonResponse;
-import com.precapstone.fiveguys_backend.message.send.PpurioSendParam;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 
