@@ -4,8 +4,6 @@ import com.precapstone.fiveguys_backend.common.CommonResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 
-import java.io.IOException;
-
 @RestController
 @RequestMapping("/api/v1/contact/")
 @RequiredArgsConstructor
@@ -42,7 +40,7 @@ public class GroupController {
         // 그룹 변경
         // 1. 위치 이동의 경우
         // 2. 정보 변경의 경우
-        var group = groupService.update(groupPatchParm);
+        var group = groupService.updateGroup(groupPatchParm);
         return CommonResponse.builder().code(200).message("그룹 변경 성공").data(group).build();
     }
 }

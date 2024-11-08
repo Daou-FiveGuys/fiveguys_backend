@@ -7,7 +7,7 @@ import lombok.Getter;
 @Getter
 public class ContactCreateParam {
     private int memberId;
-    private String groupId;
+    private int groupId;
     private String name;
     private String telNum;
 }
