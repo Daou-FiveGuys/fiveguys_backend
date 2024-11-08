@@ -8,6 +8,8 @@ import java.util.List;
 import java.util.Optional;
 
 public interface ContactRepository extends JpaRepository<Contact, Integer> {
+    Optional<Contact> findByContactId(ContactId contactId);
+
     // 같은 이름의 유저가 다른 그룹에 속해있을 수 있음
     Optional<List<Contact>> findByMember(Member member);
 

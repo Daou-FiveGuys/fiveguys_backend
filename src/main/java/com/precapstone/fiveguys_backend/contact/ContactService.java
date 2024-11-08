@@ -65,7 +65,7 @@ public class ContactService {
     }
 
     public Contact updateContact(ContactPatchParam contactPatchParam) {
-        var contact = contactRepository.findById(contactPatchParam.getContactId())
+        var contact = contactRepository.findByContactId(contactPatchParam.getContactId())
                 .orElseThrow(() -> new RuntimeException("Contact Not Found"));
 
         if(contactPatchParam.getNewName() != null) contact.setName(contactPatchParam.getNewName());
