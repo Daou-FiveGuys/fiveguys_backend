@@ -48,7 +48,7 @@ public class AuthController {
 
     /**
      * 액세스 토큰 재발급
-     * @param authorization 액세스 토큰
+     * @param accessToken 액세스 토큰
      * @return ResponseEntity 응답
      */
     @GetMapping("/refresh-token")
