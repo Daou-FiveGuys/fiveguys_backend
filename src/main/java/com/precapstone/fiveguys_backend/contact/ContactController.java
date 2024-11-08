@@ -24,7 +24,7 @@ public class ContactController {
      * ※ 요청 사항에 그룹이 먼저 생성되어있어야 한다.
      */
     @PostMapping
-    public CommonResponse create(@RequestBody ContactCreateParam contactCreateParam) throws IOException {
+    public CommonResponse create(@RequestBody ContactCreateParam contactCreateParam) {
         // 그룹 내부에 주소록 생성
         return CommonResponse.builder().code(200).message("주소록 생성 성공").build();
     }
