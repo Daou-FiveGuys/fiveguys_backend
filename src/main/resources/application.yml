@@ -24,8 +24,8 @@ spring:
     account: ${PPURIO_ACCOUNT}
     auth: ${PPURIO_AUTHORIZATION}
 
-##  Redis
-## 서버
+#  Redis
+# 서버
   data:
     redis:
       host: redis
@@ -96,6 +96,11 @@ spring:
       stack:
         auto: false
 
+  photoroom:
+    api-key : ${PHOTOROOM_API_KEY}
+  imggen:
+    api-key : ${IMGGEN_API_KEY}
+
 #Swagger
 springdoc:
   swagger-ui:
@@ -130,3 +135,4 @@ jwt:
 frontend:
   local-domain: http://localhost
   server-domain: http://hansung-fiveguys.duckdns.org
+

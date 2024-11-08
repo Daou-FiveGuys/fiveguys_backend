@@ -16,7 +16,9 @@ import software.amazon.awssdk.services.s3.presigner.model.PresignedGetObjectRequ
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.UnsupportedEncodingException;
 import java.net.URL;
+import java.net.URLDecoder;
 import java.time.Duration;
 
 /**
@@ -108,12 +110,13 @@ public class AwsS3Service {
             PresignedGetObjectRequest presignedGetObjectRequest = s3Presigner.presignGetObject(p -> p
                     .getObjectRequest(getObjectRequest)
                     .signatureDuration(expiration));
-            URL presignedUrl = presignedGetObjectRequest.url();
 
 //            if(redisService.exists(redisKey))
 //                redisService.delete(redisKey);
-            redisService.setDataExpire(redisKey, presignedUrl.toString(), expiration.toMillis());
-            return presignedUrl.toString();
+            URL presignedUrl = presignedGetObjectRequest.url();
+            String cleanedUrl = cleanUrl(presignedUrl.toString());
+            redisService.setDataExpire(redisKey, cleanedUrl, expiration.toMillis());
+            return cleanedUrl;
         } catch (Exception e){
             return null;
         }
@@ -130,6 +133,20 @@ public class AwsS3Service {
         } else if (input instanceof String) {
             String imageUrl = (String) input;
             requestBody = saveFileFromUrlToS3(imageUrl);
+        } else if (input instanceof InputStream){
+            InputStream inputStream = (InputStream) input;
+            // Convert InputStream to ByteArrayOutputStream
+            try (ByteArrayOutputStream buffer = new ByteArrayOutputStream()) {
+                byte[] data = new byte[8192];
+                int bytesRead;
+                while ((bytesRead = inputStream.read(data, 0, data.length)) != -1) {
+                    buffer.write(data, 0, bytesRead);
+                }
+                buffer.flush();
+
+                byte[] fileBytes = buffer.toByteArray();
+                requestBody = RequestBody.fromBytes(fileBytes);
+            }
         } else {
             throw new IllegalArgumentException("Unsupported input type: " + input.getClass().getName());
         }
@@ -138,7 +155,7 @@ public class AwsS3Service {
         return findUrlByKey(key);
     }
 
-    public RequestBody saveFileFromUrlToS3(String imageUrl) throws IOException {
+    private RequestBody saveFileFromUrlToS3(String imageUrl) throws IOException {
         // URL에서 InputStream 생성
         URL url = new URL(imageUrl);
         try (InputStream inputStream = url.openStream();
@@ -196,5 +213,29 @@ public class AwsS3Service {
                 .key(key)
                 .contentType("image/jpeg")
                 .build();
+    }
+
+
+    private String cleanUrl(String presignedUrl) {
+        try {
+            // 디코딩된 URL
+            String decodedUrl = URLDecoder.decode(presignedUrl, "UTF-8");
+
+            // 쿼리 스트링 제거
+            int queryIndex = decodedUrl.indexOf('?');
+            if (queryIndex != -1) {
+                decodedUrl = decodedUrl.substring(0, queryIndex);
+            }
+
+            // 중복된 URL 제거
+            if (decodedUrl.contains("https://")) {
+                int startIndex = decodedUrl.lastIndexOf("https://");
+                decodedUrl = decodedUrl.substring(startIndex);
+            }
+
+            return decodedUrl;
+        } catch (UnsupportedEncodingException e) {
+            throw new RuntimeException("Error decoding URL", e);
+        }
     }
 }

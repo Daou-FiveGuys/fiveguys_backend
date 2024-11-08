@@ -13,8 +13,8 @@ import org.springframework.web.bind.annotation.*;
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api/v1/ai/image")
-public class ImageGenController {
-    private final ImageGenService imageGenService;
+public class ImageController {
+    private final ImageService imageService;
 
     /**
      * 이미지 생성 컨트롤러
@@ -24,7 +24,7 @@ public class ImageGenController {
      */
     @PostMapping("/generate")
     public ResponseEntity<CommonResponse> generateImage(@RequestHeader("Authorization") String authorization, @RequestBody ImagePromptDTO imagePromptDTO) {
-        return ResponseEntity.ok(imageGenService.generate(authorization, imagePromptDTO.getPrompt()));
+        return ResponseEntity.ok(imageService.generate(authorization, imagePromptDTO.getPrompt()));
     }
 
     //TODO 되돌리기 기능
@@ -36,7 +36,7 @@ public class ImageGenController {
      */
     @PostMapping("/inpaint")
     public ResponseEntity<CommonResponse> inpaint(@RequestHeader("Authorization") String authorization, @ModelAttribute ImageInpaintDTO imageInpaintDTO) {
-        return ResponseEntity.ok(imageGenService.inpaint(authorization, imageInpaintDTO));
+        return ResponseEntity.ok(imageService.inpaint(authorization, imageInpaintDTO));
     }
 
     /**
@@ -47,6 +47,17 @@ public class ImageGenController {
      */
     @PostMapping("/upscale")
     public ResponseEntity<CommonResponse> upscale(@RequestHeader("Authorization") String authorization, @RequestBody ImageUpscaleDTO imageUpscaleDTO) {
-        return ResponseEntity.ok(imageGenService.upscale(authorization, imageUpscaleDTO));
+        return ResponseEntity.ok(imageService.upscale(authorization, imageUpscaleDTO));
     }
+
+    @PostMapping("/remove-text/imggen")
+    public ResponseEntity<CommonResponse> removeTextImggen(@RequestHeader("Authorization") String authorization, String requestId ) {
+        return ResponseEntity.ok(imageService.removeTextByImggen(authorization, requestId));
+    }
+
+    @PostMapping("/remove-text/photoroom")
+    public ResponseEntity<CommonResponse> removeTextPhotoroom(@RequestHeader("Authorization") String authorization, String requestId ) {
+        return ResponseEntity.ok(imageService.removeTextByPhotoRoom(authorization, requestId));
+    }
+
 }
