@@ -51,9 +51,8 @@ public class AuthController {
      * @param authorization 액세스 토큰
      * @return ResponseEntity 응답
      */
-        @PostMapping("/refresh-token")
-    public ResponseEntity<CommonResponse> refreshToken(@RequestHeader("Authorization") String authorization) {
-        String accessToken = authorization.replace(JwtFilter.TOKEN_PREFIX, "");
+    @GetMapping("/refresh-token")
+    public ResponseEntity<CommonResponse> refreshToken(@RequestParam String accessToken) {
         return ResponseEntity.ok(authService.refreshAccessToken(accessToken));
     }
 
