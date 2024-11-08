@@ -15,12 +15,12 @@ public class ContactService {
     private final ContactRepository contactRepository;
 
     public Contact createContact(ContactCreateParam contactCreateParam) {
-        var group = groupService.infoById(contactCreateParam.getGroupId());
+        var groups = groupService.infoById(contactCreateParam.getGroupId());
         var member = memberService.findByUserId(String.valueOf(contactCreateParam.getMemberId()))
                 .orElseThrow(() -> new IllegalArgumentException("Member not found"));
 
         var contact = Contact.builder()
-                .groups(group)
+                .groups(groups)
                 .member(member)
                 .name(contactCreateParam.getName())
                 .telNum(contactCreateParam.getTelNum())

@@ -19,6 +19,14 @@ public class GroupController {
     }
 
     // 그룹 생성
+    /**
+     * parentGroupId는 0일 때만 최상위 그룹으로 지정, 다른 존재하지 않는 Id의 경우 예외처리
+     * 
+     * TODO: 반환 시 Parent와 ChildGroup 사이에서 무한루프 발생.
+     * 
+     * @param groupCreateParm
+     * @return
+     */
     @PostMapping
     public CommonResponse create(@RequestBody GroupCreateParm groupCreateParm) {
         // 그룹 생성
@@ -35,6 +43,12 @@ public class GroupController {
     }
 
     // 그룹 변경
+
+    /**
+     * newParentId = -1 을 반환 시 변경하지 않음
+     * @param groupPatchParm
+     * @return
+     */
     @PatchMapping
     public CommonResponse update(@RequestBody GroupPatchParm groupPatchParm) {
         // 그룹 변경

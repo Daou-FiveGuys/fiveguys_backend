@@ -33,6 +33,6 @@ public class Groups {
     private Groups parent;
 
     // 소속된 그룹, 없다면 Null
-    @OneToMany(mappedBy = "parent", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "parent", fetch = FetchType.LAZY, cascade = CascadeType.REMOVE)
     private List<Groups> child;
 }

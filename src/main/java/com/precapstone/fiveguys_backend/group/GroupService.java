@@ -11,8 +11,8 @@ public class GroupService {
     private final GroupsRepository groupsRepository;
 
     public Groups createGroup(GroupCreateParm groupCreateParm) {
-        var parentGroup = groupsRepository.findByGroupsName(groupCreateParm.getGroupName())
-                .orElseThrow(() -> new RuntimeException("ParentGroup Not Found"));
+        var parentGroup = groupsRepository.findById(groupCreateParm.getParentGroupId())
+                .orElse(null);
 
         var group = Groups.builder()
                 .groupsName(groupCreateParm.getGroupName())
@@ -40,11 +40,11 @@ public class GroupService {
                 .orElseThrow(() -> new RuntimeException("Group Not Found"));
 
         var parentGroup = groupsRepository
-                .findById(groupPatchParm.getGroupId())
+                .findById(groupPatchParm.getNewParentGroupId())
                 .orElseThrow(() -> new RuntimeException("ParentGroup Not Found"));
 
         if(groupPatchParm.getNewGroupName() != null) group.setGroupsName(groupPatchParm.getNewGroupName());
-        if(groupPatchParm.getNewParentGroupId() != null) group.setParent(parentGroup);
+        if(groupPatchParm.getNewParentGroupId() != -1) group.setParent(parentGroup);
 
         groupsRepository.save(group);
 

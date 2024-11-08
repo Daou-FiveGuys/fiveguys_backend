@@ -7,5 +7,5 @@ import lombok.Getter;
 @Getter
 public class GroupCreateParm {
     private String groupName;
-    private String parentGroupId;
+    private int parentGroupId;
 }

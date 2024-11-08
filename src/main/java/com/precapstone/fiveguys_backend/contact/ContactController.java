@@ -24,7 +24,7 @@ public class ContactController {
     }
 
     // 주소록 조회 (특정 연락처 전체 연락처 존재)
-    @GetMapping("groupName/{groupName}")
+    @GetMapping("{groupName}")
     public CommonResponse info(@PathVariable String groupName) {
         // ※ 전화번호 조회, 이름 조회 모두 가능해야 함
         var contacts = contactService.contactsInGroup(groupName);

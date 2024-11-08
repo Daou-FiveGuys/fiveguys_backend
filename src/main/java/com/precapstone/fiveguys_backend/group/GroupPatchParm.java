@@ -8,5 +8,5 @@ import lombok.Getter;
 public class GroupPatchParm {
     private int groupId;
     private String newGroupName;
-    private String newParentGroupId;
+    private int newParentGroupId;
 }
