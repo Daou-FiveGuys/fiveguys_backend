@@ -2,6 +2,7 @@ package com.precapstone.fiveguys_backend.api.auth;
 
 import com.precapstone.fiveguys_backend.api.user.UserRepository;
 import com.precapstone.fiveguys_backend.common.auth.CustomUserDetails;
+import io.jsonwebtoken.*;
 import com.precapstone.fiveguys_backend.common.auth.JwtFilter;
 import com.precapstone.fiveguys_backend.entity.User;
 import io.jsonwebtoken.Claims;
@@ -16,6 +17,8 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 
+import javax.crypto.spec.SecretKeySpec;
+import java.security.Key;
 import java.util.*;
 
 @RequiredArgsConstructor
@@ -25,15 +28,17 @@ public class JwtTokenProvider {
     @Value("${jwt.secret.key}")
     private String secretKey;
     @Value("${jwt.secret.access_token_validity}") // 30분
-    static public long accessTokenValidityInMilliseconds;
+    private String accessTokenValidity;
     @Value("${jwt.secret.refresh_token_validity}") // 7일
-    static public long refreshTokenValidityInMilliseconds;
+    private String refreshTokenValidity;
 
     private final CustomUserDetailService customUserDetailService;
 
+    private Key key = null;
+
     @PostConstruct
     protected void init() {
-        secretKey = Base64.getEncoder().encodeToString(secretKey.getBytes());
+        key = new SecretKeySpec(secretKey.getBytes(), "HmacSHA512");
     }
 
     public String createAccessToken(Authentication authentication) {
@@ -46,8 +51,8 @@ public class JwtTokenProvider {
                 .setClaims(claims)
                 .setSubject(userId)
                 .setIssuedAt(new Date())
-                .setExpiration(new Date(System.currentTimeMillis() + 30 * 60 * 1000000))
-                .signWith(SignatureAlgorithm.HS512, secretKey)
+                .setExpiration(new Date(System.currentTimeMillis() + Long.parseLong(accessTokenValidity)))
+                .signWith(key)
                 .compact();
     }
 
@@ -57,30 +62,45 @@ public class JwtTokenProvider {
         return Jwts.builder()
                 .setSubject(userId)
                 .setIssuedAt(new Date())
-                .setExpiration(new Date(System.currentTimeMillis() + refreshTokenValidityInMilliseconds))
-                .signWith(SignatureAlgorithm.HS512, secretKey)
+                .setExpiration(new Date(System.currentTimeMillis() + Long.parseLong(refreshTokenValidity)))
+                .signWith(key)
                 .compact();
     }
 
     public boolean validateToken(String token) {
         try {
-            Jwts.parser().setSigningKey(secretKey).parseClaimsJws(token);
-            return true;
-        } catch (Exception e) {
-            e.printStackTrace();
-            return false;
+            Jws<Claims> claims = Jwts.parserBuilder()
+                    .setSigningKey(key)
+                    .build()
+                    .parseClaimsJws(token);
+                return true;
+        } catch (ExpiredJwtException e) {
+            System.out.println("Expired JWT token");
+        } catch (UnsupportedJwtException e) {
+            System.out.println("Unsupported JWT token");
+        } catch (MalformedJwtException e) {
+            System.out.println("Invalid JWT token");
+        } catch (JwtException | IllegalArgumentException e) {
+            System.out.println("Invalid token");
         }
+        return false;
     }
 
     public Claims getClaimsFromToken(String token) {
-        return Jwts.parser()
-                .setSigningKey(secretKey)
+        return Jwts.parserBuilder()
+                .setSigningKey(key)
+                .build()
                 .parseClaimsJws(token)
                 .getBody();
     }
 
     public String getUserPk(String token) {
-        return Jwts.parser().setSigningKey(secretKey).parseClaimsJws(token).getBody().getSubject();
+        return Jwts.parserBuilder()
+                .setSigningKey(key)
+                .build()
+                .parseClaimsJws(token)
+                .getBody()
+                .getSubject();
     }
 
     public String resolveToken(HttpServletRequest request) {
