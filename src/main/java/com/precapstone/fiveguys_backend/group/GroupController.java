@@ -12,28 +12,28 @@ import java.io.IOException;
 public class GroupController {
 //    // 그룹 조회
 //    @GetMapping
-//    public CommonResponse info() throws IOException {
+//    public CommonResponse info() {
 //        // 그룹 조회
 //        return CommonResponse.builder().code(200).message("그룹 조회 성공").build();
 //    }
 
     // 그룹 생성
     @PostMapping
-    public CommonResponse create(GroupCreateParm groupCreateParm) throws IOException {
+    public CommonResponse create(GroupCreateParm groupCreateParm) {
         // 그룹 생성
         return CommonResponse.builder().code(200).message("그룹 생성 성공").build();
     }
 
     // 그룹 삭제
     @DeleteMapping
-    public CommonResponse delete() throws IOException {
+    public CommonResponse delete() {
         // 그룹 삭제
         return CommonResponse.builder().code(200).message("그룹 삭제 성공").build();
     }
 
 //    // 그룹 변경
 //    @PatchMapping
-//    public CommonResponse patch() throws IOException {
+//    public CommonResponse patch() {
 //        // 그룹 변경
 //        // 1. 위치 이동의 경우
 //        // 2. 정보 변경의 경우
