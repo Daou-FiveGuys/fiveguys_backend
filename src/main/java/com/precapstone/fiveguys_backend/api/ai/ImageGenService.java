@@ -69,7 +69,7 @@ public class ImageGenService {
 
         try {
             //스레드
-            this.saveImageToDB(result, userId);
+            this.saveImageResultIntoDB(result, userId);
             return CommonResponse.builder()
                     .code(200)
                     .data(ImageLinkExtractor.extractImageUrl(result.getData()))
@@ -94,7 +94,7 @@ public class ImageGenService {
 
         String requestId = imageInpaintDTO.getRequestId();
         ImageResult imageResult = imageGenRepository.findImageByOriginalRequestId(requestId).orElseThrow();
-        String maskImageUrl = saveMaskImageToS3(imageInpaintDTO.getMask(), requestId, userId);
+        String maskImageUrl = saveMaskImageIntoS3(imageInpaintDTO.getMask(), requestId, userId);
 
         var input = Map.of(
             "image_url", imageResult.getOriginalImageInfo().getUrl(),
@@ -115,7 +115,7 @@ public class ImageGenService {
                         .build());
 
         try {
-            this.saveInpaintImageToDB(result, imageResult);
+            this.saveInpaintedImageIntoDB(result, imageResult);
             return CommonResponse.builder()
                     .code(200)
                     .data(ImageLinkExtractor.extractImageUrl(result.getData()))
@@ -130,7 +130,11 @@ public class ImageGenService {
     public CommonResponse upscale(String authorization, ImageUpscaleDTO imageUpscaleDTO){
         String accessToken = JwtTokenProvider.stripTokenPrefix(authorization);
         String userId = jwtTokenProvider.getUserIdFromToken(accessToken);
-        String imageUrl = "";
+
+        ImageResult imageResult = imageGenRepository.findImageByOriginalRequestId(imageUpscaleDTO.getOriginalRequestId()).orElseThrow();
+        String imageUrl = imageResult.getEditedImageInfo() != null ?
+                imageResult.getEditedImageInfo().getUrl() : imageResult.getOriginalImageInfo().getUrl();
+
         var input = Map.of(
             "image_url", imageUrl
         );
@@ -146,7 +150,18 @@ public class ImageGenService {
                         })
                         .build()
         );
-        return null;
+
+        try {
+            this.saveUpscaledImageIntoDB(result, imageResult);
+            return CommonResponse.builder()
+                    .code(200)
+                    .data(ImageLinkExtractor.extractUpscaledImageUrl(result.getData()))
+                    .build();
+        } catch (Exception e) {
+            return CommonResponse.builder()
+                    .code(400)
+                    .build();
+        }
     }
 
 
@@ -157,7 +172,7 @@ public class ImageGenService {
      * @param userId
      * @return
      */
-    public String saveMaskImageToS3(MultipartFile multipartFile, String requestId, String userId) {
+    public String saveMaskImageIntoS3(MultipartFile multipartFile, String requestId, String userId) {
         requestId  = requestId + "-mask";
         // 이미지 생성, 저장 (접속 불가)
         awsS3Service.upload(multipartFile, requestId);
@@ -174,11 +189,12 @@ public class ImageGenService {
     //TODO 이미지 선택하지 않았을 경우 쓰레기 값 DB에 남음
     @Async
     @Transactional
-    public void saveImageToDB(Output<JsonObject> output, String userId) {
+    public void saveImageResultIntoDB(Output<JsonObject> output, String userId) {
         try {
             System.out.println(Thread.currentThread().getName());
             imageGenRepository.save(ImageResult.builder()
                     .userId(userId)
+                    .originalRequestId(output.getRequestId())
                     .originalImageInfo(
                             ImageInfo.builder()
                                     .requestId(output.getRequestId())
@@ -200,12 +216,32 @@ public class ImageGenService {
      */
     @Async
     @Transactional
-    public void saveInpaintImageToDB(Output<JsonObject> output, ImageResult imageResult) {
+    public void saveInpaintedImageIntoDB(Output<JsonObject> output, ImageResult imageResult) {
         try {
             System.out.println(Thread.currentThread().getName());
             imageResult.setEditedImageInfo(ImageInfo.builder()
                     .requestId(output.getRequestId())
                     .url(ImageLinkExtractor.extractImageUrl(output.getData()))
+                    .build());
+            imageGenRepository.save(imageResult);
+        } catch (Exception e) {
+            System.err.println("이미지 저장 중 오류 발생: " + e.getMessage());
+        }
+    }
+
+    /**
+     *
+     * @param output
+     * @param imageResult
+     */
+    @Async
+    @Transactional
+    public void saveUpscaledImageIntoDB(Output<JsonObject> output, ImageResult imageResult) {
+        try {
+            System.out.println(Thread.currentThread().getName());
+            imageResult.setEditedImageInfo(ImageInfo.builder()
+                    .requestId(output.getRequestId())
+                    .url(ImageLinkExtractor.extractUpscaledImageUrl(output.getData()))
                     .build());
             imageGenRepository.save(imageResult);
         } catch (Exception e) {

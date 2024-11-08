@@ -1,7 +1,9 @@
 package com.precapstone.fiveguys_backend.entity;
 
 
+import jakarta.annotation.Nullable;
 import jakarta.persistence.*;
+import jakarta.validation.constraints.NotNull;
 import lombok.*;
 
 
@@ -16,12 +18,15 @@ public class ImageResult {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long imageId;
 
+    @NotNull
     private String originalRequestId;
     private String userId;
 
+    @NotNull
     @OneToOne(cascade = CascadeType.ALL)
     private ImageInfo originalImageInfo;
 
+    @Nullable
     @OneToOne(cascade = CascadeType.ALL)
     private ImageInfo editedImageInfo;
 
