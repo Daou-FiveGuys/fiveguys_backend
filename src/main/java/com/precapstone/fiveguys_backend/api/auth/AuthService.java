@@ -72,9 +72,9 @@ public class AuthService {
      * @return CommonResponse
      */
     public CommonResponse signIn(LoginInfoDTO loginInfoDTO){
-        Optional<User> optionalMember = userRepository.findByUserId("fiveguys_" + loginInfoDTO.getEmail());
-        if(optionalMember.isPresent()) {
-            User user = optionalMember.get();
+        Optional<User> optionalUser = userRepository.findByUserId("fiveguys_" + loginInfoDTO.getEmail());
+        if(optionalUser.isPresent()) {
+            User user = optionalUser.get();
             if (passwordEncoder.matches(loginInfoDTO.getPassword(), user.getPassword())) {
                 String responseMessage = null;
                 if (user.getUserRole() == UserRole.USER)
@@ -99,7 +99,7 @@ public class AuthService {
         }
         return CommonResponse.builder()
                 .code(401)
-                .message("Member not found")
+                .message("User not found")
                 .build();
     }
 

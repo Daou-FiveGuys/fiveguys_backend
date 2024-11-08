@@ -45,15 +45,15 @@ public class MailService {
     public CommonResponse verifyCode(String accessToken, String verificationCode) {
         String email = jwtTokenProvider.getEmailFromToken(accessToken);
         String verifyCode = redisService.get(email);
-        Optional<User> optionalMember =  userRepository.findByUserId(jwtTokenProvider.getUserIdFromToken(accessToken));
-        if(verifyCode == null || !verifyCode.equals(verificationCode) || optionalMember.isEmpty()) {
+        Optional<User> optionalUser =  userRepository.findByUserId(jwtTokenProvider.getUserIdFromToken(accessToken));
+        if(verifyCode == null || !verifyCode.equals(verificationCode) || optionalUser.isEmpty()) {
             return CommonResponse.builder()
                     .code(401)
                     .message("Failed to verify")
                     .data(false)
                     .build();
         }
-        User user = optionalMember.get();
+        User user = optionalUser.get();
         user.setUserRole(UserRole.USER);
         userRepository.save(user);
 

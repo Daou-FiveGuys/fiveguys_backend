@@ -14,7 +14,7 @@ public class Image {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long imageId;
-    private String memberId;
+    private String userId;
     private String requestId;
     @Column(columnDefinition = "TEXT")
     private String originalImageLink;
