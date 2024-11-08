@@ -102,6 +102,7 @@ public class ImageGenService {
             "prompt", imageInpaintDTO.getPrompt()
         );
 
+
         var result = fal.subscribe("fal-ai/fast-sdxl/inpainting",
                 SubscribeOptions.<JsonObject>builder()
                         .input(input)

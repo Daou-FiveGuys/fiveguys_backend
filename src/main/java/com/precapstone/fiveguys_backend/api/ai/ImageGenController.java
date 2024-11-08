@@ -35,7 +35,7 @@ public class ImageGenController {
      * @return ResponseEntity<CommonResponse> 이미지 정보
      */
     @PostMapping("/inpaint")
-    public ResponseEntity<CommonResponse> inpaint(@ModelAttribute @RequestHeader("Authorization") String authorization, @RequestBody ImageInpaintDTO imageInpaintDTO) {
+    public ResponseEntity<CommonResponse> inpaint(@RequestHeader("Authorization") String authorization, @ModelAttribute ImageInpaintDTO imageInpaintDTO) {
         return ResponseEntity.ok(imageGenService.inpaint(authorization, imageInpaintDTO));
     }
 
