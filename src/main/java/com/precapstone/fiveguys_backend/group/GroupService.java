@@ -68,7 +68,7 @@ public class GroupService {
         var group = groupsRepository.findById(groupId)
                 .orElseThrow(() -> new RuntimeException("Group Not Found"));
 
-        var groups = groupsRepository.findByChild(group)
+        var groups = groupsRepository.findByParent(group)
                 .orElseThrow(() -> new RuntimeException("Group Not Found"));
 
         return groups;
