@@ -2,11 +2,11 @@ package com.precapstone.fiveguys_backend.api.email;
 
 import com.precapstone.fiveguys_backend.api.auth.JwtTokenProvider;
 import com.precapstone.fiveguys_backend.api.dto.AuthResponseDTO;
-import com.precapstone.fiveguys_backend.api.member.MemberRepository;
+import com.precapstone.fiveguys_backend.api.user.UserRepository;
 import com.precapstone.fiveguys_backend.api.redis.RedisService;
 import com.precapstone.fiveguys_backend.common.CommonResponse;
 import com.precapstone.fiveguys_backend.common.enums.UserRole;
-import com.precapstone.fiveguys_backend.entity.Member;
+import com.precapstone.fiveguys_backend.entity.User;
 import jakarta.mail.MessagingException;
 import jakarta.mail.internet.MimeMessage;
 import lombok.RequiredArgsConstructor;
@@ -32,7 +32,7 @@ public class MailService {
     private final String sender = "daou.fiveguys@gmail.com";
     private final RedisService redisService;
     private final JwtTokenProvider jwtTokenProvider;
-    private final MemberRepository memberRepository;
+    private final UserRepository userRepository;
 
     /**
      * 인증로직
@@ -45,7 +45,7 @@ public class MailService {
     public CommonResponse verifyCode(String accessToken, String verificationCode) {
         String email = jwtTokenProvider.getEmailFromToken(accessToken);
         String verifyCode = redisService.get(email);
-        Optional<Member> optionalMember =  memberRepository.findByUserId(jwtTokenProvider.getUserIdFromToken(accessToken));
+        Optional<User> optionalMember =  userRepository.findByUserId(jwtTokenProvider.getUserIdFromToken(accessToken));
         if(verifyCode == null || !verifyCode.equals(verificationCode) || optionalMember.isEmpty()) {
             return CommonResponse.builder()
                     .code(401)
@@ -53,9 +53,9 @@ public class MailService {
                     .data(false)
                     .build();
         }
-        Member member = optionalMember.get();
-        member.setUserRole(UserRole.USER);
-        memberRepository.save(member);
+        User user = optionalMember.get();
+        user.setUserRole(UserRole.USER);
+        userRepository.save(user);
 
         Authentication authentication = jwtTokenProvider.getAuthenticationByAccesstoken(accessToken);
         return CommonResponse.builder()
