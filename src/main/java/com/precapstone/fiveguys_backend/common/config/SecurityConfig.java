@@ -25,16 +25,16 @@ public class SecurityConfig {
                 .cors(Customizer.withDefaults())
                 .httpBasic(HttpBasicConfigurer::disable)
                 .csrf(AbstractHttpConfigurer::disable)
-                .sessionManagement((httpSecuritySessionManagementConfigurer) -> {
-                    httpSecuritySessionManagementConfigurer.sessionCreationPolicy(SessionCreationPolicy.STATELESS);
-                })
-                //TODO 추후 수정
+                .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(authorize -> authorize
-                        .requestMatchers("/login", "/swagger-ui/**", "/api-docs/**", "/swagger-resources/**").permitAll()
-                        .requestMatchers("/api/v1/oauth/**","/api/v1/**", "/signup").permitAll()
+                        .requestMatchers(
+                                "/login", "/signup", "/swagger-ui/**", "/api-docs/**", "/swagger-resources/**",
+                                "/api/v1/oauth/**" // 갱신 엔드포인트 허용
+                        ).permitAll()
                         .anyRequest().authenticated()
                 )
                 .addFilterBefore(new JwtFilter(jwtTokenProvider), UsernamePasswordAuthenticationFilter.class);
         return http.build();
     }
+
 }
