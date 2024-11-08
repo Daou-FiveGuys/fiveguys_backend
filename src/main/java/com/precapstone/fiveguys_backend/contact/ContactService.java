@@ -20,7 +20,7 @@ public class ContactService {
                 .orElseThrow(() -> new IllegalArgumentException("Member not found"));
 
         var contact = Contact.builder()
-                .group(group)
+                .groups(group)
                 .member(member)
                 .name(contactCreateParam.getName())
                 .telNum(contactCreateParam.getTelNum())
@@ -32,15 +32,15 @@ public class ContactService {
 
     public Contact infoByGroupAndName(String groupName, String name) {
         var group = groupService.infoByName(groupName);
-        var contact = contactRepository.findByGroupAndName(group, name)
+        var contact = contactRepository.findByGroupsAndName(group, name)
                 .orElseThrow(() -> new RuntimeException("Group And Name Not Found"));
 
         return contact;
     }
 
-    public Contact infoByGroupAndTelNum(String groupName, String telNum) {
+    public Contact infoByGroupsAndTelNum(String groupName, String telNum) {
         var group = groupService.infoByName(groupName);
-        var contact = contactRepository.findByGroupAndTelNum(group, telNum)
+        var contact = contactRepository.findByGroupsAndTelNum(group, telNum)
                 .orElseThrow(() -> new RuntimeException("Group And TelNum Not Found"));
 
         return contact;
@@ -48,7 +48,7 @@ public class ContactService {
 
     public List<Contact> contactsInGroup(String groupName) {
         var group = groupService.infoByName(groupName);
-        var contacts = contactRepository.findByGroup(group)
+        var contacts = contactRepository.findByGroups(group)
                 .orElseThrow(() -> new RuntimeException("Group Not Found"));
 
         return contacts;

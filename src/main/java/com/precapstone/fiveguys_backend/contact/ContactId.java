@@ -14,20 +14,20 @@ import lombok.NoArgsConstructor;
 @EqualsAndHashCode
 public class ContactId {
     // Group.groupId 외래키 참조
-    @Column(name = "group_id")
-    private Long groupId;
+    @Column(name = "groups_id")
+    private int groupsId;
 
     // Member.memberId 외래키 참조
     @Column(name = "member_id")
-    private Long member_id;
+    private int memberId;
 
     /**
      *
-     * @param groupId Group.groupId
-     * @param member_id Member.memberId
+     * @param groupsId Group.groupId
+     * @param memberId Member.memberId
      */
-    public ContactId(Long groupId, Long member_id) {
-        this.groupId = groupId;
-        this.member_id = member_id;
+    public ContactId(int groupsId, int memberId) {
+        this.groupsId = groupsId;
+        this.memberId = memberId;
     }
 }

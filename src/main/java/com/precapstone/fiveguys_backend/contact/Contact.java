@@ -1,7 +1,7 @@
 package com.precapstone.fiveguys_backend.contact;
 
 import com.precapstone.fiveguys_backend.entity.Member;
-import com.precapstone.fiveguys_backend.group.Group;
+import com.precapstone.fiveguys_backend.group.Groups;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -24,10 +24,10 @@ public class Contact {
     private ContactId contactId;
 
     // 소속된 그룹
-    @MapsId("groupId")
+    @MapsId("groupsId")
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "group_id")
-    private Group group;
+    @JoinColumn(name = "groups_id")
+    private Groups groups;
 
     // 유저
     @MapsId("memberId")

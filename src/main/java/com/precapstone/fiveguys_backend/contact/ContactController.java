@@ -1,11 +1,8 @@
 package com.precapstone.fiveguys_backend.contact;
 
 import com.precapstone.fiveguys_backend.common.CommonResponse;
-import com.precapstone.fiveguys_backend.group.GroupPatchParm;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.Objects;
 
 @RestController
 @RequestMapping("/api/v1/contact/")
@@ -14,12 +11,14 @@ public class ContactController {
     private final ContactService contactService;
 
     // 주소록 조회 (특정 연락처 전체 연락처 존재)
-    @GetMapping("groupName/{groupName}/name/{name}/telNum/{telNum}")
-    public CommonResponse info(@PathVariable String groupName, @PathVariable String name, @PathVariable String telNum) {
+    @GetMapping("{groupsName}/{nameOrTelNum}")
+    public CommonResponse info(@PathVariable String groupsName, @PathVariable String nameOrTelNum) {
         // ※ 전화번호 조회, 이름 조회 모두 가능해야 함
         Contact contact;
-        if(name.equals("null")) contact = contactService.infoByGroupAndName(groupName, name);
-        else contact = contactService.infoByGroupAndTelNum(groupName, telNum);
+
+        // 정수가 된다면
+        if(isNumberic(nameOrTelNum)) contact = contactService.infoByGroupsAndTelNum(groupsName, nameOrTelNum);
+        else contact = contactService.infoByGroupAndName(groupsName, nameOrTelNum);
 
         return CommonResponse.builder().code(200).message("주소록 조회 성공").data(contact).build();
     }
@@ -61,5 +60,9 @@ public class ContactController {
         var contact = contactService.updateContact(contactPatchParam);
 
         return CommonResponse.builder().code(200).message("주소록 변경 성공").data(contact).build();
+    }
+
+    private boolean isNumberic(String str) {
+        return str.chars().allMatch(Character::isDigit);
     }
 }

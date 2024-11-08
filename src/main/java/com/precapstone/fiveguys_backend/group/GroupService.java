@@ -8,67 +8,67 @@ import java.util.List;
 @Service
 @RequiredArgsConstructor
 public class GroupService {
-    private final GroupRepository groupRepository;
+    private final GroupsRepository groupsRepository;
 
-    public Group createGroup(GroupCreateParm groupCreateParm) {
-        var parentGroup = groupRepository.findByGroupName(groupCreateParm.getGroupName())
+    public Groups createGroup(GroupCreateParm groupCreateParm) {
+        var parentGroup = groupsRepository.findByGroupsName(groupCreateParm.getGroupName())
                 .orElseThrow(() -> new RuntimeException("ParentGroup Not Found"));
 
-        var group = Group.builder()
-                .groupName(groupCreateParm.getGroupName())
-                .parentGroup(parentGroup)
+        var group = Groups.builder()
+                .groupsName(groupCreateParm.getGroupName())
+                .parent(parentGroup)
                 .build();
 
-        groupRepository.save(group);
+        groupsRepository.save(group);
 
         return group;
     }
 
-    public Group deleteGroup(int groupId) {
-        var group = groupRepository
+    public Groups deleteGroup(int groupId) {
+        var group = groupsRepository
                 .findById(groupId)
                 .orElseThrow(() -> new RuntimeException("Group Not Found"));
 
-        groupRepository.deleteById(groupId);
+        groupsRepository.deleteById(groupId);
 
         return group;
     }
 
-    public Group updateGroup(GroupPatchParm groupPatchParm) {
-        var group = groupRepository
+    public Groups updateGroup(GroupPatchParm groupPatchParm) {
+        var group = groupsRepository
                 .findById(groupPatchParm.getGroupId())
                 .orElseThrow(() -> new RuntimeException("Group Not Found"));
 
-        var parentGroup = groupRepository
+        var parentGroup = groupsRepository
                 .findById(groupPatchParm.getGroupId())
                 .orElseThrow(() -> new RuntimeException("ParentGroup Not Found"));
 
-        if(groupPatchParm.getNewGroupName() != null) group.setGroupName(groupPatchParm.getNewGroupName());
-        if(groupPatchParm.getNewParentGroupId() != null) group.setParentGroup(parentGroup);
+        if(groupPatchParm.getNewGroupName() != null) group.setGroupsName(groupPatchParm.getNewGroupName());
+        if(groupPatchParm.getNewParentGroupId() != null) group.setParent(parentGroup);
 
-        groupRepository.save(group);
-
-        return group;
-    }
-
-    public Group infoById(int groupId) {
-        var group = groupRepository.findById(groupId)
-                .orElseThrow(() -> new RuntimeException("Group Not Found"));
-        return group;
-    }
-
-    public Group infoByName(String groupName) {
-        var group = groupRepository.findByGroupName(groupName)
-                .orElseThrow(() -> new RuntimeException("Group Not Found"));
+        groupsRepository.save(group);
 
         return group;
     }
 
-    public List<Group> childGroupInfo(int groupId) {
-        var group = groupRepository.findById(groupId)
+    public Groups infoById(int groupId) {
+        var group = groupsRepository.findById(groupId)
+                .orElseThrow(() -> new RuntimeException("Group Not Found"));
+        return group;
+    }
+
+    public Groups infoByName(String groupName) {
+        var group = groupsRepository.findByGroupsName(groupName)
                 .orElseThrow(() -> new RuntimeException("Group Not Found"));
 
-        var groups = groupRepository.findByChildGroup(group)
+        return group;
+    }
+
+    public List<Groups> childGroupInfo(int groupId) {
+        var group = groupsRepository.findById(groupId)
+                .orElseThrow(() -> new RuntimeException("Group Not Found"));
+
+        var groups = groupsRepository.findByChild(group)
                 .orElseThrow(() -> new RuntimeException("Group Not Found"));
 
         return groups;

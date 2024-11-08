@@ -16,22 +16,23 @@ import java.util.List;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class Group {
+@Table(name = "groups")
+public class Groups {
     // 식별자
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private int groupId;
+    private int groupsId;
 
     // 그룹의 이름 ※ 동일 이름을 구분할 식별자(대표 유저 등)가 없기 때문에, Unique로 설정
     @Column(unique = true, nullable = false)
-    private String groupName;
+    private String groupsName;
 
     // 소속된 그룹, 없다면 Null
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "parent_group_id", referencedColumnName = "group_id")
-    private Group parentGroup;
+    @JoinColumn(name = "parent_id", referencedColumnName = "groupsId")
+    private Groups parent;
 
     // 소속된 그룹, 없다면 Null
-    @OneToMany(mappedBy = "parentGroup", fetch = FetchType.LAZY)
-    private List<Group> childrenGroup;
+    @OneToMany(mappedBy = "parent", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    private List<Groups> child;
 }
