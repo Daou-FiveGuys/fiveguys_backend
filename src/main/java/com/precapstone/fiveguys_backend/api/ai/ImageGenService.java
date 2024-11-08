@@ -136,6 +136,9 @@ public class ImageGenService {
                 imageResult.getEditedImageInfo().getUrl() : imageResult.getOriginalImageInfo().getUrl();
 
         var input = Map.of(
+            "scale", 2,
+            "model", "RealESRGAN_x2plus",
+            "face", false,
             "image_url", imageUrl
         );
         var result = fal.subscribe("fal-ai/esrgan",
