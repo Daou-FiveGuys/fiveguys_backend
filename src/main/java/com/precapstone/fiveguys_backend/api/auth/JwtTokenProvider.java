@@ -23,8 +23,8 @@ public class JwtTokenProvider {
     private final MemberRepository memberRepository;
     @Value("${jwt.secret.key}")
     private String secretKey;
-//    @Value("${jwt.secret.access_token_validity}") // 30분
-    private String accessTokenValidity = "60000";
+    @Value("${jwt.secret.access_token_validity}") // 30분
+    private String accessTokenValidity;
     @Value("${jwt.secret.refresh_token_validity}") // 7일
     private String refreshTokenValidity;
 
@@ -84,11 +84,15 @@ public class JwtTokenProvider {
     }
 
     public Claims getClaimsFromToken(String token) {
-        return Jwts.parserBuilder()
-                .setSigningKey(key)
-                .build()
-                .parseClaimsJws(token)
-                .getBody();
+        try {
+            return Jwts.parserBuilder()
+                    .setSigningKey(key)
+                    .build()
+                    .parseClaimsJws(token)
+                    .getBody();
+        } catch (ExpiredJwtException e) {
+            return e.getClaims();
+        }
     }
 
     public String getUserPk(String token) {
