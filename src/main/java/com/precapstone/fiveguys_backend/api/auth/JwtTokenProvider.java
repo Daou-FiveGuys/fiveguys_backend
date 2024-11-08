@@ -23,8 +23,8 @@ public class JwtTokenProvider {
     private final MemberRepository memberRepository;
     @Value("${jwt.secret.key}")
     private String secretKey;
-//    @Value("${jwt.secret.access_token_validity}") // 30분
-    private String accessTokenValidity = "3000";
+    @Value("${jwt.secret.access_token_validity}") // 30분
+    private String accessTokenValidity;
     @Value("${jwt.secret.refresh_token_validity}") // 7일
     private String refreshTokenValidity;
 
