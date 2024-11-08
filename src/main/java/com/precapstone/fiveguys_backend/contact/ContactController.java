@@ -16,6 +16,7 @@ public class ContactController {
         // ※ 전화번호 조회, 이름 조회 모두 가능해야 함
         // 그룹 조회
         // 주소록 조회
+
         return CommonResponse.builder().code(200).message("주소록 조회 성공").build();
     }
     

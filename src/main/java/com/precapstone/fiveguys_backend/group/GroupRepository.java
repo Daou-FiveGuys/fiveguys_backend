@@ -1,12 +1,11 @@
 package com.precapstone.fiveguys_backend.group;
 
-import com.precapstone.fiveguys_backend.contact.Contact;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.List;
 import java.util.Optional;
 
-public interface GroupRepository extends JpaRepository<Contact, Integer> {
+public interface GroupRepository extends JpaRepository<Group, Integer> {
     // 그룹 이름은 단일 개체이다.
     Optional<Group> findByGroupName(String groupName);
 

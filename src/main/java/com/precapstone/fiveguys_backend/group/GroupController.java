@@ -10,33 +10,39 @@ import java.io.IOException;
 @RequestMapping("/api/v1/contact/")
 @RequiredArgsConstructor
 public class GroupController {
-//    // 그룹 조회
-//    @GetMapping
-//    public CommonResponse info() {
-//        // 그룹 조회
-//        return CommonResponse.builder().code(200).message("그룹 조회 성공").build();
-//    }
+    private final GroupService groupService;
+
+    // 그룹 조회
+    @GetMapping("{groupId}")
+    public CommonResponse info(@PathVariable int groupId) {
+        // 그룹 조회
+        var groups = groupService.childGroupInfo(groupId);
+        return CommonResponse.builder().code(200).message("그룹 조회 성공").data(groups).build();
+    }
 
     // 그룹 생성
     @PostMapping
-    public CommonResponse create(GroupCreateParm groupCreateParm) {
+    public CommonResponse create(@RequestBody GroupCreateParm groupCreateParm) {
         // 그룹 생성
-        return CommonResponse.builder().code(200).message("그룹 생성 성공").build();
+        var group = groupService.createGroup(groupCreateParm);
+        return CommonResponse.builder().code(200).message("그룹 생성 성공").data(group).build();
     }
 
     // 그룹 삭제
-    @DeleteMapping
-    public CommonResponse delete() {
+    @DeleteMapping("{groupId}")
+    public CommonResponse delete(@PathVariable int groupId) {
         // 그룹 삭제
-        return CommonResponse.builder().code(200).message("그룹 삭제 성공").build();
+        var group = groupService.deleteGroup(groupId);
+        return CommonResponse.builder().code(200).message("그룹 삭제 성공").data(group).build();
     }
 
-//    // 그룹 변경
-//    @PatchMapping
-//    public CommonResponse patch() {
-//        // 그룹 변경
-//        // 1. 위치 이동의 경우
-//        // 2. 정보 변경의 경우
-//        return CommonResponse.builder().code(200).message("그룹 변경 성공").build();
-//    }
+    // 그룹 변경
+    @PatchMapping
+    public CommonResponse update(@RequestBody GroupPatchParm groupPatchParm) {
+        // 그룹 변경
+        // 1. 위치 이동의 경우
+        // 2. 정보 변경의 경우
+        var group = groupService.update(groupPatchParm);
+        return CommonResponse.builder().code(200).message("그룹 변경 성공").data(group).build();
+    }
 }
