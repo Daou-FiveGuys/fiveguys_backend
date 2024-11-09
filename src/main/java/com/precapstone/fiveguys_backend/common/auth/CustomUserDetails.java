@@ -1,6 +1,6 @@
 package com.precapstone.fiveguys_backend.common.auth;
 
-import com.precapstone.fiveguys_backend.entity.Member;
+import com.precapstone.fiveguys_backend.entity.User;
 import lombok.Getter;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
@@ -12,25 +12,25 @@ import java.util.List;
 
 @Getter
 public class CustomUserDetails implements UserDetails {
-    private final Member member;
-    public CustomUserDetails(Member member) {
-        this.member = member;
+    private final User user;
+    public CustomUserDetails(User user) {
+        this.user = user;
     }
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
         List<GrantedAuthority> authorities = new ArrayList<>();
-        authorities.add(new SimpleGrantedAuthority("ROLE_" + member.getUserRole().name()));
+        authorities.add(new SimpleGrantedAuthority("ROLE_" + user.getUserRole().name()));
         return authorities;
     }
 
     @Override
     public String getPassword() {
-        return member.getPassword();
+        return user.getPassword();
     }
 
     @Override
     public String getUsername() {
-        return member.getName();
+        return user.getName();
     }
 }

@@ -2,16 +2,17 @@ package com.precapstone.fiveguys_backend.api.auth;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.precapstone.fiveguys_backend.api.dto.LoginInfoDTO;
 import com.precapstone.fiveguys_backend.api.dto.AuthResponseDTO;
-import com.precapstone.fiveguys_backend.api.member.MemberRepository;
+import com.precapstone.fiveguys_backend.api.dto.LoginInfoDTO;
+import com.precapstone.fiveguys_backend.api.email.MailService;
+import com.precapstone.fiveguys_backend.api.user.UserRepository;
 import com.precapstone.fiveguys_backend.api.redis.RedisService;
 import com.precapstone.fiveguys_backend.common.CommonResponse;
 import com.precapstone.fiveguys_backend.common.ResponseMessage;
 import com.precapstone.fiveguys_backend.common.auth.CustomUserDetails;
 import com.precapstone.fiveguys_backend.common.enums.LoginType;
 import com.precapstone.fiveguys_backend.common.enums.UserRole;
-import com.precapstone.fiveguys_backend.entity.Member;
+import com.precapstone.fiveguys_backend.entity.User;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpEntity;
@@ -37,11 +38,12 @@ import java.util.Optional;
 @Service
 public class AuthService {
 
-    private final MemberRepository memberRepository;
+    private final UserRepository userRepository;
     private final CustomUserDetailService customUserDetailService;
     private final JwtTokenProvider jwtTokenProvider;
     private final RedisService redisService;
     private final BCryptPasswordEncoder passwordEncoder;
+    private final MailService mailService;
 
     @Value("${spring.security.oauth2.client.registration.naver.client-id}")
     private String naverClientId;
@@ -70,16 +72,16 @@ public class AuthService {
      * @return CommonResponse
      */
     public CommonResponse signIn(LoginInfoDTO loginInfoDTO){
-        Optional<Member> optionalMember = memberRepository.findByUserId("fiveguys_" + loginInfoDTO.getEmail());
-        if(optionalMember.isPresent()) {
-            Member member = optionalMember.get();
-            if (passwordEncoder.matches(loginInfoDTO.getPassword(), member.getPassword())) {
+        Optional<User> optionalUser = userRepository.findByUserId("fiveguys_" + loginInfoDTO.getEmail());
+        if(optionalUser.isPresent()) {
+            User user = optionalUser.get();
+            if (passwordEncoder.matches(loginInfoDTO.getPassword(), user.getPassword())) {
                 String responseMessage = null;
-                if (member.getUserRole() == UserRole.USER)
+                if (user.getUserRole() == UserRole.USER)
                     responseMessage = ResponseMessage.SUCCESS;
                 else
                     responseMessage = ResponseMessage.EMAIL_VERIFICAITION_REQUIRED;
-                Map<String, String> tokens = usersAuthorization(member);
+                Map<String, String> tokens = usersAuthorization(user);
                 return CommonResponse.builder()
                         .code(200)
                         .message(responseMessage)
@@ -97,7 +99,7 @@ public class AuthService {
         }
         return CommonResponse.builder()
                 .code(401)
-                .message("Member not found")
+                .message("User not found")
                 .build();
     }
 
@@ -127,9 +129,9 @@ public class AuthService {
         }
 
         String accessToken = getAccessToken(code);
-        Member member = getUserInfo(accessToken);
-        member = register(member);
-        Map<String,String> tokens = usersAuthorization(member);
+        User user = getUserInfo(accessToken);
+        user = register(user);
+        Map<String,String> tokens = usersAuthorization(user);
 
         return CommonResponse.builder()
                 .code(200)
@@ -158,11 +160,11 @@ public class AuthService {
 
     /**
      * access, refresh 토큰 발급
-     * @param member
+     * @param user
      * @return {"access_token", "refresh_token"}
      */
-    public Map<String, String> usersAuthorization(Member member) {
-        UserDetails userDetails = customUserDetailService.loadUserByUserId(member.getUserId());
+    public Map<String, String> usersAuthorization(User user) {
+        UserDetails userDetails = customUserDetailService.loadUserByUserId(user.getUserId());
         Authentication authentication = new UsernamePasswordAuthenticationToken(
                 userDetails,
                 "",
@@ -173,7 +175,7 @@ public class AuthService {
 
         String accessToken = jwtTokenProvider.createAccessToken(authentication);
         String refreshToken = jwtTokenProvider.createRefreshToken(authentication);
-        redisService.setDataExpire(member.getUserId() + "_refreshToken", refreshToken, 604800);
+        redisService.setDataExpire(user.getUserId() + "_refreshToken", refreshToken, 604800);
 
         Map<String, String> tokens = new HashMap<>();
         tokens.put("access_token", accessToken);
@@ -183,12 +185,20 @@ public class AuthService {
 
     /**
      * 소셜 회원가입 처리
-     * @param member 소셜에서 받은 회원 정보
+     * @param user 소셜에서 받은 회원 정보
      * @return 회원가입 된 회원 정보
      */
-    private Member register(Member member){
-        return memberRepository.findByUserId(member.getUserId())
-                .orElseGet(() -> memberRepository.save(member));
+    private User register(User user){
+        return userRepository.findByUserId(user.getUserId())
+                .orElseGet(() -> {
+                    userRepository.save(user);
+                    try{
+                        mailService.sendWelcomeEmail(user.getEmail());
+                    } catch (Exception e){
+                        e.printStackTrace();
+                    }
+                    return user;
+                });
     }
 
     /**
@@ -196,7 +206,7 @@ public class AuthService {
      * @param accessToken 액세스 토큰
      * @return 회원 정보
      */
-    private Member getUserInfo(String accessToken){
+    private User getUserInfo(String accessToken){
         HttpHeaders headers = new HttpHeaders();
         headers.add("Authorization", "Bearer " + accessToken);
         headers.add("Content-type", "application/x-www-form-urlencoded;charset=utf-8");
@@ -213,7 +223,7 @@ public class AuthService {
             Map<String, Object> attributes = objectMapper.readValue(responseBody, Map.class);
             if(type == LoginType.NAVER)
                 attributes = (Map<String,Object>) attributes.get("response");
-            return Member.builder()
+            return User.builder()
                     .userId(type.getType().toLowerCase()+"_"+attributes.get("id").toString())
                     .userRole(UserRole.USER)
                     .name(attributes.get("name").toString())
@@ -269,7 +279,7 @@ public class AuthService {
                     .build();
         }
         CustomUserDetails userDetails = (CustomUserDetails) jwtTokenProvider.getAuthentication(accessToken).getPrincipal();
-        if(userDetails.getMember().getUserRole() != UserRole.USER){
+        if(userDetails.getUser().getUserRole() != UserRole.USER){
             return CommonResponse.builder()
                     .data(400)
                     .message("Not verified")
@@ -298,10 +308,11 @@ public class AuthService {
             );
             // 레디스에 refresh_token 존재하는지
             String storedRefreshToken = redisService.get(userId + "_refreshToken");
-            if (storedRefreshToken == null || !jwtTokenProvider.validateToken(storedRefreshToken)) {
-                // 없거나 만료되었으면 리프레시 토큰 발급, 저장 -> 액세스 토큰 발급 후 리턴
-                String refreshToken = jwtTokenProvider.createRefreshToken(authentication);
-                redisService.setDataExpire(userId + "_refreshToken", refreshToken, 604800000);
+            if (storedRefreshToken == null) {
+                return CommonResponse.builder()
+                        .code(401)
+                        .message("Invalid Access Token")
+                        .build();
             }
             String newAccessToken = jwtTokenProvider.createAccessToken(authentication);
             // 새로운 액세스 토큰 반환
