@@ -1,7 +1,7 @@
 package com.precapstone.fiveguys_backend.api.group;
 
-import com.precapstone.fiveguys_backend.api.dto.GroupsCreateDTO;
-import com.precapstone.fiveguys_backend.api.dto.GroupsPatchDTO;
+import com.precapstone.fiveguys_backend.api.dto.groups.GroupsCreateDTO;
+import com.precapstone.fiveguys_backend.api.dto.groups.GroupsPatchDTO;
 import com.precapstone.fiveguys_backend.entity.Groups;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;

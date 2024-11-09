@@ -1,7 +1,7 @@
 package com.precapstone.fiveguys_backend.api.contact;
 
-import com.precapstone.fiveguys_backend.api.dto.ContactCreateDTO;
-import com.precapstone.fiveguys_backend.api.dto.ContactPatchDTO;
+import com.precapstone.fiveguys_backend.api.dto.contact.ContactCreateDTO;
+import com.precapstone.fiveguys_backend.api.dto.contact.ContactPatchDTO;
 import com.precapstone.fiveguys_backend.api.group.GroupService;
 import com.precapstone.fiveguys_backend.entity.Contact;
 import lombok.RequiredArgsConstructor;

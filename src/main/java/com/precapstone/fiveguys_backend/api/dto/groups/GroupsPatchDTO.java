@@ -1,4 +1,4 @@
-package com.precapstone.fiveguys_backend.api.dto;
+package com.precapstone.fiveguys_backend.api.dto.groups;
 
 import lombok.Builder;
 import lombok.Getter;
