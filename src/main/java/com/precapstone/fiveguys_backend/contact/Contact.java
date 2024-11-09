@@ -29,7 +29,7 @@ public class Contact {
     @JoinColumn(name = "groups_id")
     private Groups groups;
 
-    // 유저
+    // 주소록을 소유한 유저
     @MapsId("userId")
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id")

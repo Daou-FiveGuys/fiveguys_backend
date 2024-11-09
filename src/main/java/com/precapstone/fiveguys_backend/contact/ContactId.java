@@ -3,6 +3,7 @@ package com.precapstone.fiveguys_backend.contact;
 import jakarta.persistence.Column;
 import jakarta.persistence.Embeddable;
 import lombok.EqualsAndHashCode;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
@@ -11,6 +12,7 @@ import lombok.Setter;
  *
  */
 @Setter
+@Getter
 @Embeddable
 @NoArgsConstructor
 @EqualsAndHashCode
@@ -22,14 +24,4 @@ public class ContactId {
     // User.userId 외래키 참조
     @Column(name = "user_id")
     private Long userId;
-
-    /**
-     *
-     * @param groupsId Group.groupId
-     * @param userId User.Id
-     */
-    public ContactId(Long groupsId, Long userId) {
-        this.groupsId = groupsId;
-        this.userId = userId;
-    }
 }
