@@ -9,7 +9,7 @@ import lombok.Setter;
 @Getter
 @Setter
 @Builder
-public class ImageResponseDTO<T>{
-    private T image;
-    private String imageId;
+public class ImageResponseDTO{
+    String requestId;
+    String url;
 }

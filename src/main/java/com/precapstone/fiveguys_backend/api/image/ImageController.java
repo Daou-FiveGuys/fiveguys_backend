@@ -1,4 +1,4 @@
-package com.precapstone.fiveguys_backend.api.ai;
+package com.precapstone.fiveguys_backend.api.image;
 
 import com.precapstone.fiveguys_backend.api.dto.ImageInpaintDTO;
 import com.precapstone.fiveguys_backend.api.dto.ImagePromptDTO;
@@ -9,7 +9,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-@Tag(name = "Image Generate", description = "이미지 생성, 수정")
+@Tag(name = "Image Generate", description = "이미지 조회, 생성, 수정, 업스케일링")
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api/v1/ai/image")
@@ -60,4 +60,13 @@ public class ImageController {
         return ResponseEntity.ok(imageService.removeTextByPhotoRoom(authorization, requestId));
     }
 
+    @GetMapping("/{requestId}")
+    public ResponseEntity<CommonResponse> getImage(@RequestHeader("Authorization") String authorization, @PathVariable("requestId") String requestId) {
+        return ResponseEntity.ok(imageService.getImage(authorization, requestId));
+    }
+
+    @GetMapping
+    public ResponseEntity<CommonResponse> getAllImages(@RequestHeader("Authorization") String authorization) {
+        return ResponseEntity.ok(imageService.getAllImages(authorization));
+    }
 }
