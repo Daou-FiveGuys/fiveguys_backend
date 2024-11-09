@@ -19,6 +19,7 @@ import lombok.*;
 @Setter
 @Table(name = "contact")
 public class Contact {
+    // 식별자
     // group_id와 user_id로 구성된 복합키이다.
     @EmbeddedId
     private ContactId contactId;

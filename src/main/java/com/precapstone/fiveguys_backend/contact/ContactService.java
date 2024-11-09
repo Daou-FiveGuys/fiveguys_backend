@@ -20,7 +20,7 @@ public class ContactService {
      */
     public Contact createContact(ContactCreateDTO contactCreateDTO) {
         // 그룹ID를 통해 추가할 그룹의 정보를 조회한다.
-        var groups = groupService.infoById(contactCreateDTO.getContactId().getGroupsId());
+        var groups = groupService.infoByGroupId(contactCreateDTO.getContactId().getGroupsId());
 
         // 주소록 생성
         var contact = Contact.builder()
@@ -115,6 +115,7 @@ public class ContactService {
         if(contactPatchDTO.getNewName() != null) contact.setName(contactPatchDTO.getNewName());
         if(contactPatchDTO.getNewTelNum() != null) contact.setTelNum(contactPatchDTO.getNewTelNum());
 
+        // 주소록 저장
         contactRepository.save(contact);
 
         return contact;

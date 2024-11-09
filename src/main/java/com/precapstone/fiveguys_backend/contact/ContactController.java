@@ -24,8 +24,9 @@ public class ContactController {
         // ※ 전화번호 조회, 이름 조회 모두 가능해야 함
         Contact contact;
 
-        // 정수가 된다면
+        // 정수가 되는 문자열인 경우(연락처)
         if(isNumberic(nameOrTelNum)) contact = contactService.infoByGroupsAndTelNum(groupsName, nameOrTelNum);
+        // 정수가 되지않는 문자열인 경우(그룹 내 명칭)
         else contact = contactService.infoByGroupAndName(groupsName, nameOrTelNum);
 
         return CommonResponse.builder().code(200).message("주소록 조회 성공").data(contact).build();
@@ -78,7 +79,7 @@ public class ContactController {
      * 주소록 변경
      * 그룹에 등록된 주소록을 변경한다.
      * 
-     * @param contactPatchDTO 유저ID, 그룹ID, 별명, 연락처
+     * @param contactPatchDTO 유저ID, 그룹ID, 그룹 내 명칭, 연락처
      * @return
      */
     @PatchMapping

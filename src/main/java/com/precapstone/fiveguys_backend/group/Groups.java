@@ -6,7 +6,7 @@ import lombok.*;
 import java.util.List;
 
 /**
- * 각 연락처를 묶는 상위 그룹이다.
+ * 연락처들을 소유하는 엔티티이다.
  *
  * 각 그룹은 다른 그룹에 속하거나 포함될 수 있다.
  */
@@ -23,7 +23,8 @@ public class Groups {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long groupsId;
 
-    // 그룹의 이름 ※ 동일 이름을 구분할 식별자(대표 유저 등)가 없기 때문에, Unique로 설정
+    // 그룹의 이름
+    // ※ 동일 이름을 구분할 식별자(대표 유저 등)가 없기 때문에, Unique로 설정
     @Column(unique = true, nullable = false)
     private String groupsName;
 
