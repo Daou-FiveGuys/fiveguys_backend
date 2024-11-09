@@ -2,11 +2,11 @@ package com.precapstone.fiveguys_backend.api.email;
 
 import com.precapstone.fiveguys_backend.api.auth.JwtTokenProvider;
 import com.precapstone.fiveguys_backend.api.dto.AuthResponseDTO;
-import com.precapstone.fiveguys_backend.api.member.MemberRepository;
+import com.precapstone.fiveguys_backend.api.user.UserRepository;
 import com.precapstone.fiveguys_backend.api.redis.RedisService;
 import com.precapstone.fiveguys_backend.common.CommonResponse;
 import com.precapstone.fiveguys_backend.common.enums.UserRole;
-import com.precapstone.fiveguys_backend.entity.Member;
+import com.precapstone.fiveguys_backend.entity.User;
 import jakarta.mail.MessagingException;
 import jakarta.mail.internet.MimeMessage;
 import lombok.RequiredArgsConstructor;
@@ -32,7 +32,7 @@ public class MailService {
     private final String sender = "daou.fiveguys@gmail.com";
     private final RedisService redisService;
     private final JwtTokenProvider jwtTokenProvider;
-    private final MemberRepository memberRepository;
+    private final UserRepository userRepository;
 
     /**
      * 인증로직
@@ -45,17 +45,17 @@ public class MailService {
     public CommonResponse verifyCode(String accessToken, String verificationCode) {
         String email = jwtTokenProvider.getEmailFromToken(accessToken);
         String verifyCode = redisService.get(email);
-        Optional<Member> optionalMember =  memberRepository.findByUserId(jwtTokenProvider.getUserIdFromToken(accessToken));
-        if(verifyCode == null || !verifyCode.equals(verificationCode) || optionalMember.isEmpty()) {
+        Optional<User> optionalUser =  userRepository.findByUserId(jwtTokenProvider.getUserIdFromToken(accessToken));
+        if(verifyCode == null || !verifyCode.equals(verificationCode) || optionalUser.isEmpty()) {
             return CommonResponse.builder()
                     .code(401)
                     .message("Failed to verify")
                     .data(false)
                     .build();
         }
-        Member member = optionalMember.get();
-        member.setUserRole(UserRole.USER);
-        memberRepository.save(member);
+        User user = optionalUser.get();
+        user.setUserRole(UserRole.USER);
+        userRepository.save(user);
 
         Authentication authentication = jwtTokenProvider.getAuthenticationByAccesstoken(accessToken);
         return CommonResponse.builder()
@@ -125,6 +125,20 @@ public class MailService {
         return sendEmail(toEmail, "FiveGuys 이메일 인증", body); // CommonResponse
     }
 
+    /**
+     * 가입 축하 이메일
+     * @param toEmail
+     * @throws MessagingException
+     */
+    public void sendWelcomeEmail(String toEmail) {
+        try {
+            String body = createWelcomeMessage();
+            sendEmail(toEmail, "FiveGuys에 오신 것을 환영합니다!", body);
+        } catch (Exception e){
+            e.printStackTrace();
+        }
+    }
+
     private SimpleMailMessage createSimpleEmailForm(String toEmail, String title, String body) {
         SimpleMailMessage emailForm = new SimpleMailMessage();
         emailForm.setFrom(sender);
@@ -147,6 +161,11 @@ public class MailService {
         Context context = new Context();
         context.setVariable("authNumber", authNumber);
         return templateEngine.process("email_verification", context);
+    }
+
+    private String createWelcomeMessage(){
+        Context context = new Context();
+        return templateEngine.process("welcome", context);
     }
 
     public static String createVerificationNumber(){

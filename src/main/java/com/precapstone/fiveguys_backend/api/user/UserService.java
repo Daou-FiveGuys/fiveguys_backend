@@ -1,12 +1,13 @@
-package com.precapstone.fiveguys_backend.api.member;
+package com.precapstone.fiveguys_backend.api.user;
 
 import com.precapstone.fiveguys_backend.api.auth.AuthService;
 import com.precapstone.fiveguys_backend.api.dto.AuthResponseDTO;
-import com.precapstone.fiveguys_backend.api.dto.MemberDTO;
+import com.precapstone.fiveguys_backend.api.dto.UserDTO;
+import com.precapstone.fiveguys_backend.api.email.MailService;
 import com.precapstone.fiveguys_backend.common.CommonResponse;
 import com.precapstone.fiveguys_backend.common.PasswordValidator;
 import com.precapstone.fiveguys_backend.common.enums.UserRole;
-import com.precapstone.fiveguys_backend.entity.Member;
+import com.precapstone.fiveguys_backend.entity.User;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
@@ -18,24 +19,25 @@ import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
-public class MemberService {
+public class UserService {
     private final AuthService authService;
-    private final MemberRepository memberRepository;
+    private final UserRepository userRepository;
     private final BCryptPasswordEncoder passwordEncoder;
+    private final MailService mailService;
 
-    public Optional<Member> findByUserId(String userId){
-        return memberRepository.findByUserId(userId);
+    public Optional<User> findByUserId(String userId){
+        return userRepository.findByUserId(userId);
     }
 
     /**
      * FiveGuys 일반 회원가입
-     * @param memberDTO
+     * @param userDTO
      *
      * @return CommonResponse 회원가입 여부
      */
     @Transactional
-    public CommonResponse register(MemberDTO memberDTO) {
-        String result = checkPasswordValidation(memberDTO.getPassword(), memberDTO.getConfirmPassword());
+    public CommonResponse register(UserDTO userDTO) {
+        String result = checkPasswordValidation(userDTO.getPassword(), userDTO.getConfirmPassword());
         if(result != null){
             return CommonResponse.builder()
                         .code(400)
@@ -43,18 +45,18 @@ public class MemberService {
                         .build();
         }
 
-        String encodedPassword = passwordEncoder.encode(memberDTO.getPassword());
-        String userId = "fiveguys_" + memberDTO.getEmail();
+        String encodedPassword = passwordEncoder.encode(userDTO.getPassword());
+        String userId = "fiveguys_" + userDTO.getEmail();
 
         /**
          * 가입 여부 확인
          */
-        Optional<Member> optionalMember = memberRepository.findByUserId(userId);
-        if (optionalMember.isPresent()) {
+        Optional<User> optionalUser = userRepository.findByUserId(userId);
+        if (optionalUser.isPresent()) {
             return CommonResponse.builder()
                     .code(500)
                     .message("Registered Failed: Already Registered Email")
-                    .data(optionalMember.get().getEmail())
+                    .data(optionalUser.get().getEmail())
                     .build();
         }
 
@@ -62,19 +64,20 @@ public class MemberService {
         /**
          * 신규 회원
          */
-        Member newMember = Member.builder()
-                .email(memberDTO.getEmail())
+        User newUser = User.builder()
+                .email(userDTO.getEmail())
                 .password(encodedPassword)
                 .provider("fiveguys")
-                .name(memberDTO.getName())
+                .name(userDTO.getName())
                 .userRole(UserRole.VISITOR)
                 .createdAt(now)
                 .updatedAt(now)
                 .userId(userId)
                 .build();
 
-        memberRepository.save(newMember);
-        Map<String, String> tokens = authService.usersAuthorization(newMember);
+        userRepository.save(newUser);
+        mailService.sendWelcomeEmail(newUser.getEmail());
+        Map<String, String> tokens = authService.usersAuthorization(newUser);
         return CommonResponse.builder()
                 .code(200)
                 .message("Registered Success")
@@ -85,13 +88,27 @@ public class MemberService {
                 .build();
     }
 
+    public CommonResponse emailExists(String email) {
+        //TODO 소셜 계정 + 일반 계정 이메일 중복 허용
+        Optional<User> optionalUser = userRepository.findByUserId("fiveguys_" + email);
+        if(optionalUser.isPresent()){
+            return CommonResponse.builder()
+                    .code(400)
+                    .message("Email Already Exists")
+                    .build();
+        }
+        return CommonResponse.builder()
+                .code(200)
+                .build();
+    }
+
     @Transactional
     public CommonResponse deleteByUserId(String userId, String password) {
         //TODO 검증로직 추가
-        Member member = memberRepository.findByUserId(userId).orElseThrow();
+        User user = userRepository.findByUserId(userId).orElseThrow();
         return CommonResponse.builder()
                 .code(200)
-                .message("Member deleted successfully")
+                .message("User deleted successfully")
                 .build();
     }
 
