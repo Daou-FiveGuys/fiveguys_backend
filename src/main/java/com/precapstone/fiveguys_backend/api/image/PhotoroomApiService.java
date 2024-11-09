@@ -1,4 +1,4 @@
-package com.precapstone.fiveguys_backend.api.ai;
+package com.precapstone.fiveguys_backend.api.image;
 
 import okhttp3.ResponseBody;
 import retrofit2.Call;

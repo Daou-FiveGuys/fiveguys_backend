@@ -6,6 +6,8 @@ import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
 import lombok.*;
 
+import java.time.LocalDateTime;
+
 
 @Entity
 @Getter
@@ -25,6 +27,7 @@ public class Image {
     private String requestId;
     @Column(columnDefinition = "TEXT", nullable = false)
     private String url;
+    private LocalDateTime createdAt;
 
     public Image setUrl(String url) {
         this.url = url;

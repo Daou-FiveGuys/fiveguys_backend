@@ -1,4 +1,4 @@
-package com.precapstone.fiveguys_backend.api.ai;
+package com.precapstone.fiveguys_backend.api.image;
 
 import ai.fal.client.FalClient;
 import ai.fal.client.Output;
@@ -10,6 +10,7 @@ import com.precapstone.fiveguys_backend.api.auth.JwtTokenProvider;
 import com.precapstone.fiveguys_backend.api.aws.AwsS3Service;
 import com.precapstone.fiveguys_backend.api.aws.ImageLinkExtractor;
 import com.precapstone.fiveguys_backend.api.dto.ImageInpaintDTO;
+import com.precapstone.fiveguys_backend.api.dto.ImageResponseDTO;
 import com.precapstone.fiveguys_backend.api.dto.ImageUpscaleDTO;
 import com.precapstone.fiveguys_backend.common.CommonResponse;
 import com.precapstone.fiveguys_backend.common.retrofit.ImggenRetrofitClient;
@@ -31,7 +32,10 @@ import retrofit2.Response;
 import java.io.*;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.Base64;
+import java.util.List;
 import java.util.Map;
 
 
@@ -64,7 +68,6 @@ public class ImageService {
      * @return ResponseEntity<CommonResponse> 이미지 정보
      */
     public CommonResponse generate(String authorization, String prompt){
-        //TODO if prompt == korean -> translate
         String accessToken = JwtTokenProvider.stripTokenPrefix(authorization);
         String userId = jwtTokenProvider.getUserIdFromToken(accessToken);
         var input = Map.of(
@@ -87,7 +90,10 @@ public class ImageService {
             this.saveImageResultIntoDB(result, userId);
             return CommonResponse.builder()
                     .code(200)
-                    .data(ImageLinkExtractor.extractImageUrl(result.getData()))
+                    .data(ImageResponseDTO.builder()
+                            .requestId(result.getRequestId())
+                            .url(ImageLinkExtractor.extractImageUrl(result.getData()))
+                            .build())
                     .build();
         } catch (Exception e) {
             return CommonResponse.builder()
@@ -134,7 +140,11 @@ public class ImageService {
             this.saveInpaintedImageIntoDB(result, image);
             return CommonResponse.builder()
                     .code(200)
-                    .data(ImageLinkExtractor.extractImageUrl(result.getData()))
+                    .data(
+                        ImageResponseDTO.builder()
+                                .requestId(result.getRequestId())
+                                .url(ImageLinkExtractor.extractImageUrl(result.getData()))
+                                .build())
                     .build();
         } catch (Exception e) {
             return CommonResponse.builder()
@@ -173,7 +183,10 @@ public class ImageService {
             this.saveUpscaledImageIntoDB(result, image);
             return CommonResponse.builder()
                     .code(200)
-                    .data(ImageLinkExtractor.extractUpscaledImageUrl(result.getData()))
+                    .data(ImageResponseDTO.builder()
+                            .requestId(result.getRequestId())
+                            .url(ImageLinkExtractor.extractImageUrl(result.getData()))
+                            .build())
                     .build();
         } catch (Exception e) {
             return CommonResponse.builder()
@@ -201,7 +214,7 @@ public class ImageService {
             ResponseBody responseBody = call.execute().body();
 
             if (responseBody != null) {
-                String filename = requestId + "-text-removed.png";
+                String filename = requestId + "-text-removed";
                 String bucketUrl = awsS3Service.upload(responseBody.byteStream(), filename);
                 imageRepository.save(Image.builder()
                         .parentRequestId(requestId)
@@ -212,7 +225,11 @@ public class ImageService {
                 String url = awsS3Service.getUrl(userId, bucketUrl);
                 return CommonResponse.builder()
                         .code(200)
-                        .data(url)
+                        .data(ImageResponseDTO.builder()
+                                .requestId(filename)
+                                .url(url)
+                                .build()
+                        )
                         .build();
             } else {
                 System.err.println("Response body is null");
@@ -259,10 +276,11 @@ public class ImageService {
                 byte[] decodedBytes = Base64.getDecoder().decode(base64Image);
                 new ByteArrayInputStream(decodedBytes);
 
-                String bucketUrl = awsS3Service.upload(new ByteArrayInputStream(decodedBytes), image.getRequestId()+"-removed-text.png");
+                String filename = requestId + "-text-removed";
+                String bucketUrl = awsS3Service.upload(new ByteArrayInputStream(decodedBytes), filename + ".png");
                 imageRepository.save(Image.builder()
                         .parentRequestId(requestId)
-                        .requestId(image.getRequestId()+"-removed-text")
+                        .requestId(filename)
                         .userId(userId)
                         .url(bucketUrl)
                         .build());
@@ -270,7 +288,10 @@ public class ImageService {
                 String url = awsS3Service.getUrl(userId, bucketUrl);
                 return CommonResponse.builder()
                         .code(200)
-                        .data(url)
+                        .data(ImageResponseDTO.builder()
+                                .requestId(filename)
+                                .url(url)
+                                .build())
                         .build();
             } else {
                 return CommonResponse.builder()
@@ -289,6 +310,46 @@ public class ImageService {
                 downloadedFile.delete();
             }
         }
+    }
+
+    public CommonResponse getImage(String authorization, String requestId){
+        String accessToken = JwtTokenProvider.stripTokenPrefix(authorization);
+        String userId = jwtTokenProvider.getUserIdFromToken(accessToken);
+        Image image = imageRepository.findImageByRequestId(requestId).orElseThrow();
+
+        if(!userId.equals(image.getUserId()))
+            return CommonResponse.builder()
+                    .code(400)
+                    .message("Bad request")
+                    .build();
+
+        return CommonResponse.builder()
+                .code(200)
+                .data(ImageResponseDTO.builder()
+                        .requestId(image.getRequestId())
+                        .url(image.getUrl())
+                        .build())
+                .build();
+
+    }
+
+    public CommonResponse getAllImages(String authorization){
+        String accessToken = JwtTokenProvider.stripTokenPrefix(authorization);
+        String userId = jwtTokenProvider.getUserIdFromToken(accessToken);
+        List<Image> image = imageRepository.findImagesByUserId(userId);
+        List<ImageResponseDTO> responses = new ArrayList<>();
+
+        for (Image i : image) {
+            responses.add(ImageResponseDTO.builder()
+                    .requestId(i.getRequestId())
+                    .url(i.getUrl())
+                    .build());
+        }
+
+        return CommonResponse.builder()
+                .code(200)
+                .data(responses)
+                .build();
     }
 
     private File downloadFileFromUrl(String fileUrl) throws IOException {
@@ -347,6 +408,7 @@ public class ImageService {
                     .requestId(output.getRequestId())
                     .url(ImageLinkExtractor.extractImageUrl(output.getData()))
                     .userId(userId)
+                    .createdAt(LocalDateTime.now())
                     .build());
         } catch (Exception e) {
             // 예외 처리 로깅
