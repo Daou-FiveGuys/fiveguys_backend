@@ -6,8 +6,8 @@ import lombok.Getter;
 @Builder
 @Getter
 public class ContactCreateParam {
-    private int memberId;
-    private int groupsId;
+    private Long userId;
+    private Long groupsId;
     private String name;
     private String telNum;
 }

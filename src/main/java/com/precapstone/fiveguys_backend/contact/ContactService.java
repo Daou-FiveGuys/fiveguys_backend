@@ -1,6 +1,6 @@
 package com.precapstone.fiveguys_backend.contact;
 
-import com.precapstone.fiveguys_backend.api.member.MemberService;
+import com.precapstone.fiveguys_backend.api.user.UserService;
 import com.precapstone.fiveguys_backend.group.GroupService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -11,18 +11,18 @@ import java.util.List;
 @RequiredArgsConstructor
 public class ContactService {
     private final GroupService groupService;
-    private final MemberService memberService;
+    private final UserService userService;
     private final ContactRepository contactRepository;
 
     public Contact createContact(ContactCreateParam contactCreateParam) {
         var groups = groupService.infoById(contactCreateParam.getGroupsId());
-        var member = memberService.findByUserId(String.valueOf(contactCreateParam.getMemberId()))
-                .orElseThrow(() -> new IllegalArgumentException("Member not found"));
+        var user = userService.findByUserId(String.valueOf(contactCreateParam.getUserId()))
+                .orElseThrow(() -> new IllegalArgumentException("User not found"));
 
         var contact = Contact.builder()
-                .contactId(new ContactId(groups.getGroupsId(),member.getMemberId()))
+                .contactId(new ContactId(groups.getGroupsId(),user.getId()))
                 .groups(groups)
-                .member(member)
+                .user(user)
                 .name(contactCreateParam.getName())
                 .telNum(contactCreateParam.getTelNum())
                 .build();
@@ -55,7 +55,7 @@ public class ContactService {
         return contacts;
     }
 
-    public Contact deleteContact(int contactId) {
+    public Contact deleteContact(Long contactId) {
         var contact = contactRepository.findById(contactId)
                 .orElseThrow(() -> new RuntimeException("Contact Not Found"));
 

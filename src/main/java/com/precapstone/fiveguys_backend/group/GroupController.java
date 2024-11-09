@@ -12,7 +12,7 @@ public class GroupController {
 
     // 그룹 조회
     @GetMapping("{groupId}")
-    public CommonResponse info(@PathVariable int groupId) {
+    public CommonResponse info(@PathVariable Long groupId) {
         // 그룹 조회
         var groups = groupService.childGroupInfo(groupId);
         return CommonResponse.builder().code(200).message("그룹 조회 성공").data(groups).build();
@@ -36,7 +36,7 @@ public class GroupController {
 
     // 그룹 삭제
     @DeleteMapping("{groupId}")
-    public CommonResponse delete(@PathVariable int groupId) {
+    public CommonResponse delete(@PathVariable Long groupId) {
         // 그룹 삭제
         var group = groupService.deleteGroup(groupId);
         return CommonResponse.builder().code(200).message("그룹 삭제 성공").data(group).build();

@@ -1,6 +1,6 @@
 package com.precapstone.fiveguys_backend.contact;
 
-import com.precapstone.fiveguys_backend.entity.Member;
+import com.precapstone.fiveguys_backend.entity.User;
 import com.precapstone.fiveguys_backend.group.Groups;
 import jakarta.persistence.*;
 import lombok.*;
@@ -8,7 +8,7 @@ import lombok.*;
 /**
  * 그룹에 속한 유저의 별명과 전화번호를 연결하는 엔티티이다.
  *
- * 외래키 group_id와 member_id로 구성된 복합키로 식별된다.
+ * 외래키 group_id와 user_id로 구성된 복합키로 식별된다.
  */
 @Data
 @Builder
@@ -19,7 +19,7 @@ import lombok.*;
 @Setter
 @Table(name = "contact")
 public class Contact {
-    // group_id와 member_id로 구성된 복합키이다.
+    // group_id와 user_id로 구성된 복합키이다.
     @EmbeddedId
     private ContactId contactId;
 
@@ -30,10 +30,10 @@ public class Contact {
     private Groups groups;
 
     // 유저
-    @MapsId("memberId")
+    @MapsId("userId")
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "member_id")
-    private Member member;
+    @JoinColumn(name = "user_id")
+    private User user;
 
     // 그룹 내 명칭
     @Column(nullable = false)

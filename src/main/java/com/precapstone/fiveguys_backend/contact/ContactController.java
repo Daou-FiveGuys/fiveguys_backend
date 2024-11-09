@@ -44,7 +44,7 @@ public class ContactController {
 
     // 주소록 삭제
     @DeleteMapping("{contactId}")
-    public CommonResponse delete(@PathVariable int contactId) {
+    public CommonResponse delete(@PathVariable Long contactId) {
         // 그룹 내부에 주소록 삭제
         var contact = contactService.deleteContact(contactId);
         return CommonResponse.builder().code(200).message("주소록 삭제 성공").data(contact).build();

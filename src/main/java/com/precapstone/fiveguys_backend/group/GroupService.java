@@ -24,7 +24,7 @@ public class GroupService {
         return group;
     }
 
-    public Groups deleteGroup(int groupId) {
+    public Groups deleteGroup(Long groupId) {
         var group = groupsRepository
                 .findById(groupId)
                 .orElseThrow(() -> new RuntimeException("Group Not Found"));
@@ -51,7 +51,7 @@ public class GroupService {
         return group;
     }
 
-    public Groups infoById(int groupId) {
+    public Groups infoById(Long groupId) {
         var group = groupsRepository.findById(groupId)
                 .orElseThrow(() -> new RuntimeException("Group Not Found"));
         return group;
@@ -64,7 +64,7 @@ public class GroupService {
         return group;
     }
 
-    public List<Groups> childGroupInfo(int groupId) {
+    public List<Groups> childGroupInfo(Long groupId) {
         var group = groupsRepository.findById(groupId)
                 .orElseThrow(() -> new RuntimeException("Group Not Found"));
 

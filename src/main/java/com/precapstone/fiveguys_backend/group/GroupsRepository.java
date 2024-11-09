@@ -5,7 +5,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import java.util.List;
 import java.util.Optional;
 
-public interface GroupsRepository extends JpaRepository<Groups, Integer> {
+public interface GroupsRepository extends JpaRepository<Groups, Long> {
     // 그룹 이름은 단일 개체이다.
     Optional<Groups> findByGroupsName(String groupName);
 

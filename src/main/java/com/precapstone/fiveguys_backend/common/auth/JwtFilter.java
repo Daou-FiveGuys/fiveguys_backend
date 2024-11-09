@@ -25,7 +25,7 @@ public class JwtFilter extends OncePerRequestFilter {
             "/login", "/signup",
             "/swagger-ui/**", "/api-docs/**", "/swagger-resources/**",
             "/api/v1/oauth/refresh-token", // 갱신 API는 필터 건너뜀
-            "/api/v1/member/signup"
+            "/api/v1/user/signup"
     );
 
     public static final String TOKEN_PREFIX = "Bearer ";

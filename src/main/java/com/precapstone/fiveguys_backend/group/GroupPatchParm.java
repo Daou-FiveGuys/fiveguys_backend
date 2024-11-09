@@ -6,7 +6,7 @@ import lombok.Getter;
 @Builder
 @Getter
 public class GroupPatchParm {
-    private int groupId;
+    private Long groupId;
     private String newGroupName;
-    private int newParentGroupId;
+    private Long newParentGroupId;
 }

@@ -17,19 +17,19 @@ import lombok.Setter;
 public class ContactId {
     // Group.groupId 외래키 참조
     @Column(name = "groups_id")
-    private Integer groupsId;
+    private Long groupsId;
 
-    // Member.memberId 외래키 참조
-    @Column(name = "member_id")
-    private Integer memberId;
+    // User.userId 외래키 참조
+    @Column(name = "user_id")
+    private Long userId;
 
     /**
      *
      * @param groupsId Group.groupId
-     * @param memberId Member.memberId
+     * @param userId User.Id
      */
-    public ContactId(int groupsId, int memberId) {
+    public ContactId(Long groupsId, Long userId) {
         this.groupsId = groupsId;
-        this.memberId = memberId;
+        this.userId = userId;
     }
 }

@@ -128,8 +128,8 @@ public class JwtTokenProvider {
 
     public String getEmailFromToken(String token) {
         String userId = getClaimsFromToken(token).getSubject();
-        Optional<User> optionalMember = userRepository.findByUserId(userId);
-        return optionalMember.map(User::getEmail).orElse(null);
+        Optional<User> optionalUser = userRepository.findByUserId(userId);
+        return optionalUser.map(User::getEmail).orElse(null);
     }
     public String getUserIdFromToken(String token) {
         return getClaimsFromToken(token).getSubject();

@@ -21,7 +21,7 @@ public class Groups {
     // 식별자
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private int groupsId;
+    private Long groupsId;
 
     // 그룹의 이름 ※ 동일 이름을 구분할 식별자(대표 유저 등)가 없기 때문에, Unique로 설정
     @Column(unique = true, nullable = false)
