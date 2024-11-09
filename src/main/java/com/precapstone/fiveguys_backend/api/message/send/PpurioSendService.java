@@ -60,10 +60,10 @@ public class PpurioSendService {
      */
     private Map createSendParams(PpurioSendDTO ppurioSendDTO) throws IOException {
         // 각 메세지 타입에 맞게 requestBody 분리
-        MessageType messageType = switch (ppurioSendDTO.messageType) {
-            case "MMS" -> new MMS(ppurioAccount, ppurioSendDTO.fromNumber, ppurioSendDTO.content, ppurioSendDTO.targets, ppurioSendDTO.filePaths);
-            case "LMS" -> new LMS(ppurioAccount, ppurioSendDTO.fromNumber, ppurioSendDTO.content, ppurioSendDTO.targets);
-            case "SMS" -> new SMS(ppurioAccount, ppurioSendDTO.fromNumber, ppurioSendDTO.content, ppurioSendDTO.targets);
+        MessageType messageType = switch (ppurioSendDTO.getMessageType()) {
+            case "MMS" -> new MMS(ppurioAccount, ppurioSendDTO.getFromNumber(), ppurioSendDTO.getContent(), ppurioSendDTO.getTargets(), ppurioSendDTO.getFilePaths());
+            case "LMS" -> new LMS(ppurioAccount, ppurioSendDTO.getFromNumber(), ppurioSendDTO.getContent(), ppurioSendDTO.getTargets());
+            case "SMS" -> new SMS(ppurioAccount, ppurioSendDTO.getFromNumber(), ppurioSendDTO.getContent(), ppurioSendDTO.getTargets());
             default -> null;
         };
 
