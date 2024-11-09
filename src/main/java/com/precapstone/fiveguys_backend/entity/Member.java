@@ -25,8 +25,6 @@ public class Member {
     @Setter
     @Enumerated(EnumType.STRING)
     private UserRole userRole;
-    @Setter
-    private Boolean emailVerified = false;
     private LocalDateTime createdAt;
     @Setter
     private LocalDateTime updatedAt;

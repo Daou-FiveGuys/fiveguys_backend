@@ -1,6 +1,6 @@
-package com.precapstone.fiveguys_backend.api.service;
+package com.precapstone.fiveguys_backend.api.auth;
 
-import com.precapstone.fiveguys_backend.api.repository.MemberRepository;
+import com.precapstone.fiveguys_backend.api.member.MemberRepository;
 import com.precapstone.fiveguys_backend.common.auth.CustomUserDetails;
 import com.precapstone.fiveguys_backend.entity.Member;
 import lombok.RequiredArgsConstructor;
@@ -17,6 +17,12 @@ public class CustomUserDetailService implements UserDetailsService {
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
         Member member = memberRepository.findByUserId("fiveguys_"+username)
                 .orElseThrow(() -> new UsernameNotFoundException("User not found with email: " + username));
+        return new CustomUserDetails(member);
+    }
+
+    public UserDetails loadUserByUserId(String userId) throws UsernameNotFoundException {
+        Member member = memberRepository.findByUserId(userId)
+                .orElseThrow(() -> new UsernameNotFoundException("User not found with user id: " + userId));
         return new CustomUserDetails(member);
     }
 }
