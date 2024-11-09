@@ -1,6 +1,6 @@
 package com.precapstone.fiveguys_backend.contact;
 
-import com.precapstone.fiveguys_backend.api.service.MemberService;
+import com.precapstone.fiveguys_backend.api.member.MemberService;
 import com.precapstone.fiveguys_backend.group.GroupService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;

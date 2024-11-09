@@ -20,11 +20,6 @@ spring:
     serialization:
       FAIL_ON_EMPTY_BEANS: false
 
-  ppurio:
-    base-url: https://message.ppurio.com
-    account: ${PPURIO_ACCOUNT}
-    auth: ${PPURIO_AUTHORIZATION}
-
 ##  Redis
 ## 서버
   data:
