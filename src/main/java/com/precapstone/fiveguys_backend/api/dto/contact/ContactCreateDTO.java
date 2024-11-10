@@ -1,6 +1,5 @@
 package com.precapstone.fiveguys_backend.api.dto.contact;
 
-import com.precapstone.fiveguys_backend.api.contact.ContactId;
 import lombok.Builder;
 import lombok.Getter;
 

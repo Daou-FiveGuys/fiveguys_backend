@@ -5,13 +5,10 @@ import com.precapstone.fiveguys_backend.api.dto.contact.ContactPatchDTO;
 import com.precapstone.fiveguys_backend.common.CommonResponse;
 import com.precapstone.fiveguys_backend.common.auth.JwtFilter;
 import com.precapstone.fiveguys_backend.entity.Contact;
-import com.precapstone.fiveguys_backend.entity.User;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.Optional;
 
 @RestController
 @RequestMapping("/api/v1/contact/")
@@ -22,7 +19,6 @@ public class ContactController {
     /**
      * 주소록 조회 (사용자)
      * ※ 그룹 내 특정 연락처를 전달한다.
-     * TODO: 서식검사
      *
      * @param groupsName 연락처가 소속된 그룹
      * @param nameOrTelNum 그룹에 저장된 명칭 혹은 연락처
@@ -69,7 +65,6 @@ public class ContactController {
         String accessToken = authorization.replace(JwtFilter.TOKEN_PREFIX, "");
 
         // 그룹 내부에 주소록 생성
-        // TODO: 예외처리:: 같은 Group 내 name 및 telNum은 동일하면 안된다.
         var contact = contactService.createContact(contactCreateDTO, accessToken);
         return ResponseEntity.ok(CommonResponse.builder().code(200).message("주소록 생성 성공").data(contact).build());
     }
@@ -78,34 +73,28 @@ public class ContactController {
      * 주소록 삭제
      * 그룹에 등록된 주소록을 삭제한다.
      *
-     * @param groupId 삭제할 그룹ID
-     * @param authorization 삭제할 유저ID를 얻기위한 인증키
+     * @param contactId 삭제할 연락처ID
      * @return
      */
     @Transactional
-    @DeleteMapping("{groupId}/{userId}")
-    public ResponseEntity<CommonResponse> delete(@PathVariable Long groupId, @RequestHeader("Authorization") String authorization) {
-        String accessToken = authorization.replace(JwtFilter.TOKEN_PREFIX, "");
-        
+    @DeleteMapping("{contactId}")
+    public ResponseEntity<CommonResponse> delete(@PathVariable Long contactId) {
         // 그룹 내부에 주소록 삭제
-        var contact = contactService.deleteContact(groupId, accessToken);
+        var contact = contactService.deleteContact(contactId);
         return ResponseEntity.ok(CommonResponse.builder().code(200).message("주소록 삭제 성공").data(contact).build());
     }
 
     /**
      * 주소록 변경
      * 그룹에 등록된 주소록을 변경한다.
-     * TODO: 서식검사
      *
      * @param contactPatchDTO 유저ID, 그룹ID, 그룹 내 명칭, 연락처
      * @return
      */
     @PatchMapping
-    public ResponseEntity<CommonResponse> update(@RequestBody ContactPatchDTO contactPatchDTO, @RequestHeader("Authorization") String authorization) {
-        String accessToken = authorization.replace(JwtFilter.TOKEN_PREFIX, "");
-
+    public ResponseEntity<CommonResponse> update(@RequestBody ContactPatchDTO contactPatchDTO) {
         // 그룹 내부에 주소록 변경
-        var contact = contactService.updateContact(contactPatchDTO, accessToken);
+        var contact = contactService.updateContact(contactPatchDTO);
 
         return ResponseEntity.ok(CommonResponse.builder().code(200).message("주소록 변경 성공").data(contact).build());
     }

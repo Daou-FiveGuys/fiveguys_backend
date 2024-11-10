@@ -1,6 +1,5 @@
 package com.precapstone.fiveguys_backend.entity;
 
-import com.precapstone.fiveguys_backend.api.contact.ContactId;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -19,18 +18,14 @@ import lombok.*;
 @Table(name = "contact")
 public class Contact {
     // 식별자
-    // group_id와 user_id로 구성된 복합키이다.
-    @EmbeddedId
-    private ContactId contactId;
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long contactId;
 
-    // 소속된 그룹
-    @MapsId("groupsId")
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "groups_id")
     private Groups groups;
 
-    // 주소록을 소유한 유저
-    @MapsId("userId")
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id")
     private User user;

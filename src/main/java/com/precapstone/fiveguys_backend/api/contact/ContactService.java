@@ -6,14 +6,11 @@ import com.precapstone.fiveguys_backend.api.dto.contact.ContactPatchDTO;
 import com.precapstone.fiveguys_backend.api.group.GroupService;
 import com.precapstone.fiveguys_backend.api.user.UserService;
 import com.precapstone.fiveguys_backend.entity.Contact;
-import com.precapstone.fiveguys_backend.entity.User;
 import com.precapstone.fiveguys_backend.exception.ControlledException;
-import com.precapstone.fiveguys_backend.exception.ErrorMessage;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
-import java.util.Optional;
 
 import static com.precapstone.fiveguys_backend.exception.errorcode.ContactErrorCode.*;
 import static com.precapstone.fiveguys_backend.exception.errorcode.UserErrorCode.USER_NOT_FOUND;
@@ -39,6 +36,9 @@ public class ContactService {
         var user =  userService.findByUserId(jwtTokenProvider.getUserIdFromToken(accessToken))
                 .orElseThrow(() -> new ControlledException(USER_NOT_FOUND));
 
+        // [예외처리] 올바르지 않은 연락처 서식
+        if(!isValidPhoneNumber(contactCreateDTO.getTelNum())) throw new ControlledException(INVALID_FORMAT);
+
         // [예외처리] 올바르지 않은 그룹명 요청
         // 동일 그룹 내에 같은 이름의 연락처가 존재하는 경우
         if(contactRepository.findByGroupsAndName(groups, contactCreateDTO.getName()).orElse(null) != null)
@@ -49,11 +49,8 @@ public class ContactService {
         if(contactRepository.findByGroupsAndTelNum(groups, contactCreateDTO.getTelNum()).orElse(null) != null)
             throw new ControlledException(CONTACT_TELNUM_ALREADY_EXISTS);
 
-        var contactId = ContactId.builder().groupsId(groups.getGroupsId()).userId(user.getId()).build();
-
         // 주소록 생성
         var contact = Contact.builder()
-                .contactId(contactId)
                 .user(user)
                 .groups(groups)
                 .name(contactCreateDTO.getName())
@@ -119,15 +116,11 @@ public class ContactService {
     /**
      * 주소록을 삭제하는 함수
      *
-     * @param groupId 삭제할 연락처가 들어잇는 GroupId
-     * @param accessToken 유저ID를 얻기 위한 토큰
+     * @param contactId 삭제할 연락처ID
      * @return
      */
-    public Contact deleteContact(Long groupId, String accessToken) {
-        var user =  userService.findByUserId(jwtTokenProvider.getUserIdFromToken(accessToken))
-                .orElseThrow(() -> new ControlledException(USER_NOT_FOUND));
-
-        var contact = contactRepository.findByContactId(new ContactId(groupId, user.getId()))
+    public Contact deleteContact(Long contactId) {
+        var contact = contactRepository.findById(contactId)
                 .orElseThrow(() -> new ControlledException(CONTACT_NOT_FOUND));
 
         contactRepository.deleteByContactId(contact.getContactId());
@@ -142,17 +135,17 @@ public class ContactService {
      * @param contactPatchDTO 주소록 변경 정보
      * @return
      */
-    public Contact updateContact(ContactPatchDTO contactPatchDTO, String accessToken) {
-        var user =  userService.findByUserId(jwtTokenProvider.getUserIdFromToken(accessToken))
-                .orElseThrow(() -> new ControlledException(USER_NOT_FOUND));
-
-        var contact = contactRepository.findByContactId(new ContactId(contactPatchDTO.getGroupId(), user.getId()))
+    public Contact updateContact(ContactPatchDTO contactPatchDTO) {
+        var contact = contactRepository.findById(contactPatchDTO.getContactId())
                 .orElseThrow(() -> new ControlledException(CONTACT_NOT_FOUND));
+
+        // [예외처리] 올바르지 않은 연락처 서식
+        if(!isValidPhoneNumber(contactPatchDTO.getNewTelNum())) throw new ControlledException(INVALID_FORMAT);
 
         // 특정 인자가 null로 반환된 경우 수정정보가 저장되지 않는다.
         if(contactPatchDTO.getNewName() != null) contact.setName(contactPatchDTO.getNewName());
         if(contactPatchDTO.getNewTelNum() != null) contact.setTelNum(contactPatchDTO.getNewTelNum());
-        // TODO: 테스트 필요
+
         if(contactPatchDTO.getNewGroupId() != -1) {
             var group = groupService.infoByGroupId(contactPatchDTO.getNewGroupId());
             contact.setGroups(group);
@@ -162,5 +155,16 @@ public class ContactService {
         contactRepository.save(contact);
 
         return contact;
+    }
+
+    /**
+     * 전화번호 서식 검사
+     *
+     * @param phoneNumber 연락처가 작성된 문자열
+     * @return 11자리 숫자 문자열인 경우 true
+     */
+    private boolean isValidPhoneNumber(String phoneNumber) {
+        // 전화번호가 11자리인지 확인하고 모든 문자가 숫자인지 검사
+        return phoneNumber.length() == 11 && phoneNumber.matches("\\d+");
     }
 }

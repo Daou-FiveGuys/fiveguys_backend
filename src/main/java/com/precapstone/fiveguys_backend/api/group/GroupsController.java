@@ -3,7 +3,6 @@ package com.precapstone.fiveguys_backend.api.group;
 import com.precapstone.fiveguys_backend.api.dto.groups.GroupsCreateDTO;
 import com.precapstone.fiveguys_backend.api.dto.groups.GroupsPatchDTO;
 import com.precapstone.fiveguys_backend.common.CommonResponse;
-import com.precapstone.fiveguys_backend.common.auth.JwtFilter;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
