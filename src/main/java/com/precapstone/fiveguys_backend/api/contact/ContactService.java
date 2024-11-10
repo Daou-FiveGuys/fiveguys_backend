@@ -3,17 +3,22 @@ package com.precapstone.fiveguys_backend.api.contact;
 import com.precapstone.fiveguys_backend.api.dto.contact.ContactCreateDTO;
 import com.precapstone.fiveguys_backend.api.dto.contact.ContactPatchDTO;
 import com.precapstone.fiveguys_backend.api.group.GroupService;
+import com.precapstone.fiveguys_backend.api.group.GroupsRepository;
 import com.precapstone.fiveguys_backend.entity.Contact;
+import com.precapstone.fiveguys_backend.exception.ControlledException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+
+import static com.precapstone.fiveguys_backend.exception.errorcode.ContactErrorCode.*;
 
 @Service
 @RequiredArgsConstructor
 public class ContactService {
     private final GroupService groupService;
     private final ContactRepository contactRepository;
+    private final GroupsRepository groupsRepository;
 
     /**
      * 주소록을 생성하는 함수
@@ -24,6 +29,16 @@ public class ContactService {
     public Contact createContact(ContactCreateDTO contactCreateDTO) {
         // 그룹ID를 통해 추가할 그룹의 정보를 조회한다.
         var groups = groupService.infoByGroupId(contactCreateDTO.getContactId().getGroupsId());
+
+        // [예외처리] 올바르지 않은 그룹명 요청
+        // 동일 그룹 내에 같은 이름의 연락처가 존재하는 경우
+        if(contactRepository.findByGroupsAndName(groups, contactCreateDTO.getName()).orElse(null) != null)
+            throw new ControlledException(CONTACT_NAME_ALREADY_EXISTS);
+
+        // [예외처리] 올바르지 않은 전화번호 요청
+        // 동일 그룹 내에 같은 전화번호의 연락처가 존재하는 경우
+        if(contactRepository.findByGroupsAndTelNum(groups, contactCreateDTO.getTelNum()).orElse(null) != null)
+            throw new ControlledException(CONTACT_TELNUM_ALREADY_EXISTS);
 
         // 주소록 생성
         var contact = Contact.builder()
@@ -51,7 +66,7 @@ public class ContactService {
 
         // 그룹과 그룹 내 명칭을 통해 주소록을 조회한다.
         var contact = contactRepository.findByGroupsAndName(group, name)
-                .orElseThrow(() -> new RuntimeException("Group And Name Not Found"));
+                .orElseThrow(() -> new ControlledException(CONTACT_NOT_FOUND));
 
         return contact;
     }
@@ -69,7 +84,7 @@ public class ContactService {
         
         // 그룹과 연락처를 통해 주소록을 조회한다.
         var contact = contactRepository.findByGroupsAndTelNum(group, telNum)
-                .orElseThrow(() -> new RuntimeException("Group And TelNum Not Found"));
+                .orElseThrow(() -> new ControlledException(CONTACT_NOT_FOUND));
 
         return contact;
     }
@@ -83,7 +98,7 @@ public class ContactService {
     public List<Contact> contactsInGroup(String groupName) {
         var group = groupService.infoByName(groupName);
         var contacts = contactRepository.findByGroups(group)
-                .orElseThrow(() -> new RuntimeException("Group Not Found"));
+                .orElseThrow(() -> new ControlledException(CONTACT_NOT_FOUND));
 
         return contacts;
     }
@@ -96,7 +111,7 @@ public class ContactService {
      */
     public Contact deleteContact(ContactId contactId) {
         var contact = contactRepository.findByContactId(contactId)
-                .orElseThrow(() -> new RuntimeException("Contact Not Found"));
+                .orElseThrow(() -> new ControlledException(CONTACT_NOT_FOUND));
 
         contactRepository.deleteByContactId(contactId);
 
@@ -111,9 +126,8 @@ public class ContactService {
      */
     public Contact updateContact(ContactPatchDTO contactPatchDTO) {
         var contact = contactRepository.findByContactId(contactPatchDTO.getContactId())
-                .orElseThrow(() -> new RuntimeException("Contact Not Found"));
+                .orElseThrow(() -> new ControlledException(CONTACT_NOT_FOUND));
 
-        // TODO: 테스트해 볼 것
         // 특정 인자가 null로 반환된 경우 수정정보가 저장되지 않는다.
         if(contactPatchDTO.getNewName() != null) contact.setName(contactPatchDTO.getNewName());
         if(contactPatchDTO.getNewTelNum() != null) contact.setTelNum(contactPatchDTO.getNewTelNum());
