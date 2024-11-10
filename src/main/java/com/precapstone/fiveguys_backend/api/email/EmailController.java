@@ -38,7 +38,7 @@ public class EmailController {
         }
     }
 
-    @PostMapping("/reset-password")
+    @PatchMapping("/reset-password")
     public ResponseEntity<CommonResponse> resetPassword(@RequestBody ResetPasswordDTO resetPasswordDTO) {
         try {
             return ResponseEntity.ok(mailService.resetPassword(resetPasswordDTO));

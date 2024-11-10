@@ -14,22 +14,22 @@ import org.springframework.web.bind.annotation.*;
 public class UserController {
     private final UserService userService;
 
-    @PostMapping("/signup")
+    @PostMapping
     public ResponseEntity<CommonResponse> signup(@RequestBody UserDTO userDTO) {
         return ResponseEntity.ok(userService.register(userDTO));
     }
 
-    @GetMapping("/exists")
+    @GetMapping
     public ResponseEntity<CommonResponse> emailExists(@RequestParam String email) {
         return ResponseEntity.ok(userService.emailExists(email));
     }
 
-    @DeleteMapping("/delete")
+    @DeleteMapping
     public ResponseEntity<CommonResponse> delete(@RequestHeader("Authorization") String authorization, @RequestHeader String email, @RequestHeader String password) {
         return ResponseEntity.ok(userService.delete(authorization, email, password));
     }
 
-    @PatchMapping("/edit")
+    @PatchMapping
     public ResponseEntity<CommonResponse> edit(@RequestHeader("Authorization") String authorization, @RequestBody UserDTO userDTO) {
         return ResponseEntity.ok(userService.edit(authorization, userDTO));
     }
