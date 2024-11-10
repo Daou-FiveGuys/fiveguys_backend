@@ -272,7 +272,7 @@ public class AuthService {
      * @return 이메일 인증 여부
      */
     public CommonResponse isVerified(String accessToken) {
-        if(!jwtTokenProvider.validateToken(accessToken)){
+        if(jwtTokenProvider.validateToken(accessToken)){
             return CommonResponse.builder()
                     .data(401)
                     .message("Invalid access token")

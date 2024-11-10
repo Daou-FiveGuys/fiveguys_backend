@@ -72,7 +72,7 @@ public class JwtTokenProvider {
                     .setSigningKey(key)
                     .build()
                     .parseClaimsJws(token);
-                return true;
+                return false;
         } catch (ExpiredJwtException e) {
             System.out.println("Expired JWT token");
         } catch (UnsupportedJwtException e) {
@@ -82,7 +82,7 @@ public class JwtTokenProvider {
         } catch (JwtException | IllegalArgumentException e) {
             System.out.println("Invalid token");
         }
-        return false;
+        return true;
     }
 
     public Claims getClaimsFromToken(String token) {
