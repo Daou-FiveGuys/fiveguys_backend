@@ -36,8 +36,9 @@ public class GroupsController {
      */
     @PostMapping
     public CommonResponse create(@RequestBody GroupsCreateDTO groupsCreateDTO) {
-        var group = groupService.createGroup(groupsCreateDTO);
-        return CommonResponse.builder().code(200).message("그룹 생성 성공").data(group).build();
+        // 그룹 생성
+        var groups = groupService.createGroup(groupsCreateDTO);
+        return CommonResponse.builder().code(200).message("그룹 생성 성공").data(groups).build();
     }
 
     /**
