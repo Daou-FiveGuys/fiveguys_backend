@@ -136,6 +136,7 @@ public class GroupService {
             group.setParent(parentGroup);
         }
 
+        // 그룹 수정
         groupsRepository.save(group);
 
         return group;

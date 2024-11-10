@@ -3,7 +3,6 @@ package com.precapstone.fiveguys_backend.api.contact;
 import com.precapstone.fiveguys_backend.api.dto.contact.ContactCreateDTO;
 import com.precapstone.fiveguys_backend.api.dto.contact.ContactPatchDTO;
 import com.precapstone.fiveguys_backend.api.group.GroupService;
-import com.precapstone.fiveguys_backend.api.group.GroupsRepository;
 import com.precapstone.fiveguys_backend.entity.Contact;
 import com.precapstone.fiveguys_backend.exception.ControlledException;
 import lombok.RequiredArgsConstructor;
@@ -18,7 +17,6 @@ import static com.precapstone.fiveguys_backend.exception.errorcode.ContactErrorC
 public class ContactService {
     private final GroupService groupService;
     private final ContactRepository contactRepository;
-    private final GroupsRepository groupsRepository;
 
     /**
      * 주소록을 생성하는 함수
@@ -131,8 +129,13 @@ public class ContactService {
         // 특정 인자가 null로 반환된 경우 수정정보가 저장되지 않는다.
         if(contactPatchDTO.getNewName() != null) contact.setName(contactPatchDTO.getNewName());
         if(contactPatchDTO.getNewTelNum() != null) contact.setTelNum(contactPatchDTO.getNewTelNum());
+        // TODO: 테스트 필요
+        if(contactPatchDTO.getNewGroupId() != -1) {
+            var group = groupService.infoByGroupId(contactPatchDTO.getNewGroupId());
+            contact.setGroups(group);
+        }
 
-        // 주소록 저장
+        // 주소록 수정
         contactRepository.save(contact);
 
         return contact;

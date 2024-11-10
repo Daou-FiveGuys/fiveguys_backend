@@ -89,10 +89,6 @@ public class ContactController {
     @PatchMapping
     public ResponseEntity<CommonResponse> update(@RequestBody ContactPatchDTO contactPatchDTO) {
         // 그룹 내부에 주소록 변경
-        // 1. 위치 이동의 경우
-        // TODO: 새로운 그룹을 조회한 후, groupId를 변경한다.
-
-        // 2. 정보 변경의 경우
         var contact = contactService.updateContact(contactPatchDTO);
 
         return ResponseEntity.ok(CommonResponse.builder().code(200).message("주소록 변경 성공").data(contact).build());
