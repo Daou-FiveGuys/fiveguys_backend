@@ -18,7 +18,8 @@ public class GroupService {
 
     /**
      * 그룹을 생성하는 함수
-     * 
+     * TODO: [예외처리] 그룹이 재귀되게 요청되는 경우
+     *
      * @param groupsCreateDTO 그룹 생성 정보
      * @return
      */
@@ -39,13 +40,13 @@ public class GroupService {
          * 그룹 이름이 이미 존재하는 경우. 잘못된 요청
          * ※ 그룹 소유자에 대한 열이 존재하지 않기 때문에, 그룹명을 Unique하다.
          */
-        var groupName = groupsRepository.findByGroupsName(groupsCreateDTO.getGroupName()).orElse(null);
+        var groupName = groupsRepository.findByGroupsName(groupsCreateDTO.getGroupsName()).orElse(null);
         if(groupName != null)
             throw new ControlledException(GROUP_ALREADY_EXISTS);
 
         // 그룹 생성
         var group = Groups.builder()
-                .groupsName(groupsCreateDTO.getGroupName())
+                .groupsName(groupsCreateDTO.getGroupsName())
                 .parent(parentGroup)
                 .build();
 
@@ -98,6 +99,8 @@ public class GroupService {
 
     /**
      * 그룹을 삭제하는 함수
+     * ※ 본인이 소유한 모든 하위 그룹들도 함께 사라진다.
+     * TODO: 반복문을 이용하지 않고 제거하는 방법을 고려해볼 것
      *
      * @param groupId 삭제할 그룹ID
      * @return
@@ -107,6 +110,13 @@ public class GroupService {
                 .findById(groupId)
                 .orElseThrow(() -> new ControlledException(GROUP_NOT_FOUND));
 
+        // 본인이 소유한 자식 그룹 조회
+        var childGroups = groupsRepository.findByParent(group)
+                .orElseThrow(() -> new ControlledException(GROUP_NOT_FOUND));
+        // 자식 그룹 모두 삭제
+        for (Groups child : childGroups) deleteGroup(child.getGroupsId());
+
+        // 해당 그룹 삭제
         groupsRepository.deleteById(groupId);
 
         return group;
@@ -114,6 +124,7 @@ public class GroupService {
 
     /**
      * 그룹을 수정하는 함수
+     * TODO: [예외처리] 그룹이 재귀되게 요청되는 경우
      *
      * @param groupsPatchDTO 그룹 변경 정보
      * @return
@@ -128,8 +139,11 @@ public class GroupService {
 
         // parentGroupId는 정수형이므로, -1을 변경 정보 없음으로 인식한다.
         if(groupsPatchDTO.getNewParentGroupId() != -1) {
-            // 변경할 부모 그룹을 조회
-            var parentGroup = groupsRepository
+            Groups parentGroup;
+            // 최상위 그룹의 경우 null을 반환
+            if(groupsPatchDTO.getNewParentGroupId() == 0) parentGroup = null;
+                // 변경할 부모 그룹을 조회
+            else parentGroup = groupsRepository
                     .findById(groupsPatchDTO.getNewParentGroupId())
                     .orElseThrow(() -> new ControlledException(PARENT_GROUP_NOT_FOUND));
 

@@ -10,6 +10,6 @@ import lombok.Getter;
 @Builder
 @Getter
 public class GroupsCreateDTO {
-    private String groupName; // 그룹명
+    private String groupsName; // 그룹명
     private Long parentGroupId; // 상위 그룹ID, ※ 0인 경우 최상위 그룹이다.
 }

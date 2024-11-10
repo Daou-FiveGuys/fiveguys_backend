@@ -22,15 +22,17 @@ public class GroupsController {
     @GetMapping("{groupId}")
     public ResponseEntity<CommonResponse> info(@PathVariable Long groupId) {
         // 그룹 조회
+        var group = groupService.infoByGroupId(groupId);
         var groups = groupService.childGroupInfo(groupId);
-        return ResponseEntity.ok(CommonResponse.builder().code(200).message("그룹 조회 성공").data(groups).build());
+        var response = GroupsResponse.builder().group(group).childGroups(groups).build();
+        return ResponseEntity.ok(CommonResponse.builder().code(200).message("그룹 조회 성공").data(response).build());
     }
 
     /**
      * 그룹 생성
      * parentGroupId는 0일 때만 최상위 그룹으로 지정, 다른 존재하지 않는 Id의 경우 예외처리
      * TODO: 예외처리 할 것
-     * 
+     *
      * @param groupsCreateDTO 그룹명, 상위그룹ID
      * @return
      */
