@@ -3,6 +3,7 @@ package com.precapstone.fiveguys_backend.api.contact;
 import com.precapstone.fiveguys_backend.api.dto.contact.ContactCreateDTO;
 import com.precapstone.fiveguys_backend.api.dto.contact.ContactPatchDTO;
 import com.precapstone.fiveguys_backend.api.group.GroupService;
+import com.precapstone.fiveguys_backend.api.user.UserService;
 import com.precapstone.fiveguys_backend.entity.Contact;
 import com.precapstone.fiveguys_backend.exception.ControlledException;
 import lombok.RequiredArgsConstructor;
@@ -17,9 +18,11 @@ import static com.precapstone.fiveguys_backend.exception.errorcode.ContactErrorC
 public class ContactService {
     private final GroupService groupService;
     private final ContactRepository contactRepository;
+    private final UserService userService;
 
     /**
      * 주소록을 생성하는 함수
+     * TODO: 데이터베이스 문자 인코딩 방식으로 인해, 한글 name이 작성이 안됨
      *
      * @param contactCreateDTO 주소록 생성 정보
      * @return
@@ -27,6 +30,7 @@ public class ContactService {
     public Contact createContact(ContactCreateDTO contactCreateDTO) {
         // 그룹ID를 통해 추가할 그룹의 정보를 조회한다.
         var groups = groupService.infoByGroupId(contactCreateDTO.getContactId().getGroupsId());
+        var user = userService.findById(contactCreateDTO.getContactId().getUserId());
 
         // [예외처리] 올바르지 않은 그룹명 요청
         // 동일 그룹 내에 같은 이름의 연락처가 존재하는 경우
@@ -38,8 +42,12 @@ public class ContactService {
         if(contactRepository.findByGroupsAndTelNum(groups, contactCreateDTO.getTelNum()).orElse(null) != null)
             throw new ControlledException(CONTACT_TELNUM_ALREADY_EXISTS);
 
+        var contactId = ContactId.builder().groupsId(groups.getGroupsId()).userId(user.getId()).build();
+
         // 주소록 생성
         var contact = Contact.builder()
+                .contactId(contactId)
+                .user(user)
                 .groups(groups)
                 .name(contactCreateDTO.getName())
                 .telNum(contactCreateDTO.getTelNum())
@@ -79,7 +87,7 @@ public class ContactService {
     public Contact infoByGroupsAndTelNum(String groupName, String telNum) {
         // 그룹명을 통해 그룹 정보를 조회한다.
         var group = groupService.infoByName(groupName);
-        
+
         // 그룹과 연락처를 통해 주소록을 조회한다.
         var contact = contactRepository.findByGroupsAndTelNum(group, telNum)
                 .orElseThrow(() -> new ControlledException(CONTACT_NOT_FOUND));
@@ -111,14 +119,15 @@ public class ContactService {
         var contact = contactRepository.findByContactId(contactId)
                 .orElseThrow(() -> new ControlledException(CONTACT_NOT_FOUND));
 
-        contactRepository.deleteByContactId(contactId);
+        contactRepository.deleteByContactId(contact.getContactId());
 
         return contact;
     }
 
     /**
      * 주소록을 수정하는 함수
-     * 
+     * TODO: 연락처 수정을 위한 추가적인 키 필요함
+     *
      * @param contactPatchDTO 주소록 변경 정보
      * @return
      */

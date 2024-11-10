@@ -4,6 +4,7 @@ import com.precapstone.fiveguys_backend.api.dto.contact.ContactCreateDTO;
 import com.precapstone.fiveguys_backend.api.dto.contact.ContactPatchDTO;
 import com.precapstone.fiveguys_backend.common.CommonResponse;
 import com.precapstone.fiveguys_backend.entity.Contact;
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -17,6 +18,7 @@ public class ContactController {
     /**
      * 주소록 조회 (사용자)
      * ※ 그룹 내 특정 연락처를 전달한다.
+     * TODO: 서식검사
      *
      * @param groupsName 연락처가 소속된 그룹
      * @param nameOrTelNum 그룹에 저장된 명칭 혹은 연락처
@@ -30,7 +32,7 @@ public class ContactController {
 
         // 정수가 되는 문자열인 경우(연락처)
         if(isNumberic(nameOrTelNum)) contact = contactService.infoByGroupsAndTelNum(groupsName, nameOrTelNum);
-        // 정수가 되지않는 문자열인 경우(그룹 내 명칭)
+            // 정수가 되지않는 문자열인 경우(그룹 내 명칭)
         else contact = contactService.infoByGroupAndName(groupsName, nameOrTelNum);
 
         return ResponseEntity.ok(CommonResponse.builder().code(200).message("주소록 조회 성공").data(contact).build());
@@ -69,20 +71,25 @@ public class ContactController {
      * 주소록 삭제
      * 그룹에 등록된 주소록을 삭제한다.
      *
-     * @param contactId 삭제할 주소록ID
+     * @param groupId 삭제할 그룹ID
+     * @param userId 삭제할 유저ID
      * @return
      */
-    @DeleteMapping("{contactId}")
-    public ResponseEntity<CommonResponse> delete(@PathVariable ContactId contactId) {
+    @Transactional
+    @DeleteMapping("{groupId}/{userId}")
+    public ResponseEntity<CommonResponse> delete(@PathVariable Long groupId, @PathVariable Long userId) {
         // 그룹 내부에 주소록 삭제
-        var contact = contactService.deleteContact(contactId);
+        //var contactId = ContactId.builder().groupsId(groupId).userId(userId).build();
+        //var contact = contactService.deleteContact(contactId);
+        var contact = contactService.deleteContact(new ContactId(groupId, userId));
         return ResponseEntity.ok(CommonResponse.builder().code(200).message("주소록 삭제 성공").data(contact).build());
     }
 
     /**
      * 주소록 변경
      * 그룹에 등록된 주소록을 변경한다.
-     * 
+     * TODO: 서식검사
+     *
      * @param contactPatchDTO 유저ID, 그룹ID, 그룹 내 명칭, 연락처
      * @return
      */
@@ -96,7 +103,7 @@ public class ContactController {
 
     /**
      * 변경된 인자가 정수로만 되어있는 문자열인지 판단하는 함수
-     * ※ 연락처의 경우 문자열을 정수로도 표현할 수 있음을 통해, 함수를 분기 
+     * ※ 연락처의 경우 문자열을 정수로도 표현할 수 있음을 통해, 함수를 분기
      *
      * @param str 주소록 별명 정보 or 주소록 연락처 정보
      * @return 주소록 연락처 정보가 전달된 경우 true

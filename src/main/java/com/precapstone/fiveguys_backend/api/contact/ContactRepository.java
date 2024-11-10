@@ -19,9 +19,11 @@ public interface ContactRepository extends JpaRepository<Contact, Long> {
     Optional<List<Contact>> findByGroups(Groups groups);
 
     /** 특정 그룹에서 그룹 내 명칭으로 조회하는 함수 */
+    Optional<Contact> findByContactIdAndName(ContactId contactId, String name);
     Optional<Contact> findByGroupsAndName(Groups groups, String name);
 
     /** 특정 그룹에서 연락처 정보로 조회하는 함수 */
+    Optional<Contact> findByContactIdAndTelNum(ContactId contactId, String name);
     Optional<Contact> findByGroupsAndTelNum(Groups groups, String telNum);
 
     // 다른 그룹 내부에 동일한 이름과 연락처가 존재할 수 있음
