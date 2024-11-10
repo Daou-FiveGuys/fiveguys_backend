@@ -5,6 +5,7 @@ import com.precapstone.fiveguys_backend.api.dto.contact.ContactPatchDTO;
 import com.precapstone.fiveguys_backend.common.CommonResponse;
 import com.precapstone.fiveguys_backend.entity.Contact;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -23,7 +24,7 @@ public class ContactController {
      * @return
      */
     @GetMapping("{groupsName}/{nameOrTelNum}")
-    public CommonResponse info(@PathVariable String groupsName, @PathVariable String nameOrTelNum) {
+    public ResponseEntity<CommonResponse> info(@PathVariable String groupsName, @PathVariable String nameOrTelNum) {
         // ※ 전화번호 조회, 이름 조회 모두 가능해야 함
         Contact contact;
 
@@ -32,7 +33,7 @@ public class ContactController {
         // 정수가 되지않는 문자열인 경우(그룹 내 명칭)
         else contact = contactService.infoByGroupAndName(groupsName, nameOrTelNum);
 
-        return CommonResponse.builder().code(200).message("주소록 조회 성공").data(contact).build();
+        return ResponseEntity.ok(CommonResponse.builder().code(200).message("주소록 조회 성공").data(contact).build());
     }
 
     /**
@@ -43,10 +44,10 @@ public class ContactController {
      * @return
      */
     @GetMapping("{groupsName}")
-    public CommonResponse info(@PathVariable String groupsName) {
+    public ResponseEntity<CommonResponse> info(@PathVariable String groupsName) {
         // ※ 전화번호 조회, 이름 조회 모두 가능해야 함
         var contacts = contactService.contactsInGroup(groupsName);
-        return CommonResponse.builder().code(200).message("주소록 조회 성공").data(contacts).build();
+        return ResponseEntity.ok(CommonResponse.builder().code(200).message("주소록 조회 성공").data(contacts).build());
     }
 
     /**
@@ -57,11 +58,11 @@ public class ContactController {
      * @return
      */
     @PostMapping
-    public CommonResponse create(@RequestBody ContactCreateDTO contactCreateDTO) {
+    public ResponseEntity<CommonResponse> create(@RequestBody ContactCreateDTO contactCreateDTO) {
         // 그룹 내부에 주소록 생성
         // TODO: 예외처리:: 같은 Group 내 name 및 telNum은 동일하면 안된다.
         var contact = contactService.createContact(contactCreateDTO);
-        return CommonResponse.builder().code(200).message("주소록 생성 성공").data(contact).build();
+        return ResponseEntity.ok(CommonResponse.builder().code(200).message("주소록 생성 성공").data(contact).build());
     }
 
     /**
@@ -72,10 +73,10 @@ public class ContactController {
      * @return
      */
     @DeleteMapping("{contactId}")
-    public CommonResponse delete(@PathVariable ContactId contactId) {
+    public ResponseEntity<CommonResponse> delete(@PathVariable ContactId contactId) {
         // 그룹 내부에 주소록 삭제
         var contact = contactService.deleteContact(contactId);
-        return CommonResponse.builder().code(200).message("주소록 삭제 성공").data(contact).build();
+        return ResponseEntity.ok(CommonResponse.builder().code(200).message("주소록 삭제 성공").data(contact).build());
     }
 
     /**
@@ -86,7 +87,7 @@ public class ContactController {
      * @return
      */
     @PatchMapping
-    public CommonResponse update(@RequestBody ContactPatchDTO contactPatchDTO) {
+    public ResponseEntity<CommonResponse> update(@RequestBody ContactPatchDTO contactPatchDTO) {
         // 그룹 내부에 주소록 변경
         // 1. 위치 이동의 경우
         // TODO: 새로운 그룹을 조회한 후, groupId를 변경한다.
@@ -94,7 +95,7 @@ public class ContactController {
         // 2. 정보 변경의 경우
         var contact = contactService.updateContact(contactPatchDTO);
 
-        return CommonResponse.builder().code(200).message("주소록 변경 성공").data(contact).build();
+        return ResponseEntity.ok(CommonResponse.builder().code(200).message("주소록 변경 성공").data(contact).build());
     }
 
     /**

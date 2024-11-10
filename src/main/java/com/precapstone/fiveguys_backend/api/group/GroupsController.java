@@ -13,8 +13,6 @@ import org.springframework.web.bind.annotation.*;
 public class GroupsController {
     private final GroupService groupService;
 
-    // 그룹 조회
-
     /**
      * 그룹 조회
      *
@@ -23,6 +21,7 @@ public class GroupsController {
      */
     @GetMapping("{groupId}")
     public ResponseEntity<CommonResponse> info(@PathVariable Long groupId) {
+        // 그룹 조회
         var groups = groupService.childGroupInfo(groupId);
         return ResponseEntity.ok(CommonResponse.builder().code(200).message("그룹 조회 성공").data(groups).build());
     }
@@ -65,10 +64,6 @@ public class GroupsController {
     @PatchMapping
     public ResponseEntity<CommonResponse> update(@RequestBody GroupsPatchDTO groupsPatchDTO) {
         // 그룹 변경
-        // 1. 위치 이동의 경우
-        // TODO: 새로운 그룹을 조회한 후, parent를 변경한다.
-
-        // 2. 정보 변경의 경우
         var group = groupService.updateGroup(groupsPatchDTO);
         return ResponseEntity.ok(CommonResponse.builder().code(200).message("그룹 변경 성공").data(group).build());
     }
