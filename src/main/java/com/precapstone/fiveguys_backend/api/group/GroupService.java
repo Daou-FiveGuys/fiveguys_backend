@@ -98,6 +98,22 @@ public class GroupService {
     }
 
     /**
+     * 그룹명을 통해 본인의 하위 그룹을 조회한다.
+     *
+     * @param groupName
+     * @return
+     */
+    public List<Groups> childGroupInfo(String groupName) {
+        var group = groupsRepository.findByGroupsName(groupName)
+                .orElseThrow(() -> new ControlledException(GROUP_NOT_FOUND));
+
+        var groups = groupsRepository.findByParent(group)
+                .orElseThrow(() -> new ControlledException(GROUP_NOT_FOUND));
+
+        return groups;
+    }
+
+    /**
      * 그룹을 삭제하는 함수
      * ※ 본인이 소유한 모든 하위 그룹들도 함께 사라진다.
      * TODO: 반복문을 이용하지 않고 제거하는 방법을 고려해볼 것

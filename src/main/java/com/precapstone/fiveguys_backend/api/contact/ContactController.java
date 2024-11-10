@@ -2,6 +2,7 @@ package com.precapstone.fiveguys_backend.api.contact;
 
 import com.precapstone.fiveguys_backend.api.dto.contact.ContactCreateDTO;
 import com.precapstone.fiveguys_backend.api.dto.contact.ContactPatchDTO;
+import com.precapstone.fiveguys_backend.api.group.GroupService;
 import com.precapstone.fiveguys_backend.common.CommonResponse;
 import com.precapstone.fiveguys_backend.common.auth.JwtFilter;
 import com.precapstone.fiveguys_backend.entity.Contact;
@@ -15,6 +16,7 @@ import org.springframework.web.bind.annotation.*;
 @RequiredArgsConstructor
 public class ContactController {
     private final ContactService contactService;
+    private final GroupService groupService;
 
     /**
      * 주소록 조회 (사용자)
@@ -49,7 +51,9 @@ public class ContactController {
     public ResponseEntity<CommonResponse> info(@PathVariable String groupsName) {
         // ※ 전화번호 조회, 이름 조회 모두 가능해야 함
         var contacts = contactService.contactsInGroup(groupsName);
-        return ResponseEntity.ok(CommonResponse.builder().code(200).message("주소록 조회 성공").data(contacts).build());
+        var groups = groupService.childGroupInfo(groupsName);
+        var response = new ContactResponse(contacts, groups);
+        return ResponseEntity.ok(CommonResponse.builder().code(200).message("주소록 조회 성공").data(response).build());
     }
 
     /**
