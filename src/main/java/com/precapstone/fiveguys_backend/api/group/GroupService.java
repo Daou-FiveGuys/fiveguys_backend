@@ -65,7 +65,6 @@ public class GroupService {
     /**
      * 그룹ID를 통해 본인의 하위 그룹을 조회한다.
      *
-     *
      * @param groupId
      * @return
      */
