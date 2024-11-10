@@ -11,7 +11,7 @@ import lombok.Getter;
 @Builder
 @Getter
 public class ContactCreateDTO {
-    private ContactId contactId; // 주소록ID:: 주소록을 등록할 그룹ID와 유저ID
+    private Long groupId; // 연락처를 추가할 그룹ID
     private String name; // 그룹 내 명칭
     private String telNum; // 연락처
 }

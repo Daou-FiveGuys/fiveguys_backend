@@ -3,11 +3,15 @@ package com.precapstone.fiveguys_backend.api.contact;
 import com.precapstone.fiveguys_backend.api.dto.contact.ContactCreateDTO;
 import com.precapstone.fiveguys_backend.api.dto.contact.ContactPatchDTO;
 import com.precapstone.fiveguys_backend.common.CommonResponse;
+import com.precapstone.fiveguys_backend.common.auth.JwtFilter;
 import com.precapstone.fiveguys_backend.entity.Contact;
+import com.precapstone.fiveguys_backend.entity.User;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.Optional;
 
 @RestController
 @RequestMapping("/api/v1/contact/")
@@ -32,7 +36,7 @@ public class ContactController {
 
         // 정수가 되는 문자열인 경우(연락처)
         if(isNumberic(nameOrTelNum)) contact = contactService.infoByGroupsAndTelNum(groupsName, nameOrTelNum);
-            // 정수가 되지않는 문자열인 경우(그룹 내 명칭)
+        // 정수가 되지않는 문자열인 경우(그룹 내 명칭)
         else contact = contactService.infoByGroupAndName(groupsName, nameOrTelNum);
 
         return ResponseEntity.ok(CommonResponse.builder().code(200).message("주소록 조회 성공").data(contact).build());
@@ -57,13 +61,16 @@ public class ContactController {
      * ※ 요청 사항에 그룹이 먼저 생성되어있어야 한다.
      *
      * @param contactCreateDTO 유저ID, 그룹ID, 그룹 내 명칭, 연락처
+     * @param authorization 연락처를 소유할 유저ID를 얻기위한 인증키
      * @return
      */
     @PostMapping
-    public ResponseEntity<CommonResponse> create(@RequestBody ContactCreateDTO contactCreateDTO) {
+    public ResponseEntity<CommonResponse> create(@RequestBody ContactCreateDTO contactCreateDTO, @RequestHeader("Authorization") String authorization) {
+        String accessToken = authorization.replace(JwtFilter.TOKEN_PREFIX, "");
+
         // 그룹 내부에 주소록 생성
         // TODO: 예외처리:: 같은 Group 내 name 및 telNum은 동일하면 안된다.
-        var contact = contactService.createContact(contactCreateDTO);
+        var contact = contactService.createContact(contactCreateDTO, accessToken);
         return ResponseEntity.ok(CommonResponse.builder().code(200).message("주소록 생성 성공").data(contact).build());
     }
 
@@ -72,16 +79,16 @@ public class ContactController {
      * 그룹에 등록된 주소록을 삭제한다.
      *
      * @param groupId 삭제할 그룹ID
-     * @param userId 삭제할 유저ID
+     * @param authorization 삭제할 유저ID를 얻기위한 인증키
      * @return
      */
     @Transactional
     @DeleteMapping("{groupId}/{userId}")
-    public ResponseEntity<CommonResponse> delete(@PathVariable Long groupId, @PathVariable Long userId) {
+    public ResponseEntity<CommonResponse> delete(@PathVariable Long groupId, @RequestHeader("Authorization") String authorization) {
+        String accessToken = authorization.replace(JwtFilter.TOKEN_PREFIX, "");
+        
         // 그룹 내부에 주소록 삭제
-        //var contactId = ContactId.builder().groupsId(groupId).userId(userId).build();
-        //var contact = contactService.deleteContact(contactId);
-        var contact = contactService.deleteContact(new ContactId(groupId, userId));
+        var contact = contactService.deleteContact(groupId, accessToken);
         return ResponseEntity.ok(CommonResponse.builder().code(200).message("주소록 삭제 성공").data(contact).build());
     }
 
@@ -94,9 +101,11 @@ public class ContactController {
      * @return
      */
     @PatchMapping
-    public ResponseEntity<CommonResponse> update(@RequestBody ContactPatchDTO contactPatchDTO) {
+    public ResponseEntity<CommonResponse> update(@RequestBody ContactPatchDTO contactPatchDTO, @RequestHeader("Authorization") String authorization) {
+        String accessToken = authorization.replace(JwtFilter.TOKEN_PREFIX, "");
+
         // 그룹 내부에 주소록 변경
-        var contact = contactService.updateContact(contactPatchDTO);
+        var contact = contactService.updateContact(contactPatchDTO, accessToken);
 
         return ResponseEntity.ok(CommonResponse.builder().code(200).message("주소록 변경 성공").data(contact).build());
     }

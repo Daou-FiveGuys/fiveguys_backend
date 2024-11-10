@@ -11,7 +11,7 @@ import lombok.Getter;
 @Builder
 @Getter
 public class ContactPatchDTO {
-    private ContactId contactId; // 변경할 주소록ID
+    private Long groupId; // 변경할 주소록ID
     private String newName; // 변경할 그룹 내 명칭
     private String newTelNum; // 변경할 연락처
     private Long newGroupId; // 변경할 부모 그룹

@@ -1,17 +1,22 @@
 package com.precapstone.fiveguys_backend.api.contact;
 
+import com.precapstone.fiveguys_backend.api.auth.JwtTokenProvider;
 import com.precapstone.fiveguys_backend.api.dto.contact.ContactCreateDTO;
 import com.precapstone.fiveguys_backend.api.dto.contact.ContactPatchDTO;
 import com.precapstone.fiveguys_backend.api.group.GroupService;
 import com.precapstone.fiveguys_backend.api.user.UserService;
 import com.precapstone.fiveguys_backend.entity.Contact;
+import com.precapstone.fiveguys_backend.entity.User;
 import com.precapstone.fiveguys_backend.exception.ControlledException;
+import com.precapstone.fiveguys_backend.exception.ErrorMessage;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Optional;
 
 import static com.precapstone.fiveguys_backend.exception.errorcode.ContactErrorCode.*;
+import static com.precapstone.fiveguys_backend.exception.errorcode.UserErrorCode.USER_NOT_FOUND;
 
 @Service
 @RequiredArgsConstructor
@@ -19,6 +24,7 @@ public class ContactService {
     private final GroupService groupService;
     private final ContactRepository contactRepository;
     private final UserService userService;
+    private final JwtTokenProvider jwtTokenProvider;
 
     /**
      * 주소록을 생성하는 함수
@@ -27,10 +33,11 @@ public class ContactService {
      * @param contactCreateDTO 주소록 생성 정보
      * @return
      */
-    public Contact createContact(ContactCreateDTO contactCreateDTO) {
+    public Contact createContact(ContactCreateDTO contactCreateDTO, String accessToken) {
         // 그룹ID를 통해 추가할 그룹의 정보를 조회한다.
-        var groups = groupService.infoByGroupId(contactCreateDTO.getContactId().getGroupsId());
-        var user = userService.findById(contactCreateDTO.getContactId().getUserId());
+        var groups = groupService.infoByGroupId(contactCreateDTO.getGroupId());
+        var user =  userService.findByUserId(jwtTokenProvider.getUserIdFromToken(accessToken))
+                .orElseThrow(() -> new ControlledException(USER_NOT_FOUND));
 
         // [예외처리] 올바르지 않은 그룹명 요청
         // 동일 그룹 내에 같은 이름의 연락처가 존재하는 경우
@@ -112,11 +119,15 @@ public class ContactService {
     /**
      * 주소록을 삭제하는 함수
      *
-     * @param contactId 삭제할 주소록ID(GroupId, UserId)
+     * @param groupId 삭제할 연락처가 들어잇는 GroupId
+     * @param accessToken 유저ID를 얻기 위한 토큰
      * @return
      */
-    public Contact deleteContact(ContactId contactId) {
-        var contact = contactRepository.findByContactId(contactId)
+    public Contact deleteContact(Long groupId, String accessToken) {
+        var user =  userService.findByUserId(jwtTokenProvider.getUserIdFromToken(accessToken))
+                .orElseThrow(() -> new ControlledException(USER_NOT_FOUND));
+
+        var contact = contactRepository.findByContactId(new ContactId(groupId, user.getId()))
                 .orElseThrow(() -> new ControlledException(CONTACT_NOT_FOUND));
 
         contactRepository.deleteByContactId(contact.getContactId());
@@ -131,8 +142,11 @@ public class ContactService {
      * @param contactPatchDTO 주소록 변경 정보
      * @return
      */
-    public Contact updateContact(ContactPatchDTO contactPatchDTO) {
-        var contact = contactRepository.findByContactId(contactPatchDTO.getContactId())
+    public Contact updateContact(ContactPatchDTO contactPatchDTO, String accessToken) {
+        var user =  userService.findByUserId(jwtTokenProvider.getUserIdFromToken(accessToken))
+                .orElseThrow(() -> new ControlledException(USER_NOT_FOUND));
+
+        var contact = contactRepository.findByContactId(new ContactId(contactPatchDTO.getGroupId(), user.getId()))
                 .orElseThrow(() -> new ControlledException(CONTACT_NOT_FOUND));
 
         // 특정 인자가 null로 반환된 경우 수정정보가 저장되지 않는다.

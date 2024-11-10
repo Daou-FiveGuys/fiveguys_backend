@@ -3,6 +3,7 @@ package com.precapstone.fiveguys_backend.api.group;
 import com.precapstone.fiveguys_backend.api.dto.groups.GroupsCreateDTO;
 import com.precapstone.fiveguys_backend.api.dto.groups.GroupsPatchDTO;
 import com.precapstone.fiveguys_backend.common.CommonResponse;
+import com.precapstone.fiveguys_backend.common.auth.JwtFilter;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -14,7 +15,7 @@ public class GroupsController {
     private final GroupService groupService;
 
     /**
-     * 그룹 조회
+     * 그룹 조회 - 그룹
      *
      * @param groupId 조회할 그룹ID
      * @return
@@ -31,7 +32,6 @@ public class GroupsController {
     /**
      * 그룹 생성
      * parentGroupId는 0일 때만 최상위 그룹으로 지정, 다른 존재하지 않는 Id의 경우 예외처리
-     * TODO: 예외처리 할 것
      *
      * @param groupsCreateDTO 그룹명, 상위그룹ID
      * @return
