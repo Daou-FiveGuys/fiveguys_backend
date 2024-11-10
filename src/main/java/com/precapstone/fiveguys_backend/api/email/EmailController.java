@@ -1,6 +1,7 @@
 package com.precapstone.fiveguys_backend.api.email;
 
 import com.precapstone.fiveguys_backend.api.dto.EmailVerificationDTO;
+import com.precapstone.fiveguys_backend.api.dto.ResetPasswordDTO;
 import com.precapstone.fiveguys_backend.common.CommonResponse;
 import com.precapstone.fiveguys_backend.common.auth.JwtFilter;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -18,7 +19,6 @@ import org.springframework.web.bind.annotation.*;
 public class EmailController {
     private final MailService mailService;
 
-
     /**
      * 인증 메일 전송
      *
@@ -30,6 +30,18 @@ public class EmailController {
         try {
             String accessToken = authorization.replace(JwtFilter.TOKEN_PREFIX, "");
             return ResponseEntity.ok(mailService.sendEmailWithAccessToken(accessToken));
+        } catch (Exception exception) {
+            return ResponseEntity.ok(CommonResponse.builder()
+                    .code(400)
+                    .message("bad request")
+                    .build());
+        }
+    }
+
+    @PostMapping("/reset-password")
+    public ResponseEntity<CommonResponse> resetPassword(@RequestBody ResetPasswordDTO resetPasswordDTO) {
+        try {
+            return ResponseEntity.ok(mailService.resetPassword(resetPasswordDTO));
         } catch (Exception exception) {
             return ResponseEntity.ok(CommonResponse.builder()
                     .code(400)
