@@ -24,7 +24,7 @@ public class UserController {
         return ResponseEntity.ok(userService.getUser(authorization));
     }
 
-    @GetMapping
+    @GetMapping("/exists")
     public ResponseEntity<CommonResponse> emailExists(@RequestParam String email) {
         return ResponseEntity.ok(userService.emailExists(email));
     }
