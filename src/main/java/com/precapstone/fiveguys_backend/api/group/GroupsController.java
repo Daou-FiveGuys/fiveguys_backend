@@ -4,6 +4,7 @@ import com.precapstone.fiveguys_backend.api.dto.groups.GroupsCreateDTO;
 import com.precapstone.fiveguys_backend.api.dto.groups.GroupsPatchDTO;
 import com.precapstone.fiveguys_backend.common.CommonResponse;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -21,9 +22,9 @@ public class GroupsController {
      * @return
      */
     @GetMapping("{groupId}")
-    public CommonResponse info(@PathVariable Long groupId) {
+    public ResponseEntity<CommonResponse> info(@PathVariable Long groupId) {
         var groups = groupService.childGroupInfo(groupId);
-        return CommonResponse.builder().code(200).message("그룹 조회 성공").data(groups).build();
+        return ResponseEntity.ok(CommonResponse.builder().code(200).message("그룹 조회 성공").data(groups).build());
     }
 
     /**
@@ -35,10 +36,10 @@ public class GroupsController {
      * @return
      */
     @PostMapping
-    public CommonResponse create(@RequestBody GroupsCreateDTO groupsCreateDTO) {
+    public ResponseEntity<CommonResponse> create(@RequestBody GroupsCreateDTO groupsCreateDTO) {
         // 그룹 생성
         var groups = groupService.createGroup(groupsCreateDTO);
-        return CommonResponse.builder().code(200).message("그룹 생성 성공").data(groups).build();
+        return ResponseEntity.ok(CommonResponse.builder().code(200).message("그룹 생성 성공").data(groups).build());
     }
 
     /**
@@ -48,10 +49,10 @@ public class GroupsController {
      * @return
      */
     @DeleteMapping("{groupId}")
-    public CommonResponse delete(@PathVariable Long groupId) {
+    public ResponseEntity<CommonResponse> delete(@PathVariable Long groupId) {
         // 그룹 삭제
         var group = groupService.deleteGroup(groupId);
-        return CommonResponse.builder().code(200).message("그룹 삭제 성공").data(group).build();
+        return ResponseEntity.ok(CommonResponse.builder().code(200).message("그룹 삭제 성공").data(group).build());
     }
 
     /**
@@ -62,13 +63,13 @@ public class GroupsController {
      * @return
      */
     @PatchMapping
-    public CommonResponse update(@RequestBody GroupsPatchDTO groupsPatchDTO) {
+    public ResponseEntity<CommonResponse> update(@RequestBody GroupsPatchDTO groupsPatchDTO) {
         // 그룹 변경
         // 1. 위치 이동의 경우
         // TODO: 새로운 그룹을 조회한 후, parent를 변경한다.
 
         // 2. 정보 변경의 경우
         var group = groupService.updateGroup(groupsPatchDTO);
-        return CommonResponse.builder().code(200).message("그룹 변경 성공").data(group).build();
+        return ResponseEntity.ok(CommonResponse.builder().code(200).message("그룹 변경 성공").data(group).build());
     }
 }
