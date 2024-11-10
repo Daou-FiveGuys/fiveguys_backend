@@ -20,6 +20,11 @@ public class UserController {
     }
 
     @GetMapping
+    public ResponseEntity<CommonResponse> getUser(@RequestHeader("Authorization") String authorization) {
+        return ResponseEntity.ok(userService.getUser(authorization));
+    }
+
+    @GetMapping
     public ResponseEntity<CommonResponse> emailExists(@RequestParam String email) {
         return ResponseEntity.ok(userService.emailExists(email));
     }

@@ -4,6 +4,7 @@ import com.precapstone.fiveguys_backend.api.auth.AuthService;
 import com.precapstone.fiveguys_backend.api.auth.JwtTokenProvider;
 import com.precapstone.fiveguys_backend.api.dto.AuthResponseDTO;
 import com.precapstone.fiveguys_backend.api.dto.UserDTO;
+import com.precapstone.fiveguys_backend.api.dto.UserInfoResponseDTO;
 import com.precapstone.fiveguys_backend.api.email.MailService;
 import com.precapstone.fiveguys_backend.common.CommonResponse;
 import com.precapstone.fiveguys_backend.common.PasswordValidator;
@@ -87,6 +88,27 @@ public class UserService {
                         .accessToken(tokens.get("access_token"))
                         .build()
                 )
+                .build();
+    }
+
+    public CommonResponse getUser(String authorization) {
+        String token = JwtTokenProvider.stripTokenPrefix(authorization);
+        String userId = jwtTokenProvider.getUserIdFromToken(token);
+        Optional<User> optionalUser = userRepository.findByUserId(userId);
+        if (optionalUser.isEmpty()) {
+            return CommonResponse.builder()
+                    .code(400)
+                    .message("User not found")
+                    .build();
+        }
+        User user = optionalUser.get();
+        return CommonResponse.builder()
+                .code(200)
+                .data(UserInfoResponseDTO.builder()
+                        .userRole(user.getUserRole())
+                        .name(user.getName())
+                        .email(user.getEmail())
+                        .userId(user.getUserId()))
                 .build();
     }
 
