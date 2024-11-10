@@ -2,12 +2,9 @@ package com.precapstone.fiveguys_backend.api.auth;
 
 import com.precapstone.fiveguys_backend.api.user.UserRepository;
 import com.precapstone.fiveguys_backend.common.auth.CustomUserDetails;
-import io.jsonwebtoken.*;
 import com.precapstone.fiveguys_backend.common.auth.JwtFilter;
 import com.precapstone.fiveguys_backend.entity.User;
-import io.jsonwebtoken.Claims;
-import io.jsonwebtoken.Jwts;
-import io.jsonwebtoken.SignatureAlgorithm;
+import io.jsonwebtoken.*;
 import jakarta.annotation.PostConstruct;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
@@ -19,7 +16,10 @@ import org.springframework.stereotype.Service;
 
 import javax.crypto.spec.SecretKeySpec;
 import java.security.Key;
-import java.util.*;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Optional;
 
 @RequiredArgsConstructor
 @Service
@@ -46,7 +46,6 @@ public class JwtTokenProvider {
         CustomUserDetails userDetails = (CustomUserDetails) authentication.getPrincipal();
         String userId = userDetails.getUser().getUserId();
         claims.put("auth", authentication.getAuthorities());
-        //TODO 토큰 유효기간 설정 오류
         return Jwts.builder()
                 .setClaims(claims)
                 .setSubject(userId)

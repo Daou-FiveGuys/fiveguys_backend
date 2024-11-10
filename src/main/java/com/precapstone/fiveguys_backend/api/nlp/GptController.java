@@ -17,13 +17,13 @@ public class GptController {
         return ResponseEntity.ok(gptService.makeText(authorization, nlpParamDTO.getText()));
     }
 
-    @PostMapping("/generate-prompt")
-    public ResponseEntity<CommonResponse> generatePrompt(@RequestHeader("Authorization") String authorization, @RequestBody NlpParamDTO nlpParamDTO) {
-        return ResponseEntity.ok(gptService.makeText(authorization, nlpParamDTO.getText()));
+    @PostMapping("/generate-image-prompt")
+    public ResponseEntity<CommonResponse> generateImagePrompt(@RequestHeader("Authorization") String authorization, @RequestBody NlpParamDTO nlpParamDTO) {
+        return ResponseEntity.ok(gptService.generateImagePrompt(authorization, nlpParamDTO.getText()));
     }
 
     @PostMapping("/extract-key-points")
     public ResponseEntity<CommonResponse> extractKeyPoints(@RequestHeader("Authorization") String authorization, @RequestBody NlpParamDTO nlpParamDTO) {
-        return ResponseEntity.ok(gptService.makeText(authorization, nlpParamDTO.getText()));
+        return ResponseEntity.ok(gptService.extractKeyPoints(authorization, nlpParamDTO.getText()));
     }
 }
