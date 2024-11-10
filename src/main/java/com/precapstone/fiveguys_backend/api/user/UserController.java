@@ -25,7 +25,12 @@ public class UserController {
     }
 
     @DeleteMapping("/delete")
-    public ResponseEntity<CommonResponse> delete(@RequestHeader String userId, @RequestHeader String password) {
-        return ResponseEntity.ok(userService.deleteByUserId(userId, password));
+    public ResponseEntity<CommonResponse> delete(@RequestHeader("Authorization") String authorization, @RequestHeader String email, @RequestHeader String password) {
+        return ResponseEntity.ok(userService.delete(authorization, email, password));
+    }
+
+    @PatchMapping("/edit")
+    public ResponseEntity<CommonResponse> edit(@RequestHeader("Authorization") String authorization, @RequestBody UserDTO userDTO) {
+        return ResponseEntity.ok(userService.edit(authorization, userDTO));
     }
 }

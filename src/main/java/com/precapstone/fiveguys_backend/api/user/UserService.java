@@ -1,6 +1,7 @@
 package com.precapstone.fiveguys_backend.api.user;
 
 import com.precapstone.fiveguys_backend.api.auth.AuthService;
+import com.precapstone.fiveguys_backend.api.auth.JwtTokenProvider;
 import com.precapstone.fiveguys_backend.api.dto.AuthResponseDTO;
 import com.precapstone.fiveguys_backend.api.dto.UserDTO;
 import com.precapstone.fiveguys_backend.api.email.MailService;
@@ -24,6 +25,7 @@ public class UserService {
     private final UserRepository userRepository;
     private final BCryptPasswordEncoder passwordEncoder;
     private final MailService mailService;
+    private final JwtTokenProvider jwtTokenProvider;
 
     public Optional<User> findByUserId(String userId){
         return userRepository.findByUserId(userId);
@@ -103,9 +105,63 @@ public class UserService {
     }
 
     @Transactional
-    public CommonResponse deleteByUserId(String userId, String password) {
-        //TODO 검증로직 추가
+    public CommonResponse delete(String authorization, String email, String password) {
+        String token = JwtTokenProvider.stripTokenPrefix(authorization);
+        String userId = jwtTokenProvider.getUserIdFromToken(token);
+        Optional<User> optionalUser = userRepository.findByUserId(userId);
+        if(userId == null || optionalUser.isEmpty()){
+            return CommonResponse.builder()
+                    .code(400)
+                    .message("Bad request")
+                    .build();
+        }
+
+        if(!userId.contains("fiveguys_")){
+            if(userId.contains(email)){
+                userRepository.delete(optionalUser.get());
+                return CommonResponse.builder()
+                        .code(200)
+                        .message("Successfully Deleted User")
+                        .build();
+            }
+            else {
+                return CommonResponse.builder()
+                        .code(400)
+                        .message("Bad request")
+                        .build();
+            }
+        }
+
+        if(passwordEncoder.matches(password, optionalUser.get().getPassword())){
+            return CommonResponse.builder()
+                    .code(400)
+                    .message("Bad request")
+                    .build();
+        }
+
+        userRepository.delete(optionalUser.get());
+        return CommonResponse.builder()
+                .code(200)
+                .message("User deleted successfully")
+                .build();
+    }
+
+    @Transactional
+    public CommonResponse edit(String authorization, UserDTO userDTO) {
+        String token = jwtTokenProvider.getUserIdFromToken(authorization);
+        String userId = jwtTokenProvider.getUserIdFromToken(token);
+        if(!userId.contains("fiveguys_") || !userDTO.getPassword().equals(userDTO.getConfirmPassword())){
+            return CommonResponse.builder()
+                    .code(400)
+                    .message("Bad request")
+                    .build();
+        }
+
+
         User user = userRepository.findByUserId(userId).orElseThrow();
+        user.setUpdatedAt(LocalDateTime.now());
+        user.setPassword(userDTO.getPassword());
+        userRepository.save(user);
         return CommonResponse.builder()
                 .code(200)
                 .message("User deleted successfully")
