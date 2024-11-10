@@ -49,7 +49,7 @@ public class JwtFilter extends OncePerRequestFilter {
         }
 
         token = token.replace(TOKEN_PREFIX, "");
-        if (!jwtTokenProvider.validateToken(token)) {
+        if (jwtTokenProvider.validateToken(token)) {
             response.setStatus(HttpStatus.UNAUTHORIZED.value());
             response.setContentType("application/json");
             response.getWriter().write("{\"error\": \"Invalid Basic Authentication\"}");
