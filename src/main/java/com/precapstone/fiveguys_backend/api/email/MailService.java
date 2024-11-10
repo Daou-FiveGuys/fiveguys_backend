@@ -2,6 +2,7 @@ package com.precapstone.fiveguys_backend.api.email;
 
 import com.precapstone.fiveguys_backend.api.auth.JwtTokenProvider;
 import com.precapstone.fiveguys_backend.api.dto.AuthResponseDTO;
+import com.precapstone.fiveguys_backend.api.dto.ResetPasswordDTO;
 import com.precapstone.fiveguys_backend.api.user.UserRepository;
 import com.precapstone.fiveguys_backend.api.redis.RedisService;
 import com.precapstone.fiveguys_backend.common.CommonResponse;
@@ -16,10 +17,12 @@ import org.springframework.mail.MailException;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.thymeleaf.TemplateEngine;
 import org.thymeleaf.context.Context;
 
+import java.time.LocalDateTime;
 import java.util.Optional;
 import java.util.Random;
 
@@ -33,6 +36,7 @@ public class MailService {
     private final RedisService redisService;
     private final JwtTokenProvider jwtTokenProvider;
     private final UserRepository userRepository;
+    private final BCryptPasswordEncoder passwordEncoder;
 
     /**
      * 인증로직
@@ -44,8 +48,9 @@ public class MailService {
      */
     public CommonResponse verifyCode(String accessToken, String verificationCode) {
         String email = jwtTokenProvider.getEmailFromToken(accessToken);
-        String verifyCode = redisService.get(email);
-        Optional<User> optionalUser =  userRepository.findByUserId(jwtTokenProvider.getUserIdFromToken(accessToken));
+        String userId = jwtTokenProvider.getUserIdFromToken(accessToken);
+        String verifyCode = redisService.get(userId);
+        Optional<User> optionalUser =  userRepository.findByUserId(userId);
         if(verifyCode == null || !verifyCode.equals(verificationCode) || optionalUser.isEmpty()) {
             return CommonResponse.builder()
                     .code(401)
@@ -53,6 +58,7 @@ public class MailService {
                     .data(false)
                     .build();
         }
+        redisService.delete(userId);
         User user = optionalUser.get();
         user.setUserRole(UserRole.USER);
         userRepository.save(user);
@@ -65,6 +71,39 @@ public class MailService {
                             .accessToken(jwtTokenProvider.createAccessToken(authentication))
                             .build())
                     .build();
+    }
+
+    public CommonResponse resetPassword(ResetPasswordDTO resetPasswordDTO) {
+        String userId = "fiveguys" + resetPasswordDTO.getEmail();
+        String verifyCode = redisService.get(userId);
+        Optional<User> optionalUser =  userRepository.findByUserId(userId);
+        if(verifyCode == null || !verifyCode.equals(resetPasswordDTO.getCode()) || optionalUser.isEmpty()) {
+            return CommonResponse.builder()
+                    .code(401)
+                    .message("Failed to verify")
+                    .data(false)
+                    .build();
+        }
+        redisService.delete(userId);
+        User user = optionalUser.get();
+        String newPassword = RandomStringGenerator.generateRandomPassword();
+        user.setPassword(passwordEncoder.encode(newPassword));
+        user.setUpdatedAt(LocalDateTime.now());
+
+
+        try {
+            sendNewPasswordEmail(user.getEmail(), newPassword);
+            return CommonResponse.builder()
+                    .code(200)
+                    .message("Successfully Reset Password")
+                    .build();
+        } catch (Exception e) {
+            log.error("Error while sending email", e);
+            return CommonResponse.builder()
+                    .code(500)
+                    .message("Email Sending Failed")
+                    .build();
+        }
     }
 
     /**
@@ -96,7 +135,7 @@ public class MailService {
     }
 
     public CommonResponse sendEmailWithAccessToken(String accessToken) throws MessagingException {
-        String email = jwtTokenProvider.getEmailFromToken(accessToken);
+        String email = jwtTokenProvider.getUserIdFromToken(accessToken);
         if(email == null)
             return CommonResponse.builder()
                     .code(401)
@@ -117,8 +156,9 @@ public class MailService {
         /**
          * 전송된 이메일이 Redis에 존재 -> 삭제
          */
-        if(redisService.exists(toEmail))
-            redisService.delete(toEmail);
+        String userId = "fiveguys" + toEmail;
+        if(redisService.exists(userId))
+            redisService.delete(userId);
         String authNumber = createVerificationNumber();
         String body = createVerificationMessage(authNumber);
         redisService.setDataExpire(toEmail, authNumber,60 * 30L);
@@ -137,6 +177,11 @@ public class MailService {
         } catch (Exception e){
             e.printStackTrace();
         }
+    }
+
+    public void sendNewPasswordEmail(String toEmail, String newPassword) throws MessagingException {
+        String body = createNewPasswordEmail(newPassword);
+        sendEmail(toEmail, "FiveGuys 새로운 비밀번호", body);
     }
 
     private SimpleMailMessage createSimpleEmailForm(String toEmail, String title, String body) {
@@ -165,6 +210,12 @@ public class MailService {
 
     private String createWelcomeMessage(){
         Context context = new Context();
+        return templateEngine.process("welcome", context);
+    }
+
+    private String createNewPasswordEmail(String newPassword){
+        Context context = new Context();
+        context.setVariable("newPassword", newPassword);
         return templateEngine.process("welcome", context);
     }
 
