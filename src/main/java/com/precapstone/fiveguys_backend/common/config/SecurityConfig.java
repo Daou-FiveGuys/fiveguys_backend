@@ -28,8 +28,8 @@ public class SecurityConfig {
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(authorize -> authorize
                         .requestMatchers(
-                                "/login", "/signup", "/swagger-ui/**", "/api-docs/**", "/swagger-resources/**",
-                                "/api/v1/oauth/**" // 갱신 엔드포인트 허용
+                                "/login", "/signup", "/swagger-ui/**", "/api-docs/**", "/swagger-resources/**"
+                                , "/api/v1/user/signup", "/api/v1/user/login"
                         ).permitAll()
                         .anyRequest().authenticated()
                 )
