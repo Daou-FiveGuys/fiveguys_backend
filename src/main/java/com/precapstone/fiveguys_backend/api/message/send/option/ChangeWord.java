@@ -1,4 +1,4 @@
-package com.precapstone.fiveguys_backend.message.send.option;
+package com.precapstone.fiveguys_backend.api.message.send.option;
 
 import lombok.Getter;
 import lombok.Setter;

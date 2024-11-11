@@ -1,7 +1,7 @@
-package com.precapstone.fiveguys_backend.message.send.messagetype;
+package com.precapstone.fiveguys_backend.api.message.send.messagetype;
 
-import com.precapstone.fiveguys_backend.message.send.option.Files;
-import com.precapstone.fiveguys_backend.message.send.option.Target;
+import com.precapstone.fiveguys_backend.api.message.send.option.Files;
+import com.precapstone.fiveguys_backend.api.message.send.option.Target;
 
 import java.io.IOException;
 import java.util.List;

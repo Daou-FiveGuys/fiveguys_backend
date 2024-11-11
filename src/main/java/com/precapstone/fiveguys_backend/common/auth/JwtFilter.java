@@ -28,7 +28,6 @@ public class JwtFilter extends OncePerRequestFilter {
             "/api/v1/oauth/naver", "/api/v1/oauth/google", "/api/v1/oauth"
     );
 
-
     public static final String TOKEN_PREFIX = "Bearer ";
     public static final String HEADER_STRING = "Authorization";
 
@@ -40,7 +39,6 @@ public class JwtFilter extends OncePerRequestFilter {
             filterChain.doFilter(request, response);
             return;
         }
-
 
         String token = jwtTokenProvider.resolveToken(request);
         if (token == null) {

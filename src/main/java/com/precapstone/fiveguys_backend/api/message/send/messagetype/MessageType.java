@@ -1,6 +1,6 @@
-package com.precapstone.fiveguys_backend.message.send.messagetype;
+package com.precapstone.fiveguys_backend.api.message.send.messagetype;
 
-import com.precapstone.fiveguys_backend.message.send.option.Target;
+import com.precapstone.fiveguys_backend.api.message.send.option.Target;
 import lombok.Getter;
 import org.apache.commons.lang3.RandomStringUtils;
 

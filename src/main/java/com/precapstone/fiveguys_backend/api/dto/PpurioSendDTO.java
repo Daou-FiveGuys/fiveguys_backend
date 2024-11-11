@@ -1,6 +1,6 @@
-package com.precapstone.fiveguys_backend.message.send;
+package com.precapstone.fiveguys_backend.api.dto;
 
-import com.precapstone.fiveguys_backend.message.send.option.Target;
+import com.precapstone.fiveguys_backend.api.message.send.option.Target;
 import lombok.Builder;
 import lombok.Getter;
 
@@ -12,7 +12,7 @@ import java.util.List;
  */
 @Builder
 @Getter
-public class PpurioSendParam {
+public class PpurioSendDTO {
     String messageType;
     String content;
     String fromNumber;

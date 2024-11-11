@@ -50,9 +50,9 @@ public class UserService {
         String result = checkPasswordValidation(userDTO.getPassword(), userDTO.getConfirmPassword());
         if(result != null || !flag){
             return CommonResponse.builder()
-                        .code(400)
-                        .message(result)
-                        .build();
+                    .code(400)
+                    .message(result)
+                    .build();
         }
 
         String encodedPassword = passwordEncoder.encode(userDTO.getPassword());
@@ -211,5 +211,9 @@ public class UserService {
         }
 
         return null;
+    }
+
+    public User findById(Long userId) {
+        return userRepository.findById(userId).orElseThrow();
     }
 }

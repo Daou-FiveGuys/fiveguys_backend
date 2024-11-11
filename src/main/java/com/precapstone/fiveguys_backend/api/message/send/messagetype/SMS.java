@@ -1,4 +1,4 @@
-package com.precapstone.fiveguys_backend.message.send.messagetype;
+package com.precapstone.fiveguys_backend.api.message.send.messagetype;
 
 import java.util.List;
 

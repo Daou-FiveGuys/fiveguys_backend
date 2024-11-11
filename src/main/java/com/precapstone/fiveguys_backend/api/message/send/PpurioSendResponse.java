@@ -1,4 +1,4 @@
-package com.precapstone.fiveguys_backend.message.send;
+package com.precapstone.fiveguys_backend.api.message.send;
 
 import lombok.Getter;
 

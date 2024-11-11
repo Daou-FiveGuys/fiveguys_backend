@@ -1,4 +1,4 @@
-package com.precapstone.fiveguys_backend.message.auth;
+package com.precapstone.fiveguys_backend.api.message.auth;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;

@@ -1,10 +1,11 @@
-package com.precapstone.fiveguys_backend.message.send;
+package com.precapstone.fiveguys_backend.api.message.send;
 
-import com.precapstone.fiveguys_backend.message.send.messagetype.MMS;
-import com.precapstone.fiveguys_backend.message.send.messagetype.LMS;
-import com.precapstone.fiveguys_backend.message.auth.PpurioAuth;
-import com.precapstone.fiveguys_backend.message.send.messagetype.MessageType;
-import com.precapstone.fiveguys_backend.message.send.messagetype.SMS;
+import com.precapstone.fiveguys_backend.api.dto.PpurioSendDTO;
+import com.precapstone.fiveguys_backend.api.message.auth.PpurioAuth;
+import com.precapstone.fiveguys_backend.api.message.send.messagetype.SMS;
+import com.precapstone.fiveguys_backend.api.message.send.messagetype.MMS;
+import com.precapstone.fiveguys_backend.api.message.send.messagetype.LMS;
+import com.precapstone.fiveguys_backend.api.message.send.messagetype.MessageType;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpEntity;
@@ -30,7 +31,7 @@ public class PpurioSendService {
 
     private final PpurioAuth ppurioAuth;
 
-    public void sendMessage(PpurioSendParam ppurioSendParam) throws IOException {
+    public void sendMessage(PpurioSendDTO ppurioSendDTO) throws IOException {
         // 토큰 발급
         String accessToken = ppurioAuth.getAccessToken();
 
@@ -39,7 +40,7 @@ public class PpurioSendService {
         headers.set("Authorization", "Bearer "+ accessToken);
 
         // 바디 설정
-        var requestBody = createSendParams(ppurioSendParam);
+        var requestBody = createSendParams(ppurioSendDTO);
 
         // 전송 데이터 생성
         HttpEntity<Map> request = new HttpEntity<>(requestBody, headers);
@@ -51,18 +52,18 @@ public class PpurioSendService {
     /**
      * PpurioSendParam을 통해 전달받은 MessageType을 통해 메세지 정보를 분기 처리
      * 
-     * @param ppurioSendParam 사용자가 요청한 속성 정보
+     * @param ppurioSendDTO 사용자가 요청한 속성 정보
      *
      * @return 전송할 메세지 생성 (Map)
      * 
      * @throws IOException
      */
-    private Map createSendParams(PpurioSendParam ppurioSendParam) throws IOException {
+    private Map createSendParams(PpurioSendDTO ppurioSendDTO) throws IOException {
         // 각 메세지 타입에 맞게 requestBody 분리
-        MessageType messageType = switch (ppurioSendParam.messageType) {
-            case "MMS" -> new MMS(ppurioAccount, ppurioSendParam.fromNumber, ppurioSendParam.content, ppurioSendParam.targets, ppurioSendParam.filePaths);
-            case "LMS" -> new LMS(ppurioAccount, ppurioSendParam.fromNumber, ppurioSendParam.content, ppurioSendParam.targets);
-            case "SMS" -> new SMS(ppurioAccount, ppurioSendParam.fromNumber, ppurioSendParam.content, ppurioSendParam.targets);
+        MessageType messageType = switch (ppurioSendDTO.getMessageType()) {
+            case "MMS" -> new MMS(ppurioAccount, ppurioSendDTO.getFromNumber(), ppurioSendDTO.getContent(), ppurioSendDTO.getTargets(), ppurioSendDTO.getFilePaths());
+            case "LMS" -> new LMS(ppurioAccount, ppurioSendDTO.getFromNumber(), ppurioSendDTO.getContent(), ppurioSendDTO.getTargets());
+            case "SMS" -> new SMS(ppurioAccount, ppurioSendDTO.getFromNumber(), ppurioSendDTO.getContent(), ppurioSendDTO.getTargets());
             default -> null;
         };
 
