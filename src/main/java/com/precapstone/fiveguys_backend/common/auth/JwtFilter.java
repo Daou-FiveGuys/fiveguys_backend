@@ -24,9 +24,18 @@ public class JwtFilter extends OncePerRequestFilter {
     private static final List<String> EXCLUDE_URL = List.of(
             "/login", "/signup",
             "/swagger-ui/**", "/api-docs/**", "/swagger-resources/**",
-            "/api/v1/oauth/refresh-token",
-            "/api/v1/user/signup", "/api/v1/user/login"
+            "/api/v1/oauth/refresh-token"
     );
+
+    private static final List<String> USER_EXCLUDE_URL = List.of(
+        "/api/v1/user/signup", "/api/v1/oauth"
+    );
+
+    private static final List<String> OAUTH_EXCLUDE_URL = List.of(
+        "/api/v1/oauth/naver", "/api/v1/oauth/google"
+    );
+
+
 
     public static final String TOKEN_PREFIX = "Bearer ";
     public static final String HEADER_STRING = "Authorization";
@@ -35,10 +44,22 @@ public class JwtFilter extends OncePerRequestFilter {
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
             throws ServletException, IOException {
 
-        if (pathMatchesExcludePattern(request.getRequestURI())) {
+        String method = request.getMethod();
+        if (pathMatchesExcludePattern(request.getRequestURI(), EXCLUDE_URL)) {
             filterChain.doFilter(request, response);
             return;
         }
+
+        if(pathMatchesExcludePattern(request.getRequestURI(), USER_EXCLUDE_URL) && method.toLowerCase().contains("post")) {
+            filterChain.doFilter(request, response);
+            return;
+        }
+
+        if(pathMatchesExcludePattern(request.getRequestURI(), OAUTH_EXCLUDE_URL) && method.toLowerCase().contains("get")) {
+            filterChain.doFilter(request, response);
+            return;
+        }
+
 
         String token = jwtTokenProvider.resolveToken(request);
         if (token == null) {
@@ -67,9 +88,9 @@ public class JwtFilter extends OncePerRequestFilter {
         }
     }
 
-    private boolean pathMatchesExcludePattern(String requestURI) {
+    private boolean pathMatchesExcludePattern(String requestURI, List<String> urls) {
         AntPathMatcher pathMatcher = new AntPathMatcher();
-        for (String excludeUrl : EXCLUDE_URL) {
+        for (String excludeUrl : urls) {
             if (pathMatcher.match(excludeUrl, requestURI)) {
                 return true;
             }
