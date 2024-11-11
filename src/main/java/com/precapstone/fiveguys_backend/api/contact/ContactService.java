@@ -12,6 +12,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.List;
 
+import static com.precapstone.fiveguys_backend.exception.errorcode.BasicErrorCode.ACCESS_DENIED;
 import static com.precapstone.fiveguys_backend.exception.errorcode.ContactErrorCode.*;
 import static com.precapstone.fiveguys_backend.exception.errorcode.UserErrorCode.USER_NOT_FOUND;
 
@@ -70,7 +71,7 @@ public class ContactService {
      * @param name 조회할 그룹 내 명칭
      * @return
      */
-    public Contact infoByGroupAndName(String groupName, String name) {
+    public Contact infoByGroupAndName(String groupName, String name, String accessToken) {
         // 그룹명을 통해 그룹 정보를 조회한다.
         var group = groupService.infoByName(groupName);
 
@@ -78,17 +79,22 @@ public class ContactService {
         var contact = contactRepository.findByGroupsAndName(group, name)
                 .orElseThrow(() -> new ControlledException(CONTACT_NOT_FOUND));
 
+        // [예외처리] 권한 소유자만 데이터를 반환 받을 수 있다.
+        if(contact.getUser().getUserId().equals(jwtTokenProvider.getUserIdFromToken(accessToken)))
+            throw new ControlledException(ACCESS_DENIED);
+
         return contact;
     }
 
     /**
      * 그룹 명과 연락처를 통해, 특정 주소록의 정보를 조회하는 함수
      *
-     * @param groupName 등록된 그룹의 이름
-     * @param telNum 조회할 연락처
+     * @param groupName   등록된 그룹의 이름
+     * @param telNum      조회할 연락처
+     * @param accessToken
      * @return
      */
-    public Contact infoByGroupsAndTelNum(String groupName, String telNum) {
+    public Contact infoByGroupsAndTelNum(String groupName, String telNum, String accessToken) {
         // 그룹명을 통해 그룹 정보를 조회한다.
         var group = groupService.infoByName(groupName);
 
@@ -96,19 +102,30 @@ public class ContactService {
         var contact = contactRepository.findByGroupsAndTelNum(group, telNum)
                 .orElseThrow(() -> new ControlledException(CONTACT_NOT_FOUND));
 
+        // [예외처리] 권한 소유자만 데이터를 반환 받을 수 있다.
+        if(contact.getUser().getUserId().equals(jwtTokenProvider.getUserIdFromToken(accessToken)))
+            throw new ControlledException(ACCESS_DENIED);
+
         return contact;
     }
 
     /**
      * 그룹명을 통해, 그룹 내 모든 주소록을 조회한다.
      *
-     * @param groupName 조회할 그룹명
+     * @param groupName   조회할 그룹명
+     * @param accessToken
      * @return
      */
-    public List<Contact> contactsInGroup(String groupName) {
+    public List<Contact> contactsInGroup(String groupName, String accessToken) {
         var group = groupService.infoByName(groupName);
         var contacts = contactRepository.findByGroups(group)
                 .orElseThrow(() -> new ControlledException(CONTACT_NOT_FOUND));
+
+        // [예외처리] 권한 소유자만 데이터를 반환 받을 수 있다.
+        var userId = jwtTokenProvider.getUserIdFromToken(accessToken);
+        for(var contact : contacts)
+            if(contact.getUser().getUserId().equals(userId))
+                throw new ControlledException(ACCESS_DENIED);
 
         return contacts;
     }
@@ -116,12 +133,17 @@ public class ContactService {
     /**
      * 주소록을 삭제하는 함수
      *
-     * @param contactId 삭제할 연락처ID
+     * @param contactId   삭제할 연락처ID
+     * @param accessToken
      * @return
      */
-    public Contact deleteContact(Long contactId) {
+    public Contact deleteContact(Long contactId, String accessToken) {
         var contact = contactRepository.findById(contactId)
                 .orElseThrow(() -> new ControlledException(CONTACT_NOT_FOUND));
+
+        // [예외처리] 권한 소유자만 데이터를 반환 받을 수 있다.
+        if(contact.getUser().getUserId().equals(jwtTokenProvider.getUserIdFromToken(accessToken)))
+            throw new ControlledException(ACCESS_DENIED);
 
         contactRepository.deleteByContactId(contact.getContactId());
 
@@ -133,11 +155,16 @@ public class ContactService {
      * TODO: 연락처 수정을 위한 추가적인 키 필요함
      *
      * @param contactPatchDTO 주소록 변경 정보
+     * @param accessToken
      * @return
      */
-    public Contact updateContact(ContactPatchDTO contactPatchDTO) {
+    public Contact updateContact(ContactPatchDTO contactPatchDTO, String accessToken) {
         var contact = contactRepository.findById(contactPatchDTO.getContactId())
                 .orElseThrow(() -> new ControlledException(CONTACT_NOT_FOUND));
+
+        // [예외처리] 권한 소유자만 데이터를 반환 받을 수 있다.
+        if(contact.getUser().getUserId().equals(jwtTokenProvider.getUserIdFromToken(accessToken)))
+            throw new ControlledException(ACCESS_DENIED);
 
         // [예외처리] 올바르지 않은 연락처 서식
         if(!isValidPhoneNumber(contactPatchDTO.getNewTelNum())) throw new ControlledException(INVALID_FORMAT);
