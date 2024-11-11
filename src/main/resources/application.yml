@@ -122,10 +122,6 @@ springdoc:
   paths-to-match:
     - /api/v1/**
 
-app:
-  oauth2:
-    password: ${PASSWORD}
-
 jwt:
   secret:
     key: ${JWT_SECRET_KEY}
@@ -135,4 +131,8 @@ jwt:
 frontend:
   local-domain: http://localhost
   server-domain: http://hansung-fiveguys.duckdns.org
+
+openai:
+  url: https://api.openai.com/v1/chat/completions
+  api_key: ${OPENAI_API_KEY}
 

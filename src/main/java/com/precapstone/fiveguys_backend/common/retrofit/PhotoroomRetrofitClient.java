@@ -1,6 +1,6 @@
 package com.precapstone.fiveguys_backend.common.retrofit;
 
-import com.precapstone.fiveguys_backend.api.ai.PhotoroomApiService;
+import com.precapstone.fiveguys_backend.api.image.PhotoroomApiService;
 import retrofit2.Retrofit;
 import retrofit2.converter.gson.GsonConverterFactory;
 
