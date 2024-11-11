@@ -24,8 +24,8 @@ public class JwtFilter extends OncePerRequestFilter {
     private static final List<String> EXCLUDE_URL = List.of(
             "/login", "/signup",
             "/swagger-ui/**", "/api-docs/**", "/swagger-resources/**",
-            "/api/v1/oauth/refresh-token", // 갱신 API는 필터 건너뜀
-            "/api/v1/member/signup"
+            "/api/v1/oauth/refresh-token",
+            "/api/v1/user/signup", "/api/v1/user/login"
     );
 
     public static final String TOKEN_PREFIX = "Bearer ";
@@ -36,7 +36,7 @@ public class JwtFilter extends OncePerRequestFilter {
             throws ServletException, IOException {
 
         if (pathMatchesExcludePattern(request.getRequestURI())) {
-            filterChain.doFilter(request, response); // 갱신 API는 필터를 건너뜁니다.
+            filterChain.doFilter(request, response);
             return;
         }
 

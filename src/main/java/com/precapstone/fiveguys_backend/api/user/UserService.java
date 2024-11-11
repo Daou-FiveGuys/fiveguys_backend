@@ -31,7 +31,7 @@ public class UserService {
     public Optional<User> findByUserId(String userId){
         return userRepository.findByUserId(userId);
     }
-
+    String [] emails = {"6ukeem@gmail.com", "2071335@hansung.ac.kr", "2071112@hansung.ac.kr" , "2071013@hansung.ac.kr" , "imbanana15@gmail.com"};
     /**
      * FiveGuys 일반 회원가입
      * @param userDTO
@@ -40,8 +40,15 @@ public class UserService {
      */
     @Transactional
     public CommonResponse register(UserDTO userDTO) {
+        boolean flag = false;
+        for(String email : emails){
+            if (email.equals(userDTO.getEmail())) {
+                flag = true;
+                break;
+            }
+        }
         String result = checkPasswordValidation(userDTO.getPassword(), userDTO.getConfirmPassword());
-        if(result != null){
+        if(result != null || !flag){
             return CommonResponse.builder()
                         .code(400)
                         .message(result)
