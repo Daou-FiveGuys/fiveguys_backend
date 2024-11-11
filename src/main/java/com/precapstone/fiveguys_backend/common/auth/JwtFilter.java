@@ -24,17 +24,9 @@ public class JwtFilter extends OncePerRequestFilter {
     private static final List<String> EXCLUDE_URL = List.of(
             "/login", "/signup",
             "/swagger-ui/**", "/api-docs/**", "/swagger-resources/**",
-            "/api/v1/oauth/refresh-token"
+            "/api/v1/oauth/refresh-token", "/api/v1/user/signup",
+            "/api/v1/oauth/naver", "api/v1/oauth/google"
     );
-
-    private static final List<String> USER_EXCLUDE_URL = List.of(
-        "/api/v1/user", "/api/v1/oauth"
-    );
-
-    private static final List<String> OAUTH_EXCLUDE_URL = List.of(
-        "/api/v1/oauth/naver", "/api/v1/oauth/google"
-    );
-
 
 
     public static final String TOKEN_PREFIX = "Bearer ";
@@ -44,18 +36,7 @@ public class JwtFilter extends OncePerRequestFilter {
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
             throws ServletException, IOException {
 
-        String method = request.getMethod();
-        if (pathMatchesExcludePattern(request.getRequestURI(), EXCLUDE_URL)) {
-            filterChain.doFilter(request, response);
-            return;
-        }
-
-        if(pathMatchesExcludePattern(request.getRequestURI(), USER_EXCLUDE_URL) && method.toLowerCase().contains("post")) {
-            filterChain.doFilter(request, response);
-            return;
-        }
-
-        if(pathMatchesExcludePattern(request.getRequestURI(), OAUTH_EXCLUDE_URL) && method.toLowerCase().contains("get")) {
+        if (pathMatchesExcludePattern(request.getRequestURI())) {
             filterChain.doFilter(request, response);
             return;
         }
@@ -88,9 +69,9 @@ public class JwtFilter extends OncePerRequestFilter {
         }
     }
 
-    private boolean pathMatchesExcludePattern(String requestURI, List<String> urls) {
+    private boolean pathMatchesExcludePattern(String requestURI) {
         AntPathMatcher pathMatcher = new AntPathMatcher();
-        for (String excludeUrl : urls) {
+        for (String excludeUrl : EXCLUDE_URL) {
             if (pathMatcher.match(excludeUrl, requestURI)) {
                 return true;
             }
