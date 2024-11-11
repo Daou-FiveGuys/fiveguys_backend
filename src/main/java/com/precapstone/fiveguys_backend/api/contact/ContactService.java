@@ -33,7 +33,7 @@ public class ContactService {
      */
     public Contact createContact(ContactCreateDTO contactCreateDTO, String accessToken) {
         // 그룹ID를 통해 추가할 그룹의 정보를 조회한다.
-        var groups = groupService.infoByGroupId(contactCreateDTO.getGroupId());
+        var groups = groupService.infoByGroupId(contactCreateDTO.getGroupId(), accessToken);
         var user =  userService.findByUserId(jwtTokenProvider.getUserIdFromToken(accessToken))
                 .orElseThrow(() -> new ControlledException(USER_NOT_FOUND));
 
@@ -80,7 +80,7 @@ public class ContactService {
                 .orElseThrow(() -> new ControlledException(CONTACT_NOT_FOUND));
 
         // [예외처리] 권한 소유자만 데이터를 반환 받을 수 있다.
-        if(contact.getUser().getUserId().equals(jwtTokenProvider.getUserIdFromToken(accessToken)))
+        if(!contact.getUser().getUserId().equals(jwtTokenProvider.getUserIdFromToken(accessToken)))
             throw new ControlledException(ACCESS_DENIED);
 
         return contact;
@@ -103,7 +103,7 @@ public class ContactService {
                 .orElseThrow(() -> new ControlledException(CONTACT_NOT_FOUND));
 
         // [예외처리] 권한 소유자만 데이터를 반환 받을 수 있다.
-        if(contact.getUser().getUserId().equals(jwtTokenProvider.getUserIdFromToken(accessToken)))
+        if(!contact.getUser().getUserId().equals(jwtTokenProvider.getUserIdFromToken(accessToken)))
             throw new ControlledException(ACCESS_DENIED);
 
         return contact;
@@ -124,7 +124,7 @@ public class ContactService {
         // [예외처리] 권한 소유자만 데이터를 반환 받을 수 있다.
         var userId = jwtTokenProvider.getUserIdFromToken(accessToken);
         for(var contact : contacts)
-            if(contact.getUser().getUserId().equals(userId))
+            if(!contact.getUser().getUserId().equals(userId))
                 throw new ControlledException(ACCESS_DENIED);
 
         return contacts;
@@ -142,7 +142,7 @@ public class ContactService {
                 .orElseThrow(() -> new ControlledException(CONTACT_NOT_FOUND));
 
         // [예외처리] 권한 소유자만 데이터를 반환 받을 수 있다.
-        if(contact.getUser().getUserId().equals(jwtTokenProvider.getUserIdFromToken(accessToken)))
+        if(!contact.getUser().getUserId().equals(jwtTokenProvider.getUserIdFromToken(accessToken)))
             throw new ControlledException(ACCESS_DENIED);
 
         contactRepository.deleteByContactId(contact.getContactId());
@@ -163,7 +163,7 @@ public class ContactService {
                 .orElseThrow(() -> new ControlledException(CONTACT_NOT_FOUND));
 
         // [예외처리] 권한 소유자만 데이터를 반환 받을 수 있다.
-        if(contact.getUser().getUserId().equals(jwtTokenProvider.getUserIdFromToken(accessToken)))
+        if(!contact.getUser().getUserId().equals(jwtTokenProvider.getUserIdFromToken(accessToken)))
             throw new ControlledException(ACCESS_DENIED);
 
         // [예외처리] 올바르지 않은 그룹명 요청
@@ -186,7 +186,7 @@ public class ContactService {
         }
 
         if(contactPatchDTO.getNewGroupId() != null) {
-            var group = groupService.infoByGroupId(Long.parseLong(contactPatchDTO.getNewGroupId()));
+            var group = groupService.infoByGroupId(Long.parseLong(contactPatchDTO.getNewGroupId()), accessToken);
             contact.setGroups(group);
         }
 

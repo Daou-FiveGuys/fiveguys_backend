@@ -3,6 +3,7 @@ package com.precapstone.fiveguys_backend.api.group;
 import com.precapstone.fiveguys_backend.api.dto.groups.GroupsCreateDTO;
 import com.precapstone.fiveguys_backend.api.dto.groups.GroupsPatchDTO;
 import com.precapstone.fiveguys_backend.common.CommonResponse;
+import com.precapstone.fiveguys_backend.common.auth.JwtFilter;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -20,10 +21,12 @@ public class GroupsController {
      * @return
      */
     @GetMapping("{groupId}")
-    public ResponseEntity<CommonResponse> info(@PathVariable Long groupId) {
+    public ResponseEntity<CommonResponse> info(@PathVariable Long groupId, @RequestHeader("Authorization") String authorization) {
+        String accessToken = authorization.replace(JwtFilter.TOKEN_PREFIX, "");
+
         // 그룹 조회
-        var group = groupService.infoByGroupId(groupId);
-        var groups = groupService.childGroupInfo(groupId);
+        var group = groupService.infoByGroupId(groupId, accessToken);
+        var groups = groupService.childGroupInfo(groupId, accessToken);
         var response = GroupsResponse.builder().group(group).childGroups(groups).build();
         return ResponseEntity.ok(CommonResponse.builder().code(200).message("그룹 조회 성공").data(response).build());
     }
@@ -36,9 +39,11 @@ public class GroupsController {
      * @return
      */
     @PostMapping
-    public ResponseEntity<CommonResponse> create(@RequestBody GroupsCreateDTO groupsCreateDTO) {
+    public ResponseEntity<CommonResponse> create(@RequestBody GroupsCreateDTO groupsCreateDTO, @RequestHeader("Authorization") String authorization) {
+        String accessToken = authorization.replace(JwtFilter.TOKEN_PREFIX, "");
+
         // 그룹 생성
-        var groups = groupService.createGroup(groupsCreateDTO);
+        var groups = groupService.createGroup(groupsCreateDTO, accessToken);
         return ResponseEntity.ok(CommonResponse.builder().code(200).message("그룹 생성 성공").data(groups).build());
     }
 
@@ -49,9 +54,11 @@ public class GroupsController {
      * @return
      */
     @DeleteMapping("{groupId}")
-    public ResponseEntity<CommonResponse> delete(@PathVariable Long groupId) {
+    public ResponseEntity<CommonResponse> delete(@PathVariable Long groupId, @RequestHeader("Authorization") String authorization) {
+        String accessToken = authorization.replace(JwtFilter.TOKEN_PREFIX, "");
+
         // 그룹 삭제
-        var group = groupService.deleteGroup(groupId);
+        var group = groupService.deleteGroup(groupId, accessToken);
         return ResponseEntity.ok(CommonResponse.builder().code(200).message("그룹 삭제 성공").data(group).build());
     }
 
@@ -63,9 +70,11 @@ public class GroupsController {
      * @return
      */
     @PatchMapping
-    public ResponseEntity<CommonResponse> update(@RequestBody GroupsPatchDTO groupsPatchDTO) {
+    public ResponseEntity<CommonResponse> update(@RequestBody GroupsPatchDTO groupsPatchDTO, @RequestHeader("Authorization") String authorization) {
+        String accessToken = authorization.replace(JwtFilter.TOKEN_PREFIX, "");
+
         // 그룹 변경
-        var group = groupService.updateGroup(groupsPatchDTO);
+        var group = groupService.updateGroup(groupsPatchDTO, accessToken);
         return ResponseEntity.ok(CommonResponse.builder().code(200).message("그룹 변경 성공").data(group).build());
     }
 }
