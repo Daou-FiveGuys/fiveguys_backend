@@ -166,15 +166,27 @@ public class ContactService {
         if(contact.getUser().getUserId().equals(jwtTokenProvider.getUserIdFromToken(accessToken)))
             throw new ControlledException(ACCESS_DENIED);
 
-        // [예외처리] 올바르지 않은 연락처 서식
-        if(!isValidPhoneNumber(contactPatchDTO.getNewTelNum())) throw new ControlledException(INVALID_FORMAT);
+        // [예외처리] 올바르지 않은 그룹명 요청
+        // 동일 그룹 내에 같은 이름의 연락처가 존재하는 경우
+        if(contactRepository.findByGroupsAndName(contact.getGroups(), contactPatchDTO.getNewName()).orElse(null) != null)
+            throw new ControlledException(CONTACT_NAME_ALREADY_EXISTS);
+
+        // [예외처리] 올바르지 않은 전화번호 요청
+        // 동일 그룹 내에 같은 전화번호의 연락처가 존재하는 경우
+        if(contactRepository.findByGroupsAndTelNum(contact.getGroups(), contactPatchDTO.getNewTelNum()).orElse(null) != null)
+            throw new ControlledException(CONTACT_TELNUM_ALREADY_EXISTS);
 
         // 특정 인자가 null로 반환된 경우 수정정보가 저장되지 않는다.
         if(contactPatchDTO.getNewName() != null) contact.setName(contactPatchDTO.getNewName());
-        if(contactPatchDTO.getNewTelNum() != null) contact.setTelNum(contactPatchDTO.getNewTelNum());
+        if(contactPatchDTO.getNewTelNum() != null) {
+            // [예외처리] 올바르지 않은 연락처 서식
+            if(!isValidPhoneNumber(contactPatchDTO.getNewTelNum())) throw new ControlledException(INVALID_FORMAT);
 
-        if(contactPatchDTO.getNewGroupId() != -1) {
-            var group = groupService.infoByGroupId(contactPatchDTO.getNewGroupId());
+            contact.setTelNum(contactPatchDTO.getNewTelNum());
+        }
+
+        if(contactPatchDTO.getNewGroupId() != null) {
+            var group = groupService.infoByGroupId(Long.parseLong(contactPatchDTO.getNewGroupId()));
             contact.setGroups(group);
         }
 

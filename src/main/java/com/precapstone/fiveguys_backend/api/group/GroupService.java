@@ -154,13 +154,14 @@ public class GroupService {
         if(groupsPatchDTO.getNewGroupName() != null) group.setGroupsName(groupsPatchDTO.getNewGroupName());
 
         // parentGroupId는 정수형이므로, -1을 변경 정보 없음으로 인식한다.
-        if(groupsPatchDTO.getNewParentGroupId() != -1) {
+        if(groupsPatchDTO.getNewParentGroupId() != null) {
+            var newParentGroupId = Long.parseLong(groupsPatchDTO.getNewParentGroupId());
             Groups parentGroup;
             // 최상위 그룹의 경우 null을 반환
-            if(groupsPatchDTO.getNewParentGroupId() == 0) parentGroup = null;
+            if(newParentGroupId == 0) parentGroup = null;
                 // 변경할 부모 그룹을 조회
             else parentGroup = groupsRepository
-                    .findById(groupsPatchDTO.getNewParentGroupId())
+                    .findById(newParentGroupId)
                     .orElseThrow(() -> new ControlledException(PARENT_GROUP_NOT_FOUND));
 
             group.setParent(parentGroup);

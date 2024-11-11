@@ -12,5 +12,5 @@ import lombok.Getter;
 public class GroupsPatchDTO {
     private Long groupId; // 변경할 그룹ID
     private String newGroupName; // 변경할 그룹명
-    private Long newParentGroupId; // 이동할 상위 그룹ID
+    private String newParentGroupId; // 이동할 상위 그룹ID
 }

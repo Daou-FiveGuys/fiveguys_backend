@@ -13,5 +13,5 @@ public class ContactPatchDTO {
     private Long contactId; // 변경할 주소록ID
     private String newName; // 변경할 그룹 내 명칭
     private String newTelNum; // 변경할 연락처
-    private Long newGroupId; // 변경할 부모 그룹
+    private String newGroupId; // 변경할 부모 그룹
 }
