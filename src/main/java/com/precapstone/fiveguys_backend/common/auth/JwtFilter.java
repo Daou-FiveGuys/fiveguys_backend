@@ -28,7 +28,7 @@ public class JwtFilter extends OncePerRequestFilter {
     );
 
     private static final List<String> USER_EXCLUDE_URL = List.of(
-        "/api/v1/user/signup", "/api/v1/oauth"
+        "/api/v1/user", "/api/v1/oauth"
     );
 
     private static final List<String> OAUTH_EXCLUDE_URL = List.of(
