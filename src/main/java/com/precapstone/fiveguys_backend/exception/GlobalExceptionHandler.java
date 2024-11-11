@@ -4,11 +4,16 @@ import com.precapstone.fiveguys_backend.common.CommonResponse;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.dao.DataAccessException;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
+import org.springframework.web.bind.annotation.RestControllerAdvice;
 
 import static com.precapstone.fiveguys_backend.exception.errorcode.BasicErrorCode.DATA_BASE_ERROR;
+import static com.precapstone.fiveguys_backend.exception.errorcode.BasicErrorCode.ERROR_NOT_FOUND;
 
 @Log4j2
+@RestControllerAdvice
+@ControllerAdvice
 public class GlobalExceptionHandler {
     /**
      * ControlledException을 통해 팀원이 직접적으로 추가한 ErrorCode를 제어한다.
@@ -41,6 +46,25 @@ public class GlobalExceptionHandler {
 
         log.info("error code: "+code+" message: "+message);
         log.info("explain: "+ ex.getMessage());
+
+        return ResponseEntity.ok(CommonResponse.builder().code(code).message(message).build());
+    }
+
+    /**
+     * 아무 Exception을 거치치 않고 반환된 ErrorException을 제어하는 핸들러
+     * ex) 예측하지 못한 Error와 새로 제어해야 할 Exception 발생 시
+     *
+     * @param ex 반환된 Error 정보 ※ 직접적인 원인은 SpringBoot log를 통해 조회가능
+     * @return [500] 에러 원인 불명
+     */
+    @ExceptionHandler(Exception.class)
+    protected ResponseEntity handleServerException(Exception ex) {
+        var code = ERROR_NOT_FOUND.getStatus();
+        var message = ERROR_NOT_FOUND.getMessage();
+
+        log.info("#################### 예기치 못한 오류 발생 ####################");
+        log.info("error code: " + code + " message: " + message);
+        log.info("explain: " + ex.getMessage());
 
         return ResponseEntity.ok(CommonResponse.builder().code(code).message(message).build());
     }
