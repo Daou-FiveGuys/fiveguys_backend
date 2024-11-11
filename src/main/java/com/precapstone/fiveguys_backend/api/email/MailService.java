@@ -135,7 +135,7 @@ public class MailService {
     }
 
     public CommonResponse sendEmailWithAccessToken(String accessToken) throws MessagingException {
-        String email = jwtTokenProvider.getUserIdFromToken(accessToken);
+        String email = jwtTokenProvider.getEmailFromToken(accessToken);
         if(email == null)
             return CommonResponse.builder()
                     .code(401)
@@ -156,12 +156,12 @@ public class MailService {
         /**
          * 전송된 이메일이 Redis에 존재 -> 삭제
          */
-        String userId = "fiveguys" + toEmail;
+        String userId = "fiveguys_" + toEmail;
         if(redisService.exists(userId))
             redisService.delete(userId);
         String authNumber = createVerificationNumber();
         String body = createVerificationMessage(authNumber);
-        redisService.setDataExpire(toEmail, authNumber,60 * 30L);
+        redisService.setDataExpire(userId, authNumber,60 * 30L);
         return sendEmail(toEmail, "FiveGuys 이메일 인증", body); // CommonResponse
     }
 

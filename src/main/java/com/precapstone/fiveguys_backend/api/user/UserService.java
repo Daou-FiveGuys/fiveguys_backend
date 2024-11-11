@@ -86,7 +86,11 @@ public class UserService {
                 .build();
 
         userRepository.save(newUser);
-        mailService.sendWelcomeEmail(newUser.getEmail());
+        try {
+            mailService.sendWelcomeEmail(newUser.getEmail());
+        }catch (Exception e){
+            e.printStackTrace();
+        }
         Map<String, String> tokens = authService.usersAuthorization(newUser);
         return CommonResponse.builder()
                 .code(200)

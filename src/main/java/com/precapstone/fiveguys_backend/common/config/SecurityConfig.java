@@ -29,9 +29,11 @@ public class SecurityConfig {
                 .authorizeHttpRequests(authorize -> authorize
                         .requestMatchers(
                                 "/login", "/signup", "/swagger-ui/**", "/api-docs/**", "/swagger-resources/**"
-                                , "/api/v1/user/signup", "/api/v1/user/login"
+                                , "/api/v1/user/signup", "/api/v1/user/login",
+                                "/api/v1/oauth/refresh-token", "/api/v1/oauth/naver", "/api/v1/oauth/google", "/api/v1/oauth"
                         ).permitAll()
                         .anyRequest().authenticated()
+
                 )
                 .addFilterBefore(new JwtFilter(jwtTokenProvider), UsernamePasswordAuthenticationFilter.class);
         return http.build();
