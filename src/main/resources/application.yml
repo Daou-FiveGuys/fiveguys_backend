@@ -31,7 +31,7 @@ spring:
       host: redis
       port: 6379
 
-  ### 로컬
+#  ## 로컬
 #  data:
 #    redis:
 #      host: localhost
@@ -136,3 +136,6 @@ openai:
   url: https://api.openai.com/v1/chat/completions
   api_key: ${OPENAI_API_KEY}
 
+chatbot:
+  chatbot_id: ${CHATBOT_ID}
+  chatbot_api_key: ${CHATBOT_API_KEY}

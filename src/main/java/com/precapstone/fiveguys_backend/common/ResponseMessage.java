@@ -8,4 +8,5 @@ public interface ResponseMessage {
     String USER_NOT_FOUND = "user_not_found";
     String EMAIL_SENT = "eail_sent";
     String EMAIL_SENT_FAILED = "email_sent_failed";
+    String CHATBOT_ANS_FAIL = "chatbot_answer_failed";
 }
