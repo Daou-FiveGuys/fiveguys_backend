@@ -142,7 +142,8 @@ public class GptService {
         input = input.replaceAll("[\\n\\t]", "").trim();
 
         // 3. 이스케이프된 따옴표 제거 (\")
-        return input.replace("\\\"", "");
+        input = input.replace("\\\"", "");
+        return input.replace("\"","");
     }
 
 }
