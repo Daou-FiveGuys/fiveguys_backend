@@ -139,7 +139,7 @@ public class GptService {
         input = input.replaceAll("^\\*\\*.*?\\*\\*", "");
 
         // 2. 이스케이프 시퀀스 제거 (\n, \t)
-        input = input.replaceAll("[\\n\\t]", "").trim();
+        input = input.replaceAll("[\\n\\t]", " ").trim();
 
         // 3. 이스케이프된 따옴표 제거 (\")
         input = input.replace("\\\"", "");
