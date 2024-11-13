@@ -11,5 +11,4 @@ import org.springframework.web.multipart.MultipartFile;
 public class ImageInpaintDTO {
     private String requestId;
     private String prompt;
-    private MultipartFile mask;
 }

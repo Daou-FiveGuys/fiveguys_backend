@@ -48,7 +48,7 @@ public class GptService {
         return CommonResponse.builder()
                 .code(200)
                 .data(
-                        trimEscapeSequences(trimRole(result)))
+                        trimDoubleQuotes(trimEscapeSequences(trimRole(result))))
                 .build();
     }
 
@@ -69,7 +69,7 @@ public class GptService {
         return CommonResponse.builder()
                 .code(200)
                 .data(
-                        trimEscapeSequences(trimRole(result)))
+                        trimDoubleQuotes(trimEscapeSequences(trimRole(result))))
                 .build();
     }
 
@@ -87,8 +87,11 @@ public class GptService {
                     .message("response is empty")
                     .build();
 
-        String[] tokens = trimEscapeSequences(trimRole(result)).split(";");
-        List<String> response = new ArrayList<>(Arrays.asList(tokens));
+        String[] tokens = trimDoubleQuotes(trimEscapeSequences(trimRole(result))).split(";");
+        ArrayList<String> response = new ArrayList<>();
+        for(String token : tokens){
+            response.add(token.trim());
+        }
 
         return CommonResponse.builder()
                 .code(200)
@@ -137,5 +140,9 @@ public class GptService {
 
     private String trimEscapeSequences(String input) {
         return input.replaceAll("[\\n\\t]", " ").trim();
+    }
+
+    private String trimDoubleQuotes(String input){
+        return input.replace("\"", "");
     }
 }

@@ -6,8 +6,10 @@ import com.precapstone.fiveguys_backend.api.dto.ImageUpscaleDTO;
 import com.precapstone.fiveguys_backend.common.CommonResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 @Tag(name = "Image Generate", description = "이미지 조회, 생성, 수정, 업스케일링")
 @RestController
@@ -15,6 +17,7 @@ import org.springframework.web.bind.annotation.*;
 @RequestMapping("/api/v1/ai/image")
 public class ImageController {
     private final ImageService imageService;
+    private final OctetStreamReadMsgConverter octetStreamReadMsgConverter;
 
     /**
      * 이미지 생성 컨트롤러
@@ -34,9 +37,12 @@ public class ImageController {
      * @param imageInpaintDTO 이미지 아이디, 프롬프트 (KOR)
      * @return ResponseEntity<CommonResponse> 이미지 정보
      */
-    @PostMapping("/inpaint")
-    public ResponseEntity<CommonResponse> inpaint(@RequestHeader("Authorization") String authorization, @ModelAttribute ImageInpaintDTO imageInpaintDTO) {
-        return ResponseEntity.ok(imageService.inpaint(authorization, imageInpaintDTO));
+
+    @PostMapping(value = "/inpaint", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public ResponseEntity<CommonResponse> inpaint(@RequestHeader("Authorization") String authorization,
+                                                  @RequestPart ImageInpaintDTO imageInpaintDTO,
+                                                  @RequestPart MultipartFile multipartFile) {
+        return ResponseEntity.ok(imageService.inpaint(authorization, imageInpaintDTO, multipartFile));
     }
 
     /**

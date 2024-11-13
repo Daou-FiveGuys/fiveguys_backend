@@ -109,13 +109,13 @@ public class ImageService {
      * @param imageInpaintDTO 인페인팅 파라미터 (MultipartFile, requestId, prompt)
      * @return CommonResponse
      */
-    public CommonResponse inpaint(String authorization, ImageInpaintDTO imageInpaintDTO){
+    public CommonResponse inpaint(String authorization, ImageInpaintDTO imageInpaintDTO, MultipartFile multipartFile){
         String accessToken = JwtTokenProvider.stripTokenPrefix(authorization);
         String userId = jwtTokenProvider.getUserIdFromToken(accessToken);
 
         String requestId = imageInpaintDTO.getRequestId();
         Image image = imageRepository.findImageByRequestId(requestId).orElseThrow();
-        String maskImageUrl = saveMaskImageIntoS3(imageInpaintDTO.getMask(), requestId, userId);
+        String maskImageUrl = saveMaskImageIntoS3(multipartFile, requestId, userId);
 
         var input = Map.of(
             "image_url", image.getUrl(),
@@ -427,7 +427,6 @@ public class ImageService {
         try {
             System.out.println(Thread.currentThread().getName());
             imageRepository.save(Image.builder()
-                    .parentRequestId(image.getRequestId())
                     .requestId(output.getRequestId())
                     .parentRequestId(ImageLinkExtractor.extractImageUrl(output.getData()))
                     .userId(image.getUserId())
@@ -447,7 +446,6 @@ public class ImageService {
         try {
             System.out.println(Thread.currentThread().getName());
             imageRepository.save(Image.builder()
-                    .parentRequestId(image.getRequestId())
                     .requestId(output.getRequestId())
                     .parentRequestId(ImageLinkExtractor.extractUpscaledImageUrl(output.getData()))
                     .userId(image.getUserId())
