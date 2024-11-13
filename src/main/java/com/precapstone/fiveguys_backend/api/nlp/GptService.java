@@ -48,7 +48,7 @@ public class GptService {
         return CommonResponse.builder()
                 .code(200)
                 .data(
-                        trimDoubleQuotes(trimEscapeSequences(trimRole(result))))
+                        cleanString(result))
                 .build();
     }
 
@@ -69,7 +69,7 @@ public class GptService {
         return CommonResponse.builder()
                 .code(200)
                 .data(
-                        trimDoubleQuotes(trimEscapeSequences(trimRole(result))))
+                        cleanString(result))
                 .build();
     }
 
@@ -87,7 +87,7 @@ public class GptService {
                     .message("response is empty")
                     .build();
 
-        String[] tokens = trimDoubleQuotes(trimEscapeSequences(trimRole(result))).split(";");
+        String[] tokens = cleanString(result).split(";");
         ArrayList<String> response = new ArrayList<>();
         for(String token : tokens){
             response.add(token.trim());
@@ -134,15 +134,15 @@ public class GptService {
         return new HttpEntity<>(requestBody, headers);
     }
 
-    private String trimRole(String input){
-        return input.replaceAll("^\\*\\*.*?\\*\\*", "");
+    private String cleanString(String input) {
+        // 1. 역할 패턴 제거 (예: **텍스트**)
+        input = input.replaceAll("^\\*\\*.*?\\*\\*", "");
+
+        // 2. 이스케이프 시퀀스 제거 (\n, \t)
+        input = input.replaceAll("[\\n\\t]", "").trim();
+
+        // 3. 이스케이프된 따옴표 제거 (\")
+        return input.replace("\\\"", "");
     }
 
-    private String trimEscapeSequences(String input) {
-        return input.replaceAll("[\\n\\t]", " ").trim();
-    }
-
-    private String trimDoubleQuotes(String input){
-        return input.replace("\"", "");
-    }
 }
