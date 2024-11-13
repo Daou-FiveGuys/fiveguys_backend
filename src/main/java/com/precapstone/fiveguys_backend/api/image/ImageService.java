@@ -32,11 +32,7 @@ import retrofit2.Response;
 import java.io.*;
 import java.net.HttpURLConnection;
 import java.net.URL;
-import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.Base64;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 
 /**
@@ -214,23 +210,9 @@ public class ImageService {
             ResponseBody responseBody = call.execute().body();
 
             if (responseBody != null) {
-                String filename = requestId + "-text-removed";
-                String bucketUrl = awsS3Service.upload(responseBody.byteStream(), filename);
-                imageRepository.save(Image.builder()
-                        .parentRequestId(requestId)
-                        .requestId(filename)
-                        .userId(userId)
-                        .url(bucketUrl)
-                        .build());
-                String url = awsS3Service.getUrl(userId, bucketUrl);
-                return CommonResponse.builder()
-                        .code(200)
-                        .data(ImageResponseDTO.builder()
-                                .requestId(filename)
-                                .url(url)
-                                .build()
-                        )
-                        .build();
+                String newRequestId = requestId + "-photoroom-text-removed";
+                String bucketUrl = awsS3Service.upload(responseBody.byteStream(), newRequestId + ".png");
+                return getObjectCommonResponse(requestId, newRequestId, userId, bucketUrl);
             } else {
                 System.err.println("Response body is null");
             }
@@ -276,23 +258,9 @@ public class ImageService {
                 byte[] decodedBytes = Base64.getDecoder().decode(base64Image);
                 new ByteArrayInputStream(decodedBytes);
 
-                String filename = requestId + "-text-removed";
-                String bucketUrl = awsS3Service.upload(new ByteArrayInputStream(decodedBytes), filename + ".png");
-                imageRepository.save(Image.builder()
-                        .parentRequestId(requestId)
-                        .requestId(filename)
-                        .userId(userId)
-                        .url(bucketUrl)
-                        .build());
-
-                String url = awsS3Service.getUrl(userId, bucketUrl);
-                return CommonResponse.builder()
-                        .code(200)
-                        .data(ImageResponseDTO.builder()
-                                .requestId(filename)
-                                .url(url)
-                                .build())
-                        .build();
+                String newRequestId = requestId + "-imggen-text-removed";
+                String bucketUrl = awsS3Service.upload(new ByteArrayInputStream(decodedBytes), newRequestId + ".png");
+                return getObjectCommonResponse(requestId, newRequestId, userId, bucketUrl);
             } else {
                 return CommonResponse.builder()
                         .code(400)
@@ -310,6 +278,34 @@ public class ImageService {
                 downloadedFile.delete();
             }
         }
+    }
+
+    private CommonResponse<Object> getObjectCommonResponse(String requestId, String newRequestId, String userId, String bucketUrl) {
+        Optional<Image> existingImage = imageRepository.findImageByRequestId(newRequestId);
+        Image newImage = existingImage.orElse(Image.builder()
+                .parentRequestId(requestId)
+                .requestId(newRequestId)
+                .userId(userId)
+                .url(bucketUrl)
+                .build());
+
+        if (existingImage.isPresent()) {
+            newImage.setParentRequestId(requestId);
+            newImage.setUserId(userId);
+            newImage.setUrl(bucketUrl);
+        }
+
+        // 데이터 저장 (기존 데이터는 업데이트, 없던 데이터는 새로 삽입)
+        imageRepository.save(newImage);
+        String url = awsS3Service.getUrl(userId, bucketUrl);
+        return CommonResponse.builder()
+                .code(200)
+                .data(ImageResponseDTO.builder()
+                        .requestId(newRequestId)
+                        .url(url)
+                        .build()
+                )
+                .build();
     }
 
     public CommonResponse getImage(String authorization, String requestId){
@@ -408,7 +404,6 @@ public class ImageService {
                     .requestId(output.getRequestId())
                     .url(ImageLinkExtractor.extractImageUrl(output.getData()))
                     .userId(userId)
-                    .createdAt(LocalDateTime.now())
                     .build());
         } catch (Exception e) {
             // 예외 처리 로깅

@@ -27,7 +27,10 @@ public class Image {
     private String requestId;
     @Column(columnDefinition = "TEXT", nullable = false)
     private String url;
-    private LocalDateTime createdAt;
+
+    @Column(updatable = false)
+    @Builder.Default
+    private LocalDateTime createdAt = LocalDateTime.now();
 
     public Image setUrl(String url) {
         this.url = url;
