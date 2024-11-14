@@ -14,7 +14,7 @@ import lombok.*;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-@Table(name = "groups")
+@Table(name = "groupss")
 public class Groups {
     // 식별자
     @Id
