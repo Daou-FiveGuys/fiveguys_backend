@@ -11,7 +11,6 @@ import com.precapstone.fiveguys_backend.api.aws.AwsS3Service;
 import com.precapstone.fiveguys_backend.api.aws.ImageLinkExtractor;
 import com.precapstone.fiveguys_backend.api.dto.ImageInpaintDTO;
 import com.precapstone.fiveguys_backend.api.dto.ImageResponseDTO;
-import com.precapstone.fiveguys_backend.api.dto.ImageUpscaleDTO;
 import com.precapstone.fiveguys_backend.common.CommonResponse;
 import com.precapstone.fiveguys_backend.common.retrofit.ImggenRetrofitClient;
 import com.precapstone.fiveguys_backend.common.retrofit.PhotoroomRetrofitClient;
@@ -66,6 +65,19 @@ public class ImageService {
     public CommonResponse generate(String authorization, String prompt){
         String accessToken = JwtTokenProvider.stripTokenPrefix(authorization);
         String userId = jwtTokenProvider.getUserIdFromToken(accessToken);
+//        var input = Map.of(
+//                "prompt", "A Japanese high school girl confidently holding a weapon in an action pose, standing against a battlefield background. Dramatic lighting and a sense of movement.",
+//                "image_size", "portrait_4_3",
+//                "num_inference_steps", 30,
+//                "guidance_scale", 7.5,
+//                "loras", List.of(
+//                        Map.of("path", "로라 링크", "scale", 1.0)
+//                ),
+//                "output_format", "jpeg"
+//        );
+//
+//        var result = fal.subscribe("fal-ai/flux-lora",
+
         var input = Map.of(
             "prompt", prompt);
 
@@ -149,11 +161,11 @@ public class ImageService {
         }
     }
 
-    public CommonResponse upscale(String authorization, ImageUpscaleDTO imageUpscaleDTO){
+    public CommonResponse upscale(String authorization, String requestId){
         String accessToken = JwtTokenProvider.stripTokenPrefix(authorization);
         String userId = jwtTokenProvider.getUserIdFromToken(accessToken);
 
-        Image image = imageRepository.findImageByRequestId(imageUpscaleDTO.getRequestId()).orElseThrow();
+        Image image = imageRepository.findImageByRequestId(requestId).orElseThrow();
         String imageUrl = image.getUrl();
 
         var input = Map.of(
@@ -181,7 +193,7 @@ public class ImageService {
                     .code(200)
                     .data(ImageResponseDTO.builder()
                             .requestId(result.getRequestId())
-                            .url(ImageLinkExtractor.extractImageUrl(result.getData()))
+                            .url(ImageLinkExtractor.extractUpscaledImageUrl(result.getData()))
                             .build())
                     .build();
         } catch (Exception e) {
@@ -422,8 +434,9 @@ public class ImageService {
         try {
             System.out.println(Thread.currentThread().getName());
             imageRepository.save(Image.builder()
+                    .url(ImageLinkExtractor.extractImageUrl(output.getData()))
                     .requestId(output.getRequestId())
-                    .parentRequestId(ImageLinkExtractor.extractImageUrl(output.getData()))
+                    .parentRequestId(image.getRequestId())
                     .userId(image.getUserId())
                     .build());
         } catch (Exception e) {
@@ -441,8 +454,9 @@ public class ImageService {
         try {
             System.out.println(Thread.currentThread().getName());
             imageRepository.save(Image.builder()
+                    .url(ImageLinkExtractor.extractUpscaledImageUrl(output.getData()))
                     .requestId(output.getRequestId())
-                    .parentRequestId(ImageLinkExtractor.extractUpscaledImageUrl(output.getData()))
+                    .parentRequestId(image.getRequestId())
                     .userId(image.getUserId())
                     .build());
             imageRepository.save(image);
