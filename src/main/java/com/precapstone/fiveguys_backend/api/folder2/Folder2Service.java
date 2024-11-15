@@ -38,7 +38,7 @@ public class Folder2Service {
         return folder2;
     }
 
-    public List<Folder2> readALLFolder2(Long userId) {
+    public List<Folder2> readALLByUser(Long userId) {
         var user = userService.findById(userId);
         var folder2s = folder2Repository.findByUser(user)
                 .orElseThrow(()->new ControlledException(FOLDER2_NOT_FOUND_BY_USER));
