@@ -18,7 +18,7 @@ public class Group2Service {
     private final JwtTokenProvider jwtTokenProvider;
 
     public Group2 create(Group2CreateDTO group2CreateDTO, String accessToken) {
-        var folder2 = folder2Service.readFolder2(group2CreateDTO.getFolder2Id());
+        var folder2 = folder2Service.readFolder2(group2CreateDTO.getFolder2Id(), accessToken);
 
         // [보안] 데이터의 주인이 호출한 API인지 accessToken을 통해 확인
         var userId = jwtTokenProvider.getUserIdFromToken(accessToken);
@@ -67,7 +67,7 @@ public class Group2Service {
         if(group2UpdateDTO.getFolder2Id() != null) {
             try {
                 var folder2Id = Long.getLong(group2UpdateDTO.getFolder2Id());
-                var folder2 = folder2Service.readFolder2(folder2Id);
+                var folder2 = folder2Service.readFolder2(folder2Id, accessToken);
                 group2.setFolder2(folder2);
             } catch (IllegalArgumentException e) {
                 throw new ControlledException(INVALID_FORMAT_BY_FOLDER2_ID);
