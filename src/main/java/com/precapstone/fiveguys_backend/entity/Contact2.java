@@ -1,5 +1,6 @@
 package com.precapstone.fiveguys_backend.entity;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -18,6 +19,7 @@ public class Contact2 {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "group2_id")
+    @JsonBackReference
     private Group2 group2;
 
     // 주소록 명칭

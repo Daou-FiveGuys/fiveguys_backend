@@ -29,24 +29,6 @@ public class Group2Controller {
         return ResponseEntity.ok(response);
     }
 
-    // 폴더에 대한 그룹2 전체 조회
-    @GetMapping("/folder/{folder2Id}")
-    public ResponseEntity readAllByFolder2(@PathVariable Long folder2Id) {
-        var group2s = group2Service.readALLByFolder2(folder2Id);
-
-        var response = CommonResponse.builder().code(200).message("그룹2 조회 성공").data(group2s).build();
-        return ResponseEntity.ok(response);
-    }
-
-    // 유저에 대한 그룹2 전체 조회
-    @GetMapping("/user/{user2Id}")
-    public ResponseEntity readAllByUser(@PathVariable Long user2Id) {
-        var group2s = group2Service.readALLByUser(user2Id);
-
-        var response = CommonResponse.builder().code(200).message("그룹2 조회 성공").data(group2s).build();
-        return ResponseEntity.ok(response);
-    }
-
     // 그룹2 수정
     @PatchMapping
     public ResponseEntity update(@RequestBody Group2UpdateDTO group2UpdateDTO) {

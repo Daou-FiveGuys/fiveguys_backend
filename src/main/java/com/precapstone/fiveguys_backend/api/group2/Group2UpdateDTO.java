@@ -7,5 +7,6 @@ import lombok.Getter;
 @Builder
 public class Group2UpdateDTO {
     private Long group2Id;
+    private String folder2Id;
     private String name;
 }

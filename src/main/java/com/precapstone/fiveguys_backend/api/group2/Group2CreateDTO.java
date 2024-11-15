@@ -6,6 +6,6 @@ import lombok.Getter;
 @Getter
 @Builder
 public class Group2CreateDTO {
-    private Long groupId;
+    private Long folder2Id;
     private String name;
 }

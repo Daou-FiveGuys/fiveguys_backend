@@ -6,4 +6,5 @@ import org.springframework.stereotype.Repository;
 
 @Repository
 public interface Group2Repository extends JpaRepository<Group2, Long> {
+
 }

@@ -1,7 +1,9 @@
 package com.precapstone.fiveguys_backend.entity;
 
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 import lombok.*;
+import java.util.List;
 
 @Entity
 @Getter
@@ -24,4 +26,8 @@ public class Folder2 {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id")
     private User user;
+
+    @OneToMany(fetch = FetchType.LAZY, mappedBy = "folder2", cascade = CascadeType.ALL)
+    @JsonManagedReference
+    private List<Group2> group2s;
 }

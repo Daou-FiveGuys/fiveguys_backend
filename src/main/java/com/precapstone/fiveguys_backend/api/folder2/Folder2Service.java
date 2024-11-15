@@ -28,6 +28,7 @@ public class Folder2Service {
                 .user(user)
                 .build();
 
+        folder2Repository.save(folder2);
         return folder2;
     }
 
@@ -47,8 +48,7 @@ public class Folder2Service {
     }
 
     public Folder2 update(Folder2UpdateDTO folder2UpdateDTO) {
-        var folder2 = folder2Repository.findById(folder2UpdateDTO.getFolder2Id())
-                .orElseThrow(()->new ControlledException(FOLDER2_NOT_FOUND));
+        var folder2 = readFolder2(folder2UpdateDTO.getFolder2Id());
 
         if(folder2UpdateDTO.getFolder2Id() != null)
             folder2.setName(folder2UpdateDTO.getName());
@@ -58,8 +58,7 @@ public class Folder2Service {
     }
 
     public Folder2 delete(Long folder2Id) {
-        var folder2 = folder2Repository.findById(folder2Id)
-                .orElseThrow(()->new ControlledException(FOLDER2_NOT_FOUND));
+        var folder2 = readFolder2(folder2Id);
 
         folder2Repository.deleteById(folder2Id);
         return folder2;
