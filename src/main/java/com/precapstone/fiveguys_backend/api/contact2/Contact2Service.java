@@ -1,5 +1,6 @@
 package com.precapstone.fiveguys_backend.api.contact2;
 
+import com.precapstone.fiveguys_backend.api.auth.JwtTokenProvider;
 import com.precapstone.fiveguys_backend.api.group2.Group2Service;
 import com.precapstone.fiveguys_backend.entity.Contact2;
 import com.precapstone.fiveguys_backend.exception.ControlledException;
@@ -8,15 +9,22 @@ import org.springframework.stereotype.Service;
 
 import static com.precapstone.fiveguys_backend.exception.errorcode.Contact2ErrorCode.CONTACT2_NAME_ALREADY_EXISTS_IN_THIS_GROUP2;
 import static com.precapstone.fiveguys_backend.exception.errorcode.Contact2ErrorCode.CONTACT2_NOT_FOUND;
+import static com.precapstone.fiveguys_backend.exception.errorcode.UserErrorCode.USER_AUTHORIZATION_FAILED;
 
 @Service
 @RequiredArgsConstructor
 public class Contact2Service {
     private final Contact2Repository contact2Repository;
     private final Group2Service group2Service;
+    private final JwtTokenProvider jwtTokenProvider;
 
-    public Contact2 create(Contact2CreateDTO contact2CreateDTO) {
+    public Contact2 create(Contact2CreateDTO contact2CreateDTO, String accessToken) {
         var group2 = group2Service.readGroup2(contact2CreateDTO.getGroup2Id());
+
+        // [보안] 데이터의 주인이 호출한 API인지 accessToken을 통해 확인
+        var userId = jwtTokenProvider.getUserIdFromToken(accessToken);
+        if(!group2.getFolder2().getUser().getUserId().equals(userId))
+            throw new ControlledException(USER_AUTHORIZATION_FAILED);
 
         // 1. [예외처리] 본인 Group2 안에 Contact2가 이미 존재하는 경우
         var contact2s = group2.getContact2s();
@@ -42,15 +50,26 @@ public class Contact2Service {
         return contact2;
     }
 
-    public Contact2 readContact2(Long contact2Id) {
+    public Contact2 readContact2(Long contact2Id, String accessToken) {
         var contact2 = contact2Repository.findById(contact2Id)
                 .orElseThrow(()-> new ControlledException(CONTACT2_NOT_FOUND));
+
+        // [보안] 데이터의 주인이 호출한 API인지 accessToken을 통해 확인
+        var userId = jwtTokenProvider.getUserIdFromToken(accessToken);
+        if(!contact2.getGroup2().getFolder2().getUser().getUserId().equals(userId))
+            throw new ControlledException(USER_AUTHORIZATION_FAILED);
 
         return contact2;
     }
 
-    public Contact2 update(Contact2UpdateDTO contact2UpdateDTO) {
-        var contact2 = readContact2(contact2UpdateDTO.getContact2Id());
+    public Contact2 update(Contact2UpdateDTO contact2UpdateDTO, String accessToken) {
+        var contact2 = readContact2(contact2UpdateDTO.getContact2Id(), accessToken);
+
+        // [보안] 데이터의 주인이 호출한 API인지 accessToken을 통해 확인
+        // ※ 이미 readContact2()에서 인증을 거치지만 형식상 추가
+        var userId = jwtTokenProvider.getUserIdFromToken(accessToken);
+        if(!contact2.getGroup2().getFolder2().getUser().getUserId().equals(userId))
+            throw new ControlledException(USER_AUTHORIZATION_FAILED);
 
         if(contact2UpdateDTO.getName() != null)
             contact2.setName(contact2UpdateDTO.getName());
@@ -71,8 +90,14 @@ public class Contact2Service {
         return contact2;
     }
 
-    public Contact2 delete(Long contact2Id) {
-        var contact2 = readContact2(contact2Id);
+    public Contact2 delete(Long contact2Id, String accessToken) {
+        var contact2 = readContact2(contact2Id, accessToken);
+
+        // [보안] 데이터의 주인이 호출한 API인지 accessToken을 통해 확인
+        // ※ 이미 readContact2()에서 인증을 거치지만 형식상 추가
+        var userId = jwtTokenProvider.getUserIdFromToken(accessToken);
+        if(!contact2.getGroup2().getFolder2().getUser().getUserId().equals(userId))
+            throw new ControlledException(USER_AUTHORIZATION_FAILED);
 
         contact2Repository.deleteById(contact2Id);
         return contact2;
