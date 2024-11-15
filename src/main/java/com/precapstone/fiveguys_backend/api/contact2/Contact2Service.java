@@ -6,6 +6,7 @@ import com.precapstone.fiveguys_backend.exception.ControlledException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import static com.precapstone.fiveguys_backend.exception.errorcode.Contact2ErrorCode.CONTACT2_NAME_ALREADY_EXISTS_IN_THIS_GROUP2;
 import static com.precapstone.fiveguys_backend.exception.errorcode.Contact2ErrorCode.CONTACT2_NOT_FOUND;
 
 @Service
@@ -16,6 +17,12 @@ public class Contact2Service {
 
     public Contact2 create(Contact2CreateDTO contact2CreateDTO) {
         var group2 = group2Service.readGroup2(contact2CreateDTO.getGroup2Id());
+
+        // 1. [예외처리] 본인 Group2 안에 Contact2가 이미 존재하는 경우
+        var contact2s = group2.getContact2s();
+        for(var contact : contact2s)
+            if(contact.getName().equals(contact2CreateDTO.getName()))
+                throw new ControlledException(CONTACT2_NAME_ALREADY_EXISTS_IN_THIS_GROUP2);
 
         var contact2 = Contact2.builder()
                 .group2(group2)

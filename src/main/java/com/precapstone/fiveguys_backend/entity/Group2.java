@@ -1,6 +1,7 @@
 package com.precapstone.fiveguys_backend.entity;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 import lombok.*;
 import java.util.List;
@@ -18,9 +19,6 @@ public class Group2 {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long groupsId;
 
-    @OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
-    private List<Contact2> contact2s;
-
     // 그룹 명칭
     @Column(nullable = false)
     private String name;
@@ -29,4 +27,8 @@ public class Group2 {
     @JoinColumn(name = "folder2_id")
     @JsonBackReference
     private Folder2 folder2;
+
+    @OneToMany(fetch = FetchType.LAZY, mappedBy = "group2", cascade = CascadeType.ALL)
+    @JsonManagedReference
+    private List<Contact2> contact2s;
 }

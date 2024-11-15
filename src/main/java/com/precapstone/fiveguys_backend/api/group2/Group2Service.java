@@ -6,8 +6,7 @@ import com.precapstone.fiveguys_backend.exception.ControlledException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
-import static com.precapstone.fiveguys_backend.exception.errorcode.Group2ErrorCode.GROUP2_NOT_FOUND;
-import static com.precapstone.fiveguys_backend.exception.errorcode.Group2ErrorCode.INVALID_FORMAT_BY_FOLDER2_ID;
+import static com.precapstone.fiveguys_backend.exception.errorcode.Group2ErrorCode.*;
 
 @Service
 @RequiredArgsConstructor
@@ -17,6 +16,12 @@ public class Group2Service {
 
     public Group2 create(Group2CreateDTO group2CreateDTO) {
         var folder2 = folder2Service.readFolder2(group2CreateDTO.getFolder2Id());
+
+        // 1. [예외처리] 본인 Folder2 안에 Group2가 이미 존재하는 경우
+        var groups = folder2.getGroup2s();
+        for(var group : groups)
+            if(group.getName().equals(group2CreateDTO.getName()))
+                throw new ControlledException(GROUP2_NAME_ALREADY_EXISTS_IN_THIS_FOLDER2);
 
         var group2 = Group2.builder()
                 .folder2(folder2)

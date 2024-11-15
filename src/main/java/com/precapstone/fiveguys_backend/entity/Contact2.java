@@ -17,14 +17,14 @@ public class Contact2 {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long contactId;
 
+    // 주소록 명칭
+    @Column(nullable = false)
+    private String name;
+
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "group2_id")
     @JsonBackReference
     private Group2 group2;
-
-    // 주소록 명칭
-    @Column(nullable = false)
-    private String name;
 
     // 주소록 전화번호
     @Column(nullable = false)
