@@ -21,22 +21,14 @@ public class GroupsController {
      * @return
      */
     @GetMapping("{groupId}")
-    public ResponseEntity<CommonResponse> info(@PathVariable Long groupId) {
-        String accessToken = "";
+    public ResponseEntity<CommonResponse> info(@PathVariable Long groupId, @RequestHeader("Authorization") String authorization) {
+        String accessToken = authorization.replace(JwtFilter.TOKEN_PREFIX, "");
 
         // 그룹 조회
         var group = groupService.infoByGroupId(groupId, accessToken);
         var groups = groupService.childGroupInfo(groupId, accessToken);
         var response = GroupsResponse.builder().group(group).childGroups(groups).build();
         return ResponseEntity.ok(CommonResponse.builder().code(200).message("그룹 조회 성공").data(response).build());
-    }
-
-    @GetMapping("all/{userId}")
-    public ResponseEntity<CommonResponse> readAll(@PathVariable String userId) {
-        String accessToken = "";
-        var groups = groupService.readAllGroup(userId);
-
-        return ResponseEntity.ok(CommonResponse.builder().code(200).message("그룹 조회 성공").data(groups).build());
     }
 
     /**
@@ -47,8 +39,8 @@ public class GroupsController {
      * @return
      */
     @PostMapping
-    public ResponseEntity<CommonResponse> create(@RequestBody GroupsCreateDTO groupsCreateDTO) {
-        String accessToken = "";
+    public ResponseEntity<CommonResponse> create(@RequestBody GroupsCreateDTO groupsCreateDTO, @RequestHeader("Authorization") String authorization) {
+        String accessToken = authorization.replace(JwtFilter.TOKEN_PREFIX, "");
 
         // 그룹 생성
         var groups = groupService.createGroup(groupsCreateDTO, accessToken);
@@ -62,8 +54,8 @@ public class GroupsController {
      * @return
      */
     @DeleteMapping("{groupId}")
-    public ResponseEntity<CommonResponse> delete(@PathVariable Long groupId) {
-        String accessToken = "";
+    public ResponseEntity<CommonResponse> delete(@PathVariable Long groupId, @RequestHeader("Authorization") String authorization) {
+        String accessToken = authorization.replace(JwtFilter.TOKEN_PREFIX, "");
 
         // 그룹 삭제
         var group = groupService.deleteGroup(groupId, accessToken);
@@ -78,8 +70,8 @@ public class GroupsController {
      * @return
      */
     @PatchMapping
-    public ResponseEntity<CommonResponse> update(@RequestBody GroupsPatchDTO groupsPatchDTO) {
-        String accessToken = "";
+    public ResponseEntity<CommonResponse> update(@RequestBody GroupsPatchDTO groupsPatchDTO, @RequestHeader("Authorization") String authorization) {
+        String accessToken = authorization.replace(JwtFilter.TOKEN_PREFIX, "");
 
         // 그룹 변경
         var group = groupService.updateGroup(groupsPatchDTO, accessToken);

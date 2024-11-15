@@ -39,9 +39,9 @@ public class GroupService {
         if(parentGroup == null && groupsCreateDTO.getParentGroupId() != 0)
             throw new ControlledException(PARENT_GROUP_NOT_FOUND);
 
-//        // [예외처리] 권한 소유자만 데이터를 반환 받을 수 있다.
-//        if(!parentGroup.getUserId().equals(jwtTokenProvider.getUserIdFromToken(accessToken)))
-//            throw new ControlledException(ACCESS_DENIED);
+        // [예외처리] 권한 소유자만 데이터를 반환 받을 수 있다.
+        if(!parentGroup.getUserId().equals(jwtTokenProvider.getUserIdFromToken(accessToken)))
+            throw new ControlledException(ACCESS_DENIED);
 
         /*
          * [예외처리] 올바르지 않은 그룹명 요청
@@ -54,7 +54,7 @@ public class GroupService {
 
         // 그룹 생성
         var group = Groups.builder()
-                .userId("asdlkjkljadslkjhdag")
+                .userId(accessToken)
                 .groupsName(groupsCreateDTO.getGroupsName())
                 .parent(parentGroup)
                 .build();
@@ -75,9 +75,9 @@ public class GroupService {
         var group = groupsRepository.findById(groupId)
                 .orElseThrow(() -> new ControlledException(GROUP_NOT_FOUND));
 
-//        // [예외처리] 권한 소유자만 데이터를 반환 받을 수 있다.
-//        if(!group.getUserId().equals(jwtTokenProvider.getUserIdFromToken(accessToken)))
-//            throw new ControlledException(ACCESS_DENIED);
+        // [예외처리] 권한 소유자만 데이터를 반환 받을 수 있다.
+        if(!group.getUserId().equals(jwtTokenProvider.getUserIdFromToken(accessToken)))
+            throw new ControlledException(ACCESS_DENIED);
 
         return group;
     }
@@ -106,9 +106,9 @@ public class GroupService {
         var group = groupsRepository.findById(groupId)
                 .orElseThrow(() -> new ControlledException(GROUP_NOT_FOUND));
 
-//        // [예외처리] 권한 소유자만 데이터를 반환 받을 수 있다.
-//        if(!group.getUserId().equals(jwtTokenProvider.getUserIdFromToken(accessToken)))
-//            throw new ControlledException(ACCESS_DENIED);
+        // [예외처리] 권한 소유자만 데이터를 반환 받을 수 있다.
+        if(!group.getUserId().equals(jwtTokenProvider.getUserIdFromToken(accessToken)))
+            throw new ControlledException(ACCESS_DENIED);
 
         var groups = groupsRepository.findByParent(group)
                 .orElseThrow(() -> new ControlledException(GROUP_NOT_FOUND));
@@ -145,14 +145,14 @@ public class GroupService {
                 .findById(groupId)
                 .orElseThrow(() -> new ControlledException(GROUP_NOT_FOUND));
 
-//        // [예외처리] 권한 소유자만 데이터를 반환 받을 수 있다.
-//        if(!group.getUserId().equals(jwtTokenProvider.getUserIdFromToken(accessToken)))
-//            throw new ControlledException(ACCESS_DENIED);
+        // [예외처리] 권한 소유자만 데이터를 반환 받을 수 있다.
+        if(!group.getUserId().equals(jwtTokenProvider.getUserIdFromToken(accessToken)))
+            throw new ControlledException(ACCESS_DENIED);
 
         // 본인이 소유한 자식 그룹 조회
         var childGroups = groupsRepository.findByParent(group)
                 .orElseThrow(() -> new ControlledException(GROUP_NOT_FOUND));
-        
+
         // 자식 그룹 모두 삭제(재귀함수)
         for (Groups child : childGroups) deleteGroup(child.getGroupsId(), accessToken);
 
@@ -175,9 +175,9 @@ public class GroupService {
                 .findById(groupsPatchDTO.getGroupId())
                 .orElseThrow(() -> new ControlledException(GROUP_NOT_FOUND));
 
-//        // [예외처리] 권한 소유자만 데이터를 반환 받을 수 있다.
-//        if(!group.getUserId().equals(jwtTokenProvider.getUserIdFromToken(accessToken)))
-//            throw new ControlledException(ACCESS_DENIED);
+        // [예외처리] 권한 소유자만 데이터를 반환 받을 수 있다.
+        if(!group.getUserId().equals(jwtTokenProvider.getUserIdFromToken(accessToken)))
+            throw new ControlledException(ACCESS_DENIED);
 
         // 특정 인자가 null로 반환된 경우 수정정보가 저장되지 않는다.
         if(groupsPatchDTO.getNewGroupName() != null) group.setGroupsName(groupsPatchDTO.getNewGroupName());
@@ -200,12 +200,5 @@ public class GroupService {
         groupsRepository.save(group);
 
         return group;
-    }
-
-    public List<Groups> readAllGroup(String userId) {
-        var groups = groupsRepository.findByUserId(userId)
-                .orElseThrow(()-> new ControlledException(USER_ID_NOT_FOUND));
-
-        return groups;
     }
 }
