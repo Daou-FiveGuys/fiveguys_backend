@@ -152,7 +152,7 @@ public class GroupService {
         // 본인이 소유한 자식 그룹 조회
         var childGroups = groupsRepository.findByParent(group)
                 .orElseThrow(() -> new ControlledException(GROUP_NOT_FOUND));
-        
+
         // 자식 그룹 모두 삭제(재귀함수)
         for (Groups child : childGroups) deleteGroup(child.getGroupsId(), accessToken);
 

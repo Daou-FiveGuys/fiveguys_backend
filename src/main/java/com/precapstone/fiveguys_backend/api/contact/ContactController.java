@@ -36,7 +36,7 @@ public class ContactController {
 
         // 정수가 되는 문자열인 경우(연락처)
         if(isNumberic(nameOrTelNum)) contact = contactService.infoByGroupsAndTelNum(groupsName, nameOrTelNum, accessToken);
-        // 정수가 되지않는 문자열인 경우(그룹 내 명칭)
+            // 정수가 되지않는 문자열인 경우(그룹 내 명칭)
         else contact = contactService.infoByGroupAndName(groupsName, nameOrTelNum, accessToken);
 
         return ResponseEntity.ok(CommonResponse.builder().code(200).message("주소록 조회 성공").data(contact).build());
