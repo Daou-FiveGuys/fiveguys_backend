@@ -28,15 +28,15 @@ public class ContactController {
      * @return
      */
     @GetMapping("{groupsName}/{nameOrTelNum}")
-    public ResponseEntity<CommonResponse> info(@PathVariable String groupsName, @PathVariable String nameOrTelNum, @RequestHeader("Authorization") String authorization) {
-        String accessToken = authorization.replace(JwtFilter.TOKEN_PREFIX, "");
+    public ResponseEntity<CommonResponse> info(@PathVariable String groupsName, @PathVariable String nameOrTelNum) {
+        String accessToken = "";
 
         // ※ 전화번호 조회, 이름 조회 모두 가능해야 함
         Contact contact;
 
         // 정수가 되는 문자열인 경우(연락처)
         if(isNumberic(nameOrTelNum)) contact = contactService.infoByGroupsAndTelNum(groupsName, nameOrTelNum, accessToken);
-        // 정수가 되지않는 문자열인 경우(그룹 내 명칭)
+            // 정수가 되지않는 문자열인 경우(그룹 내 명칭)
         else contact = contactService.infoByGroupAndName(groupsName, nameOrTelNum, accessToken);
 
         return ResponseEntity.ok(CommonResponse.builder().code(200).message("주소록 조회 성공").data(contact).build());
@@ -50,14 +50,23 @@ public class ContactController {
      * @return
      */
     @GetMapping("{groupsName}")
-    public ResponseEntity<CommonResponse> info(@PathVariable String groupsName, @RequestHeader("Authorization") String authorization) {
-        String accessToken = authorization.replace(JwtFilter.TOKEN_PREFIX, "");
+    public ResponseEntity<CommonResponse> info(@PathVariable String groupsName) {
+        String accessToken = "";
 
         // ※ 전화번호 조회, 이름 조회 모두 가능해야 함
         var contacts = contactService.contactsInGroup(groupsName, accessToken);
         var groups = groupService.childGroupInfo(groupsName);
         var response = new ContactResponse(contacts, groups);
         return ResponseEntity.ok(CommonResponse.builder().code(200).message("주소록 조회 성공").data(response).build());
+    }
+
+    @GetMapping("id/{groupsId}")
+    public ResponseEntity<CommonResponse> info(@PathVariable Long groupsId) {
+        String accessToken = "";
+
+        // ※ 전화번호 조회, 이름 조회 모두 가능해야 함
+        var contacts = contactService.contactsInGroupById(groupsId, accessToken);
+        return ResponseEntity.ok(CommonResponse.builder().code(200).message("주소록 조회 성공").data(contacts).build());
     }
 
     /**
@@ -69,8 +78,8 @@ public class ContactController {
      * @return
      */
     @PostMapping
-    public ResponseEntity<CommonResponse> create(@RequestBody ContactCreateDTO contactCreateDTO, @RequestHeader("Authorization") String authorization) {
-        String accessToken = authorization.replace(JwtFilter.TOKEN_PREFIX, "");
+    public ResponseEntity<CommonResponse> create(@RequestBody ContactCreateDTO contactCreateDTO) {
+        String accessToken = "";
 
         // 그룹 내부에 주소록 생성
         var contact = contactService.createContact(contactCreateDTO, accessToken);
@@ -86,8 +95,8 @@ public class ContactController {
      */
     @Transactional
     @DeleteMapping("{contactId}")
-    public ResponseEntity<CommonResponse> delete(@PathVariable Long contactId, @RequestHeader("Authorization") String authorization) {
-        String accessToken = authorization.replace(JwtFilter.TOKEN_PREFIX, "");
+    public ResponseEntity<CommonResponse> delete(@PathVariable Long contactId) {
+        String accessToken = "";
 
         // 그룹 내부에 주소록 삭제
         var contact = contactService.deleteContact(contactId, accessToken);
@@ -102,8 +111,8 @@ public class ContactController {
      * @return
      */
     @PatchMapping
-    public ResponseEntity<CommonResponse> update(@RequestBody ContactPatchDTO contactPatchDTO, @RequestHeader("Authorization") String authorization) {
-        String accessToken = authorization.replace(JwtFilter.TOKEN_PREFIX, "");
+    public ResponseEntity<CommonResponse> update(@RequestBody ContactPatchDTO contactPatchDTO) {
+        String accessToken = "";
 
         // 그룹 내부에 주소록 변경
         var contact = contactService.updateContact(contactPatchDTO, accessToken);
