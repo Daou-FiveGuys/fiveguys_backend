@@ -19,7 +19,7 @@ public class Contact2Service {
     private final JwtTokenProvider jwtTokenProvider;
 
     public Contact2 create(Contact2CreateDTO contact2CreateDTO, String accessToken) {
-        var group2 = group2Service.readGroup2(contact2CreateDTO.getGroup2Id());
+        var group2 = group2Service.readGroup2(contact2CreateDTO.getGroup2Id(), accessToken);
 
         // [보안] 데이터의 주인이 호출한 API인지 accessToken을 통해 확인
         var userId = jwtTokenProvider.getUserIdFromToken(accessToken);

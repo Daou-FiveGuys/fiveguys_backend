@@ -17,7 +17,7 @@ public class Contact2Controller {
     // 주소록2 생성
     @PostMapping
     public ResponseEntity create(@RequestBody Contact2CreateDTO contact2CreateDTO, @RequestHeader("Authorization") String authorization) {
-        String accessToken = authorization.replace(JwtFilter.TOKEN_PREFIX, "");
+        var accessToken = authorization.replace(JwtFilter.TOKEN_PREFIX, "");
 
         var contact2 = contact2Service.create(contact2CreateDTO, accessToken);
 
@@ -28,7 +28,7 @@ public class Contact2Controller {
     // 주소록2 조회
     @GetMapping("/{contact2Id}")
     public ResponseEntity read(@PathVariable Long contact2Id, @RequestHeader("Authorization") String authorization) {
-        String accessToken = authorization.replace(JwtFilter.TOKEN_PREFIX, "");
+        var accessToken = authorization.replace(JwtFilter.TOKEN_PREFIX, "");
 
         var contact2 = contact2Service.readContact2(contact2Id, accessToken);
 
@@ -39,7 +39,7 @@ public class Contact2Controller {
     // 주소록2 수정
     @PatchMapping
     public ResponseEntity update(@RequestBody Contact2UpdateDTO contact2UpdateDTO, @RequestHeader("Authorization") String authorization) {
-        String accessToken = authorization.replace(JwtFilter.TOKEN_PREFIX, "");
+        var accessToken = authorization.replace(JwtFilter.TOKEN_PREFIX, "");
 
         var contact2 = contact2Service.update(contact2UpdateDTO, accessToken);
 
@@ -50,7 +50,7 @@ public class Contact2Controller {
     // 주소록2 삭제
     @DeleteMapping("/{contact2Id}")
     public ResponseEntity delete(@PathVariable Long contact2Id, @RequestHeader("Authorization") String authorization) {
-        String accessToken = authorization.replace(JwtFilter.TOKEN_PREFIX, "");
+        var accessToken = authorization.replace(JwtFilter.TOKEN_PREFIX, "");
 
         var contact2 = contact2Service.delete(contact2Id, accessToken);
 
