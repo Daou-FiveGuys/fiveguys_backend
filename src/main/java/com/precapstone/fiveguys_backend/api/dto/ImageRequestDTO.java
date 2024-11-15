@@ -7,6 +7,6 @@ import lombok.Setter;
 @Data
 @Getter
 @Setter
-public class ImageUpscaleDTO {
+public class ImageRequestDTO {
     private String requestId;
 }

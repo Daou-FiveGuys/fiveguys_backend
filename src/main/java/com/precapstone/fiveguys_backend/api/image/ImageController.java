@@ -2,7 +2,7 @@ package com.precapstone.fiveguys_backend.api.image;
 
 import com.precapstone.fiveguys_backend.api.dto.ImageInpaintDTO;
 import com.precapstone.fiveguys_backend.api.dto.ImagePromptDTO;
-import com.precapstone.fiveguys_backend.api.dto.ImageUpscaleDTO;
+import com.precapstone.fiveguys_backend.api.dto.ImageRequestDTO;
 import com.precapstone.fiveguys_backend.common.CommonResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
@@ -52,18 +52,18 @@ public class ImageController {
      * @return ResponseEntity<CommonResponse> 이미지 정보
      */
     @PostMapping("/upscale")
-    public ResponseEntity<CommonResponse> upscale(@RequestHeader("Authorization") String authorization, @RequestBody ImageUpscaleDTO imageUpscaleDTO) {
-        return ResponseEntity.ok(imageService.upscale(authorization, imageUpscaleDTO));
+    public ResponseEntity<CommonResponse> upscale(@RequestHeader("Authorization") String authorization, @RequestBody ImageRequestDTO imageRequestDTO) {
+        return ResponseEntity.ok(imageService.upscale(authorization, imageRequestDTO.getRequestId()));
     }
 
     @PostMapping("/remove-text/imggen")
-    public ResponseEntity<CommonResponse> removeTextImggen(@RequestHeader("Authorization") String authorization, String requestId ) {
-        return ResponseEntity.ok(imageService.removeTextByImggen(authorization, requestId));
+    public ResponseEntity<CommonResponse> removeTextImggen(@RequestHeader("Authorization") String authorization, @RequestBody ImageRequestDTO imageRequestDTO) {
+        return ResponseEntity.ok(imageService.removeTextByImggen(authorization, imageRequestDTO.getRequestId()));
     }
 
     @PostMapping("/remove-text/photoroom")
-    public ResponseEntity<CommonResponse> removeTextPhotoroom(@RequestHeader("Authorization") String authorization, String requestId ) {
-        return ResponseEntity.ok(imageService.removeTextByPhotoRoom(authorization, requestId));
+    public ResponseEntity<CommonResponse> removeTextPhotoroom(@RequestHeader("Authorization") String authorization, @RequestBody ImageRequestDTO imageRequestDTO) {
+        return ResponseEntity.ok(imageService.removeTextByPhotoRoom(authorization, imageRequestDTO.getRequestId()));
     }
 
     @GetMapping("/{requestId}")
