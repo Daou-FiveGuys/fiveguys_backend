@@ -13,7 +13,6 @@ docker-compose down
 
 ### 3. Docker 시스템 정리 (불필요한 데이터 제거)
 ```sh
-# 사용하지 않는 Docker 이미지, 네트워크, 볼륨, 컨테이너를 정리
 docker system prune -a
 ```
 
@@ -32,7 +31,17 @@ docker build -t fiveguys_backend .
 docker-compose up -d
 ```
 
-### 7. 배포 상태 확인
+### 7. Docker 시스템 정리 (불필요한 데이터 제거) 
+```sh
+docker system prune -a
+```
+
+### 8. 빌드 파일 제거 
+```sh
+rm -rf ./build
+```
+
+### 9. 배포 상태 확인
 ```sh
 #로그 확인
 docker-compose logs -f
