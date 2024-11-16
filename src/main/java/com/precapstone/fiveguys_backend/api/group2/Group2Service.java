@@ -2,10 +2,13 @@ package com.precapstone.fiveguys_backend.api.group2;
 
 import com.precapstone.fiveguys_backend.api.auth.JwtTokenProvider;
 import com.precapstone.fiveguys_backend.api.folder2.Folder2Service;
+import com.precapstone.fiveguys_backend.entity.Contact2;
 import com.precapstone.fiveguys_backend.entity.Group2;
 import com.precapstone.fiveguys_backend.exception.ControlledException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+
+import java.util.List;
 
 import static com.precapstone.fiveguys_backend.exception.errorcode.Group2ErrorCode.*;
 import static com.precapstone.fiveguys_backend.exception.errorcode.UserErrorCode.USER_AUTHORIZATION_FAILED;
@@ -73,6 +76,21 @@ public class Group2Service {
                 throw new ControlledException(INVALID_FORMAT_BY_FOLDER2_ID);
             }
         }
+
+        group2Repository.save(group2);
+        return group2;
+    }
+
+    public Group2 updateContact2s(Long group2Id, List<Contact2> contact2s, String accessToken) {
+        var group2 = readGroup2(group2Id, accessToken);
+
+        // [보안] 데이터의 주인이 호출한 API인지 accessToken을 통해 확인
+        // ※ 이미 readGroup2()에서 인증을 거치지만 형식상 추가
+        var userId = jwtTokenProvider.getUserIdFromToken(accessToken);
+        if(!group2.getFolder2().getUser().getUserId().equals(userId))
+            throw new ControlledException(USER_AUTHORIZATION_FAILED);
+
+        group2.setContact2s(contact2s);
 
         group2Repository.save(group2);
         return group2;
