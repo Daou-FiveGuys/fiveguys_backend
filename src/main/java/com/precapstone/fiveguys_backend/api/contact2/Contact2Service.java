@@ -7,8 +7,7 @@ import com.precapstone.fiveguys_backend.exception.ControlledException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
-import static com.precapstone.fiveguys_backend.exception.errorcode.Contact2ErrorCode.CONTACT2_NAME_ALREADY_EXISTS_IN_THIS_GROUP2;
-import static com.precapstone.fiveguys_backend.exception.errorcode.Contact2ErrorCode.CONTACT2_NOT_FOUND;
+import static com.precapstone.fiveguys_backend.exception.errorcode.Contact2ErrorCode.*;
 import static com.precapstone.fiveguys_backend.exception.errorcode.UserErrorCode.USER_AUTHORIZATION_FAILED;
 
 @Service
@@ -28,9 +27,12 @@ public class Contact2Service {
 
         // 1. [예외처리] 본인 Group2 안에 Contact2가 이미 존재하는 경우
         var contact2s = group2.getContact2s();
-        for(var contact : contact2s)
-            if(contact.getName().equals(contact2CreateDTO.getName()))
+        for(var contact : contact2s) {
+            if (contact.getName().equals(contact2CreateDTO.getName()))
                 throw new ControlledException(CONTACT2_NAME_ALREADY_EXISTS_IN_THIS_GROUP2);
+            if (contact.getTelNum().equals(contact2CreateDTO.getTelNum()))
+                throw new ControlledException(CONTACT2_TELNUM_ALREADY_EXISTS_IN_THIS_GROUP2);
+        }
 
         var contact2 = Contact2.builder()
                 .group2(group2)
@@ -71,11 +73,24 @@ public class Contact2Service {
         if(!contact2.getGroup2().getFolder2().getUser().getUserId().equals(userId))
             throw new ControlledException(USER_AUTHORIZATION_FAILED);
 
-        if(contact2UpdateDTO.getName() != null)
+        if(contact2UpdateDTO.getName() != null) {
+            // 1. [예외처리] 본인 Group2 안에 Contact2가 이미 존재하는 경우
+            var contact2s = contact2.getGroup2().getContact2s();
+            for(var contact : contact2s)
+                if (contact.getName().equals(contact2UpdateDTO.getName()))
+                    throw new ControlledException(CONTACT2_NAME_ALREADY_EXISTS_IN_THIS_GROUP2);
             contact2.setName(contact2UpdateDTO.getName());
+        }
 
-        if(contact2UpdateDTO.getTelNum() != null)
+        if(contact2UpdateDTO.getTelNum() != null) {
+            // 1. [예외처리] 본인 Group2 안에 Contact2가 이미 존재하는 경우
+            var contact2s = contact2.getGroup2().getContact2s();
+            for(var contact : contact2s)
+                if (contact.getTelNum().equals(contact2UpdateDTO.getTelNum()))
+                    throw new ControlledException(CONTACT2_TELNUM_ALREADY_EXISTS_IN_THIS_GROUP2);
+
             contact2.setTelNum(contact2UpdateDTO.getTelNum());
+        }
 
         if(contact2UpdateDTO.getOne() != null) contact2.setOne(contact2UpdateDTO.getOne());
         if(contact2UpdateDTO.getTwo() != null) contact2.setTwo(contact2UpdateDTO.getTwo());
@@ -101,5 +116,17 @@ public class Contact2Service {
 
         contact2Repository.deleteById(contact2Id);
         return contact2;
+    }
+
+    public void deleteAllByGroup2Id(Long group2Id, String accessToken) {
+        var group2 = group2Service.readGroup2(group2Id, accessToken);
+
+        // [보안] 데이터의 주인이 호출한 API인지 accessToken을 통해 확인
+        // ※ 이미 readContact2()에서 인증을 거치지만 형식상 추가
+        var userId = jwtTokenProvider.getUserIdFromToken(accessToken);
+        if(!group2.getFolder2().getUser().getUserId().equals(userId))
+            throw new ControlledException(USER_AUTHORIZATION_FAILED);
+
+        contact2Repository.deleteAllByGroup2(group2);
     }
 }

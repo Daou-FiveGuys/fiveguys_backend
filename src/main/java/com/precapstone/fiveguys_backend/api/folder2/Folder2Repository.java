@@ -10,6 +10,6 @@ import java.util.Optional;
 
 @Repository
 public interface Folder2Repository extends JpaRepository<Folder2, Long> {
-    Optional<Folder2> findByName(String name);
+    Optional<Folder2> findByUserAndName(User user, String name);
     Optional<List<Folder2>> findByUser(User user);
 }
