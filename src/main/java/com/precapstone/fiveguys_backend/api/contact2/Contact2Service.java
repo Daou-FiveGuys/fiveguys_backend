@@ -73,11 +73,24 @@ public class Contact2Service {
         if(!contact2.getGroup2().getFolder2().getUser().getUserId().equals(userId))
             throw new ControlledException(USER_AUTHORIZATION_FAILED);
 
-        if(contact2UpdateDTO.getName() != null)
+        if(contact2UpdateDTO.getName() != null) {
+            // 1. [예외처리] 본인 Group2 안에 Contact2가 이미 존재하는 경우
+            var contact2s = contact2.getGroup2().getContact2s();
+            for(var contact : contact2s)
+                if (contact.getName().equals(contact2UpdateDTO.getName()))
+                    throw new ControlledException(CONTACT2_NAME_ALREADY_EXISTS_IN_THIS_GROUP2);
             contact2.setName(contact2UpdateDTO.getName());
+        }
 
-        if(contact2UpdateDTO.getTelNum() != null)
+        if(contact2UpdateDTO.getTelNum() != null) {
+            // 1. [예외처리] 본인 Group2 안에 Contact2가 이미 존재하는 경우
+            var contact2s = contact2.getGroup2().getContact2s();
+            for(var contact : contact2s)
+                if (contact.getTelNum().equals(contact2UpdateDTO.getTelNum()))
+                    throw new ControlledException(CONTACT2_TELNUM_ALREADY_EXISTS_IN_THIS_GROUP2);
+
             contact2.setTelNum(contact2UpdateDTO.getTelNum());
+        }
 
         if(contact2UpdateDTO.getOne() != null) contact2.setOne(contact2UpdateDTO.getOne());
         if(contact2UpdateDTO.getTwo() != null) contact2.setTwo(contact2UpdateDTO.getTwo());

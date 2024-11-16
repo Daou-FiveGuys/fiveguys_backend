@@ -64,8 +64,14 @@ public class Group2Service {
         if(!group2.getFolder2().getUser().getUserId().equals(userId))
             throw new ControlledException(USER_AUTHORIZATION_FAILED);
 
-        if(group2UpdateDTO.getName() != null)
+        if(group2UpdateDTO.getName() != null) {
+            // 1. [예외처리] 본인 Folder2 안에 Group2가 이미 존재하는 경우
+            var groups = group2.getFolder2().getGroup2s();
+            for(var group : groups)
+                if(group.getName().equals(group2UpdateDTO.getName()))
+                    throw new ControlledException(GROUP2_NAME_ALREADY_EXISTS_IN_THIS_FOLDER2);
             group2.setName(group2UpdateDTO.getName());
+        }
 
         if(group2UpdateDTO.getFolder2Id() != null) {
             try {

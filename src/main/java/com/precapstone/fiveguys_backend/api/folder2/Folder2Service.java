@@ -21,15 +21,15 @@ public class Folder2Service {
     private final JwtTokenProvider jwtTokenProvider;
 
     public Folder2 create(Folder2CreateDTO folder2CreateDTO, String accessToken) {
-        var user = userService.findById(folder2CreateDTO.getUserId());
-
         // [보안] 데이터의 주인이 호출한 API인지 accessToken을 통해 확인
         var userId = jwtTokenProvider.getUserIdFromToken(accessToken);
+        var user = userService.findByUserId(userId)
+                .orElseThrow(() -> new ControlledException(USER_NOT_FOUND));
         if(!user.getUserId().equals(userId))
             throw new ControlledException(USER_AUTHORIZATION_FAILED);
 
         // 1. [예외처리] Folder name이 해당 유저에게 이미 존재하는 경우
-        if(folder2Repository.findByName(folder2CreateDTO.getName()).isPresent())
+        if(folder2Repository.findByUserAndName(user, folder2CreateDTO.getName()).isPresent())
             throw new ControlledException(FOLDER2_NAME_ALREADY_EXISTS);
 
         var folder2 = Folder2.builder()
@@ -71,11 +71,18 @@ public class Folder2Service {
         // [보안] 데이터의 주인이 호출한 API인지 accessToken을 통해 확인
         // ※ 이미 readGroup2()에서 인증을 거치지만 형식상 추가
         var userId = jwtTokenProvider.getUserIdFromToken(accessToken);
+        var user = userService.findByUserId(userId)
+                .orElseThrow(() -> new ControlledException(USER_NOT_FOUND));
         if(!folder2.getUser().getUserId().equals(userId))
             throw new ControlledException(USER_AUTHORIZATION_FAILED);
 
-        if(folder2UpdateDTO.getFolder2Id() != null)
+        if(folder2UpdateDTO.getFolder2Id() != null) {
+            // 1. [예외처리] Folder name이 해당 유저에게 이미 존재하는 경우
+            if(folder2Repository.findByUserAndName(user, folder2UpdateDTO.getName()).isPresent())
+                throw new ControlledException(FOLDER2_NAME_ALREADY_EXISTS);
+
             folder2.setName(folder2UpdateDTO.getName());
+        }
 
         folder2Repository.save(folder2);
         return folder2;

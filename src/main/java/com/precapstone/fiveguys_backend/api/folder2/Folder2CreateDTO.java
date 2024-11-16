@@ -6,6 +6,5 @@ import lombok.Getter;
 @Builder
 @Getter
 public class Folder2CreateDTO {
-    private Long userId;
     private String name;
 }
