@@ -13,40 +13,26 @@ import java.util.Map;
  * 파일 경로에 존재하는 이미지의 속성을 저장하는 클래스
  * 실제로 MMS를 통해 전송할 수 있는 데이터는 1개이다.
  */
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonProperty;
+
 public class Files {
     private final String name;
     private final long size;
     private final String data;
 
-    /**
-     * 해당 클래스를 Map 형식으로 반환
-     * 
-     * @return name, size, data를 Map 형식으로 반환
-     */
-    @JsonValue
-    public Map<String, Object> get() {
-        HashMap<String, Object> map = new HashMap<>();
-        map.put("name", name);
-        map.put("size", size);
-        map.put("data", data);
-
-        return map;
+    @JsonCreator
+    public Files(
+            @JsonProperty("name") String name,
+            @JsonProperty("size") long size,
+            @JsonProperty("data") String data
+    ) {
+        this.name = name;
+        this.size = size;
+        this.data = data;
     }
 
-    public int getByteSize() {
-        return data.length();
-    }
-
-    /**
-     * 파일을 접근하여 필요한 이미지 정보 속성을 반환한다.
-     *
-     * @param filePath 이미지가 저장된 경로위치
-     *
-     * @return 파일 전송에 필요한 이미지 정보 속성을 반환한다.
-     *
-     * @throws RuntimeException
-     * @throws IOException
-     */
+    // 기존 생성자 유지
     public Files(String filePath) throws RuntimeException, IOException {
         FileInputStream fileInputStream = null;
         try {
@@ -72,5 +58,19 @@ public class Files {
                 fileInputStream.close();
             }
         }
+    }
+
+    @JsonValue
+    public Map<String, Object> get() {
+        HashMap<String, Object> map = new HashMap<>();
+        map.put("name", name);
+        map.put("size", size);
+        map.put("data", data);
+
+        return map;
+    }
+
+    public int getByteSize() {
+        return data.length();
     }
 }
