@@ -1,7 +1,6 @@
 package com.precapstone.fiveguys_backend.api.image;
 
 import com.precapstone.fiveguys_backend.api.dto.ImageInpaintDTO;
-import com.precapstone.fiveguys_backend.api.dto.ImagePromptDTO;
 import com.precapstone.fiveguys_backend.api.dto.ImageRequestDTO;
 import com.precapstone.fiveguys_backend.common.CommonResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -22,13 +21,22 @@ public class ImageController {
     /**
      * 이미지 생성 컨트롤러
      * @param authorization 인증 헤더
-     * @param imagePromptDTO 이미지 생성 프롬프트 (KOR)
      * @return ResponseEntity<CommonResponse> 이미지 정보
      */
     @PostMapping("/generate")
-    public ResponseEntity<CommonResponse> generateImage(@RequestHeader("Authorization") String authorization, @RequestBody ImagePromptDTO imagePromptDTO) {
-        return ResponseEntity.ok(imageService.generate(authorization, imagePromptDTO.getPrompt()));
+    public ResponseEntity<CommonResponse> generateImage(@RequestHeader("Authorization") String authorization, @RequestBody ImageGenerateDTO imageGenerateDTO) {
+        return ResponseEntity.ok(imageService.generate(authorization, imageGenerateDTO));
     }
+    /**
+     * 이미지 생성 컨트롤러
+     * @param authorization 인증 헤더
+     * @return ResponseEntity<CommonResponse> 이미지 정보
+     */
+    @PostMapping("/generate-lora")
+    public ResponseEntity<CommonResponse> generateImageWithLora(@RequestHeader("Authorization") String authorization, @RequestBody ImageGenerateDTO imageGenerateDTO) {
+        return ResponseEntity.ok(imageService.generateWithLora(authorization, imageGenerateDTO));
+    }
+
 
     //TODO 되돌리기 기능
     /**
@@ -48,7 +56,6 @@ public class ImageController {
     /**
      * 이미지 업스케일 컨트롤러
      * @param authorization 인증 헤더
-     * @param imageUpscaleDTO 이미지 아이디
      * @return ResponseEntity<CommonResponse> 이미지 정보
      */
     @PostMapping("/upscale")

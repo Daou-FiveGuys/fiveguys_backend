@@ -16,6 +16,16 @@ public class ImageLinkExtractor {
         }
         return null;
     }
+    public static String extractInpaintedImageUrl(JsonObject result) {
+        JsonObject jsonObject = result.getAsJsonObject("image");
+        if (jsonObject != null && !jsonObject.isEmpty()) {
+            JsonElement urlElement = jsonObject.get("url");
+            if (urlElement != null) {
+                return urlElement.getAsString(); // URL 반환
+            }
+        }
+        return null;
+    }
 
     public static String extractUpscaledImageUrl(JsonObject result) {
         JsonObject jsonObject = result.getAsJsonObject("image");

@@ -55,31 +55,22 @@ public class ImageService {
     @Value("${spring.imggen.api-key}")
     private String IMGGEN_API_KEY;
 
+    private String WATER_COLOR_LORA_LINK;
+    private String JAPANESE_STYLE_LORA_LINK;
+
+
     /**
      * 이미지 생성
      *
      * @param authorization 인증 헤더
-     * @param prompt 이미지 생성 프롬프트 (KOR)
      * @return ResponseEntity<CommonResponse> 이미지 정보
      */
-    public CommonResponse generate(String authorization, String prompt){
+    public CommonResponse generate(String authorization, ImageGenerateDTO imageGenerateDTO){
         String accessToken = JwtTokenProvider.stripTokenPrefix(authorization);
         String userId = jwtTokenProvider.getUserIdFromToken(accessToken);
-//        var input = Map.of(
-//                "prompt", "A Japanese high school girl confidently holding a weapon in an action pose, standing against a battlefield background. Dramatic lighting and a sense of movement.",
-//                "image_size", "portrait_4_3",
-//                "num_inference_steps", 30,
-//                "guidance_scale", 7.5,
-//                "loras", List.of(
-//                        Map.of("path", "로라 링크", "scale", 1.0)
-//                ),
-//                "output_format", "jpeg"
-//        );
-//
-//        var result = fal.subscribe("fal-ai/flux-lora",
 
         var input = Map.of(
-            "prompt", prompt);
+            "prompt", imageGenerateDTO);
 
         var result = fal.subscribe("fal-ai/flux/dev",
             SubscribeOptions.<JsonObject>builder()
@@ -94,7 +85,6 @@ public class ImageService {
                     .build());
 
         try {
-            //스레드
             this.saveImageResultIntoDB(result, userId);
             return CommonResponse.builder()
                     .code(200)
@@ -109,6 +99,68 @@ public class ImageService {
                     .build();
         }
     }
+
+    /**
+     * 이미지 생성
+     *
+     * @param authorization 인증 헤더
+     * @return ResponseEntity<CommonResponse> 이미지 정보
+     */
+    public CommonResponse generateWithLora(String authorization, ImageGenerateDTO imageGenerateDTO){
+        String accessToken = JwtTokenProvider.stripTokenPrefix(authorization);
+        String userId = jwtTokenProvider.getUserIdFromToken(accessToken);
+        String style = imageGenerateDTO.lora;
+        String loraLink = "";
+
+        switch (style){
+            case "water-color" -> loraLink = WATER_COLOR_LORA_LINK;
+            case "japanese-style" -> loraLink = JAPANESE_STYLE_LORA_LINK;
+            default -> {
+                return CommonResponse.builder()
+                    .code(400)
+                    .build();
+            }
+        }
+
+        var input = Map.of(
+            "prompt", imageGenerateDTO.prompt,
+            "image_size", imageGenerateDTO.imageSize,
+            "num_inference_steps", imageGenerateDTO.numInterfaceSteps,
+            "guidance_scale", imageGenerateDTO.cfg,
+            "loras", List.of(
+                    Map.of("path", loraLink, "scale", 1.0)
+            ),
+            "output_format", "jpeg"
+        );
+
+        var result = fal.subscribe("fal-ai/flux-lora",
+                SubscribeOptions.<JsonObject>builder()
+                        .input(input)
+                        .logs(true)
+                        .resultType(JsonObject.class)
+                        .onQueueUpdate(update -> {
+                            if (update instanceof QueueStatus.InProgress) {
+                                System.out.println(((QueueStatus.InProgress) update).getLogs());
+                            }
+                        })
+                        .build());
+
+        try {
+            this.saveImageResultIntoDB(result, userId);
+            return CommonResponse.builder()
+                    .code(200)
+                    .data(ImageResponseDTO.builder()
+                            .requestId(result.getRequestId())
+                            .url(ImageLinkExtractor.extractImageUrl(result.getData()))
+                            .build())
+                    .build();
+        } catch (Exception e) {
+            return CommonResponse.builder()
+                    .code(400)
+                    .build();
+        }
+    }
+
 
     /**
      * 이미지 수정
@@ -126,25 +178,30 @@ public class ImageService {
         String maskImageUrl = saveMaskImageIntoS3(multipartFile, requestId, userId);
 
         var input = Map.of(
+            "guidance_scale", "8",
+            "strength", 0.6,
             "image_url", image.getUrl(),
             "mask_url", maskImageUrl,
-            "prompt", imageInpaintDTO.getPrompt()
+            "prompt", imageInpaintDTO.getPrompt(),
+            "num_inference_steps" , 50,
+            "image_size", Map.of(
+                "width", imageInpaintDTO.getWidth(),
+                "height", imageInpaintDTO.getHeight()
+            )
         );
 
-
-        var result = fal.subscribe("fal-ai/fast-sdxl/inpainting",
-                SubscribeOptions.<JsonObject>builder()
-                        .input(input)
-                        .logs(true)
-                        .resultType(JsonObject.class)
-                        .onQueueUpdate(update -> {
-                            if (update instanceof QueueStatus.InProgress) {
-                                System.out.println(((QueueStatus.InProgress) update).getLogs());
-                            }
-                        })
-                        .build());
-
         try {
+            var result = fal.subscribe("fal-ai/flux-lora/inpainting",
+                    SubscribeOptions.<JsonObject>builder()
+                            .input(input)
+                            .logs(true)
+                            .resultType(JsonObject.class)
+                            .onQueueUpdate(update -> {
+                                if (update instanceof QueueStatus.InProgress) {
+                                    System.out.println(((QueueStatus.InProgress) update).getLogs());
+                                }
+                            })
+                            .build());
             this.saveInpaintedImageIntoDB(result, image);
             return CommonResponse.builder()
                     .code(200)
