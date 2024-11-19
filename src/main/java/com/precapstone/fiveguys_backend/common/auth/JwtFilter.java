@@ -25,7 +25,7 @@ public class JwtFilter extends OncePerRequestFilter {
             "/login", "/signup",
             "/swagger-ui/**", "/api-docs/**", "/swagger-resources/**",
             "/api/v1/oauth/refresh-token", "/api/v1/user/signup",
-            "/api/v1/oauth/naver", "/api/v1/oauth/google", "/api/v1/oauth", "/**"
+            "/api/v1/oauth/naver", "/api/v1/oauth/google", "/api/v1/oauth"
     );
 
     public static final String TOKEN_PREFIX = "Bearer ";
