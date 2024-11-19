@@ -1,6 +1,7 @@
 package com.precapstone.fiveguys_backend.api.message.send;
 
 import com.precapstone.fiveguys_backend.api.dto.PpurioSendDTO;
+import com.precapstone.fiveguys_backend.api.message.PpurioMessageDTO;
 import com.precapstone.fiveguys_backend.api.message.auth.PpurioAuth;
 import com.precapstone.fiveguys_backend.api.message.send.messagetype.SMS;
 import com.precapstone.fiveguys_backend.api.message.send.messagetype.MMS;
@@ -30,6 +31,24 @@ public class PpurioSendService {
     private String url;
 
     private final PpurioAuth ppurioAuth;
+
+    public PpurioSendResponse message(PpurioMessageDTO ppurioMessageDTO) {
+        // 토큰 발급
+        String accessToken = ppurioAuth.getAccessToken();
+
+        // 헤더 설정
+        HttpHeaders headers = new HttpHeaders();
+        headers.set("Authorization", "Bearer "+ accessToken);
+
+        // 바디 설정
+        var requestBody = createMessageParams(ppurioMessageDTO);
+
+        // 전송 데이터 생성
+        HttpEntity<Map> request = new HttpEntity<>(requestBody, headers);
+
+        // 전송
+        return restTemplate.postForObject(url+"/v1/message", request, PpurioSendResponse.class);
+    }
 
     public void sendMessage(PpurioSendDTO ppurioSendDTO) throws IOException {
         // 토큰 발급
@@ -64,6 +83,19 @@ public class PpurioSendService {
             case "MMS" -> new MMS(ppurioAccount, ppurioSendDTO.getFromNumber(), ppurioSendDTO.getContent(), ppurioSendDTO.getTargets(), ppurioSendDTO.getFilePaths());
             case "LMS" -> new LMS(ppurioAccount, ppurioSendDTO.getFromNumber(), ppurioSendDTO.getContent(), ppurioSendDTO.getTargets());
             case "SMS" -> new SMS(ppurioAccount, ppurioSendDTO.getFromNumber(), ppurioSendDTO.getContent(), ppurioSendDTO.getTargets());
+            default -> null;
+        };
+
+        return messageType.getParams();
+    }
+
+    private Map createMessageParams(PpurioMessageDTO ppurioMessageDTO) {
+
+        // 각 메세지 타입에 맞게 requestBody 분리
+        MessageType messageType = switch (ppurioMessageDTO.getMessageType()) {
+            case "MMS" -> new MMS(ppurioAccount, ppurioMessageDTO);
+            case "LMS" -> new LMS(ppurioAccount, ppurioMessageDTO);
+            case "SMS" -> new SMS(ppurioAccount, ppurioMessageDTO);
             default -> null;
         };
 

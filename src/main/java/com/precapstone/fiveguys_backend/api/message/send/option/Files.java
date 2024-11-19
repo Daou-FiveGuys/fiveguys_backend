@@ -33,6 +33,10 @@ public class Files {
         return map;
     }
 
+    public int getByteSize() {
+        return data.length();
+    }
+
     /**
      * 파일을 접근하여 필요한 이미지 정보 속성을 반환한다.
      *

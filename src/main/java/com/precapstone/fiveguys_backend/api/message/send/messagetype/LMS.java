@@ -1,8 +1,12 @@
 package com.precapstone.fiveguys_backend.api.message.send.messagetype;
 
+import com.precapstone.fiveguys_backend.api.message.PpurioMessageDTO;
 import com.precapstone.fiveguys_backend.api.message.send.option.Target;
+import com.precapstone.fiveguys_backend.exception.ControlledException;
 
 import java.util.List;
+
+import static com.precapstone.fiveguys_backend.api.message.send.PpurioErrorCode.CONTENT_IS_TOO_LONG;
 
 /**
  * 긴 메세지를 전달하는 클래스이다.
@@ -20,6 +24,14 @@ public class LMS extends MessageType {
 
         // TODO: 문자 메세지 길이 파악하기(더 길 시 에러메세지 발송)
 
+        params.put("messageType", "LMS");
+    }
+
+    public LMS(String ppurioAccount, PpurioMessageDTO ppurioMessageDTO) {
+        super(ppurioAccount, ppurioMessageDTO.getFromNumber(), ppurioMessageDTO.getContent(), ppurioMessageDTO.getTargets());
+
+        // 문자 메세지 길이 파악하기(더 길 시 에러메세지 발송)
+        if(ppurioMessageDTO.getContent().getBytes().length > 2000) throw new ControlledException(CONTENT_IS_TOO_LONG);
         params.put("messageType", "LMS");
     }
 
