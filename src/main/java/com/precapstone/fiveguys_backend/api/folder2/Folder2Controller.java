@@ -13,11 +13,11 @@ public class Folder2Controller {
     private final Folder2Service folder2Service;
 
     // 폴더2 생성
-    @PostMapping
-    public ResponseEntity create(@RequestBody Folder2CreateDTO folder2CreateDTO, @RequestHeader("Authorization") String authorization) {
+    @PostMapping("/{newFolderName}")
+    public ResponseEntity create(@PathVariable String newFolderName, @RequestHeader("Authorization") String authorization) {
         var accessToken = authorization.replace(JwtFilter.TOKEN_PREFIX, "");
 
-        var folder2 = folder2Service.create(folder2CreateDTO, accessToken);
+        var folder2 = folder2Service.create(newFolderName, accessToken);
 
         var response = CommonResponse.builder().code(200).message("폴더2 생성 성공").data(folder2).build();
         return ResponseEntity.ok(response);
