@@ -35,7 +35,7 @@ public class PpurioSendController {
         return CommonResponse.builder().code(200).message("테스트 성공").build();
     }
 
-    @PostMapping("send")
+    @PostMapping("message")
     public CommonResponse message(@RequestBody PpurioMessageDTO ppurioMessageDTO) {
         var response = ppurioSendService.message(ppurioMessageDTO);
         return CommonResponse.builder().code(200).message("문자 전송 성공").data(response).build();
