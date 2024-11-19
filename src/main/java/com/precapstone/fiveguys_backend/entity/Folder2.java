@@ -1,5 +1,6 @@
 package com.precapstone.fiveguys_backend.entity;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 import lombok.*;
@@ -25,6 +26,7 @@ public class Folder2 {
     // 폴더 및 하위 엔티티 소유자
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id")
+    @JsonBackReference
     private User user;
 
     @OneToMany(fetch = FetchType.LAZY, mappedBy = "folder2", cascade = CascadeType.ALL)

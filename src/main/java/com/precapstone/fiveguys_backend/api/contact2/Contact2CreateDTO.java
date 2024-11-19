@@ -2,7 +2,9 @@ package com.precapstone.fiveguys_backend.api.contact2;
 
 import lombok.Builder;
 import lombok.Getter;
+import lombok.Setter;
 
+@Setter
 @Getter
 @Builder
 public class Contact2CreateDTO {
