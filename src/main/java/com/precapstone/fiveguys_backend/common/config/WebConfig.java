@@ -24,7 +24,7 @@ public class WebConfig {
                 registry.addMapping("/**")
                         // TODO 나중에 로컬은 지웁시다
                         .allowedOrigins(serverDomain, serverDomain+":80", serverDomain+":8080", localDomain+":3000", localDomain+":8080")
-                        .allowedMethods("GET", "POST", "PUT", "DELETE")
+                        .allowedMethods("GET", "POST", "PUT", "DELETE", "OPTIONS", "HEAD", "PATCH")
                         .allowCredentials(true)
                         .allowedHeaders("*")
                         .exposedHeaders("Authorization");
