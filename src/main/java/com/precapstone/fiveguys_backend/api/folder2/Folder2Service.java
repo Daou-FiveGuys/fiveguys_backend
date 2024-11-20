@@ -20,7 +20,7 @@ public class Folder2Service {
     private final Folder2Repository folder2Repository;
     private final JwtTokenProvider jwtTokenProvider;
 
-    public Folder2 create(Folder2CreateDTO folder2CreateDTO, String accessToken) {
+    public Folder2 create(String newFolderName, String accessToken) {
         // [보안] 데이터의 주인이 호출한 API인지 accessToken을 통해 확인
         var userId = jwtTokenProvider.getUserIdFromToken(accessToken);
         var user = userService.findByUserId(userId)
@@ -29,11 +29,11 @@ public class Folder2Service {
             throw new ControlledException(USER_AUTHORIZATION_FAILED);
 
         // 1. [예외처리] Folder name이 해당 유저에게 이미 존재하는 경우
-        if(folder2Repository.findByUserAndName(user, folder2CreateDTO.getName()).isPresent())
+        if(folder2Repository.findByUserAndName(user, newFolderName).isPresent())
             throw new ControlledException(FOLDER2_NAME_ALREADY_EXISTS);
 
         var folder2 = Folder2.builder()
-                .name(folder2CreateDTO.getName())
+                .name(newFolderName)
                 .user(user)
                 .build();
 

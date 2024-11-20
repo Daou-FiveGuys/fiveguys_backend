@@ -1,6 +1,11 @@
 package com.precapstone.fiveguys_backend.api.message.send.messagetype;
 
+import com.precapstone.fiveguys_backend.api.message.PpurioMessageDTO;
+import com.precapstone.fiveguys_backend.exception.ControlledException;
+
 import java.util.List;
+
+import static com.precapstone.fiveguys_backend.api.message.send.PpurioErrorCode.CONTENT_IS_TOO_LONG;
 
 /**
  * 짧 메세지를 전달하는 클래스이다.
@@ -12,6 +17,15 @@ public class SMS extends MessageType {
     public SMS(String ppurioAccount, String fromNumber, String message, List targets) {
         super(ppurioAccount, fromNumber, message, targets);
         // TODO: 문자 메세지 길이 파악하기
+
+        params.put("messageType", "SMS");
+    }
+
+    public SMS(String ppurioAccount, PpurioMessageDTO ppurioMessageDTO) {
+        super(ppurioAccount, ppurioMessageDTO.getFromNumber(), ppurioMessageDTO.getContent(), ppurioMessageDTO.getTargets());
+
+        // TODO: 문자 메세지 길이 파악하기
+        if(ppurioMessageDTO.getContent().getBytes().length > 90) throw new ControlledException(CONTENT_IS_TOO_LONG);
 
         params.put("messageType", "SMS");
     }
