@@ -119,7 +119,8 @@ public class UserService {
                         .userRole(user.getUserRole())
                         .name(user.getName())
                         .email(user.getEmail())
-                        .userId(user.getUserId()))
+                        .userId(user.getUserId())
+                        .build())
                 .build();
     }
 
@@ -167,8 +168,8 @@ public class UserService {
 
         if(passwordEncoder.matches(password, optionalUser.get().getPassword())){
             return CommonResponse.builder()
-                    .code(400)
-                    .message("Bad request")
+                    .code(401)
+                    .message("Password Incorrect")
                     .build();
         }
 
@@ -181,7 +182,7 @@ public class UserService {
 
     @Transactional
     public CommonResponse edit(String authorization, UserDTO userDTO) {
-        String token = jwtTokenProvider.getUserIdFromToken(authorization);
+        String token = JwtTokenProvider.stripTokenPrefix(authorization);
         String userId = jwtTokenProvider.getUserIdFromToken(token);
         if(!userId.contains("fiveguys_") || !userDTO.getPassword().equals(userDTO.getConfirmPassword())){
             return CommonResponse.builder()
@@ -190,14 +191,13 @@ public class UserService {
                     .build();
         }
 
-
         User user = userRepository.findByUserId(userId).orElseThrow();
         user.setUpdatedAt(LocalDateTime.now());
-        user.setPassword(userDTO.getPassword());
+        user.setPassword(passwordEncoder.encode(userDTO.getPassword()));
         userRepository.save(user);
         return CommonResponse.builder()
                 .code(200)
-                .message("User deleted successfully")
+                .message("Updated successfully")
                 .build();
     }
 
