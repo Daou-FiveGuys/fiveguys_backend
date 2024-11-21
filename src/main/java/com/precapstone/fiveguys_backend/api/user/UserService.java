@@ -191,10 +191,9 @@ public class UserService {
                     .build();
         }
 
-
         User user = userRepository.findByUserId(userId).orElseThrow();
         user.setUpdatedAt(LocalDateTime.now());
-        user.setPassword(userDTO.getPassword());
+        user.setPassword(passwordEncoder.encode(userDTO.getPassword()));
         userRepository.save(user);
         return CommonResponse.builder()
                 .code(200)
