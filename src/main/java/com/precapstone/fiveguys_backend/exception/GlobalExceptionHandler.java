@@ -62,9 +62,9 @@ public class GlobalExceptionHandler {
         var code = ERROR_NOT_FOUND.getStatus();
         var message = ERROR_NOT_FOUND.getMessage();
 
-        log.info("#################### 예기치 못한 오류 발생 ####################");
-        log.info("error code: " + code + " message: " + message);
-        log.info("explain: " + ex.getMessage());
+        log.error("#################### 예기치 못한 오류 발생 ####################");
+        log.error("error code: " + code + " message: " + message);
+        log.error("explain: " + ex.getMessage());
 
         return ResponseEntity.ok(CommonResponse.builder().code(code).message(message).build());
     }
