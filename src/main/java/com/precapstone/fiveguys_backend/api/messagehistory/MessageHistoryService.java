@@ -62,16 +62,18 @@ public class MessageHistoryService {
     /**
      * 월간 메세지 정보를 조회
      */
-    public List<Boolean> readAllAboutMonth(Integer month, Long userId) {
-        var messageHistories = readAll(userId);
+    public List<Boolean> readAllAboutMonth(LocalDate localDate, Long userId) {
+        var user = userService.findById(userId);
+
+        var startOfDay = localDate.withDayOfMonth(1).atStartOfDay(); // 월의 시작
+        var endOfDay = localDate.withDayOfMonth(localDate.lengthOfMonth()).atTime(LocalTime.MAX); // 월의 끝
+        var messageHistories = messageHistoryRepository.findByUserAndCreatedAtBetween(user, startOfDay, endOfDay);
 
         List<Boolean> list = new ArrayList<>(Collections.nCopies(32, false));
 
-        for(var messageHistory : messageHistories) {
-            if(messageHistory.getCreatedAt().getMonth().getValue()==month) {
-                list.set(messageHistory.getCreatedAt().getDayOfMonth(), true);
-            }
-        }
+        for(var messageHistory : messageHistories)
+            list.set(messageHistory.getCreatedAt().getDayOfMonth(), true);
+
         return list;
     }
 

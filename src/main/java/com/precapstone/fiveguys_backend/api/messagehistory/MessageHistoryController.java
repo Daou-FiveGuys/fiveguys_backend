@@ -31,8 +31,8 @@ public class MessageHistoryController {
     }
 
     @GetMapping("/month/{month}")
-    public ResponseEntity readMonth(@PathVariable Integer month, @PathVariable Long userId) {
-        var messageHistoriesYN = messageHistoryService.readAllAboutMonth(month, userId);
+    public ResponseEntity readMonth(@PathVariable LocalDate localDate, @PathVariable Long userId) {
+        var messageHistoriesYN = messageHistoryService.readAllAboutMonth(localDate, userId);
 
         var response = CommonResponse.builder().code(200).message("문자 기록 조회 성공").data(messageHistoriesYN).build();
         return ResponseEntity.ok(response);
