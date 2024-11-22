@@ -3,6 +3,7 @@ package com.precapstone.fiveguys_backend.api.folder2;
 import com.precapstone.fiveguys_backend.api.auth.JwtTokenProvider;
 import com.precapstone.fiveguys_backend.api.user.UserService;
 import com.precapstone.fiveguys_backend.entity.Folder2;
+import com.precapstone.fiveguys_backend.entity.User;
 import com.precapstone.fiveguys_backend.exception.ControlledException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -59,8 +60,12 @@ public class Folder2Service {
         var user = userService.findByUserId(userId)
                 .orElseThrow(()-> new ControlledException(USER_NOT_FOUND));
 
+        // 폴더 조회, 없으면 새 폴더 생성
         var folder2s = folder2Repository.findByUser(user)
-                .orElseThrow(()->new ControlledException(FOLDER2_NOT_FOUND_BY_USER));
+                .orElseGet(() -> {
+                    Folder2 newFolder = create("새폴더1", accessToken);
+                    return List.of(newFolder); // 생성된 폴더를 리스트로 반환
+                });
 
         return folder2s;
     }

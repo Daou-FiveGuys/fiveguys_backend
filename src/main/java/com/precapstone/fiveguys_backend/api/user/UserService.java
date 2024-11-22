@@ -7,6 +7,7 @@ import com.precapstone.fiveguys_backend.api.dto.AuthResponseDTO;
 import com.precapstone.fiveguys_backend.api.dto.UserDTO;
 import com.precapstone.fiveguys_backend.api.dto.UserInfoResponseDTO;
 import com.precapstone.fiveguys_backend.api.email.MailService;
+import com.precapstone.fiveguys_backend.api.folder2.Folder2Service;
 import com.precapstone.fiveguys_backend.common.CommonResponse;
 import com.precapstone.fiveguys_backend.common.PasswordValidator;
 import com.precapstone.fiveguys_backend.common.enums.UserRole;
@@ -29,7 +30,6 @@ public class UserService {
     private final BCryptPasswordEncoder passwordEncoder;
     private final MailService mailService;
     private final JwtTokenProvider jwtTokenProvider;
-    private final AmountUsedService amountUsedService;
 
     public Optional<User> findByUserId(String userId){
         return userRepository.findByUserId(userId);
@@ -90,7 +90,7 @@ public class UserService {
                 .amountUsed(amountUsed)
                 .build();
 
-        amountUsed.setUser(newUser);
+        amountUsed.setUser(newUser); // 사용량 조회를 위한 amountUsed 할당 feat.명준
         userRepository.save(newUser);
         try {
             mailService.sendWelcomeEmail(newUser.getEmail());
