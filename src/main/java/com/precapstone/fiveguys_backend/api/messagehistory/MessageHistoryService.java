@@ -5,8 +5,11 @@ import com.precapstone.fiveguys_backend.exception.ControlledException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 import static com.precapstone.fiveguys_backend.exception.errorcode.MessageHistoryErrorCode.MESSAGE_HISTORY_NOT_FOUND;
@@ -47,7 +50,7 @@ public class MessageHistoryService {
         return messageHistory;
     }
 
-    public List<MessageHistory> readAllByUserId(Long userId) {
+    public List<MessageHistory> readAll(Long userId) {
         var user = userService.findById(userId);
 
         var messageHistory = messageHistoryRepository.findByUser(user)
@@ -56,16 +59,33 @@ public class MessageHistoryService {
         return messageHistory;
     }
 
-    public List<Boolean> readAllByUserAboutMonth(Integer month, Long userId) {
-        var messageHistories = readAllByUserId(userId);
+    /**
+     * 월간 메세지 정보를 조회
+     */
+    public List<Boolean> readAllAboutMonth(Integer month, Long userId) {
+        var messageHistories = readAll(userId);
 
-        List<Boolean> list = new ArrayList<>(31);
+        List<Boolean> list = new ArrayList<>(Collections.nCopies(32, false));
+
         for(var messageHistory : messageHistories) {
             if(messageHistory.getCreatedAt().getMonth().getValue()==month) {
                 list.set(messageHistory.getCreatedAt().getDayOfMonth(), true);
             }
         }
         return list;
+    }
+
+    /**
+     * 일간 메세지 정보를 조회
+     */
+    public List<MessageHistory> readAllAboutDate(LocalDate localDate, Long userId) {
+        var user = userService.findById(userId);
+
+        var startOfDay = localDate.atStartOfDay(); // 날짜의 시작
+        var endOfDay = localDate.atTime(LocalTime.MAX); // 날짜의 끝
+        var messageHistories = messageHistoryRepository.findByUserAndCreatedAtBetween(user, startOfDay, endOfDay);
+
+        return messageHistories;
     }
 
     public MessageHistory delete(Long messageHistoryId) {
