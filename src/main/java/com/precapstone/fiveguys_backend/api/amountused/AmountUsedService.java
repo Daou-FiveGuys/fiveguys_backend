@@ -1,5 +1,6 @@
 package com.precapstone.fiveguys_backend.api.amountused;
 
+import com.precapstone.fiveguys_backend.api.user.UserService;
 import com.precapstone.fiveguys_backend.entity.AmountUsed;
 import com.precapstone.fiveguys_backend.entity.User;
 import com.precapstone.fiveguys_backend.exception.ControlledException;
@@ -10,11 +11,13 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 import static com.precapstone.fiveguys_backend.exception.errorcode.AmountUsedErrorCode.AMOUNT_USED_NOT_FOUND;
+import static com.precapstone.fiveguys_backend.exception.errorcode.UserErrorCode.USER_NOT_FOUND;
 
 @Service
 @RequiredArgsConstructor
 public class AmountUsedService {
     public final AmountUsedRepository amountUsedRepository;
+    private final UserService userService;
 
     public AmountUsed create(User user) {
         var amountUsed = AmountUsed.builder()
@@ -36,14 +39,15 @@ public class AmountUsedService {
      * 메세지 사용량 카운트를 증가시키는 함수
      *
      */
-    public AmountUsed plus(Long amountUsedId, AmountUsedType amountUsedType, Integer plus) {
-        var amountUsed = read(amountUsedId);
+    public AmountUsed plus(String userId, AmountUsedType amountUsedType, Integer plus) {
+        var amountUsed = userService.findByUserId(userId)
+                .orElseThrow(()->new ControlledException(USER_NOT_FOUND)).getAmountUsed();
 
         switch (amountUsedType) {
             case MSG_SCNT: // 문자 전송 카운트
                 amountUsed.setMsgScnt(amountUsed.getMsgScnt()+plus);
                 break;
-            case MSG_GCNT: // 문자 생성 카운트
+            case MSG_GCNT: // 문자 생성 카운트 // TODO: 이거 기준이 모호
                 amountUsed.setMsgGcnt(amountUsed.getMsgGcnt()+plus);
                 break;
             case IMG_SCNT: // 이미지 전송 카운트
