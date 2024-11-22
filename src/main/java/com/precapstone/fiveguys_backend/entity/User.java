@@ -31,6 +31,7 @@ public class User {
     @Setter
     private LocalDateTime updatedAt;
 
+    @Setter
     @OneToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "amount_used_id")
     @JsonManagedReference
