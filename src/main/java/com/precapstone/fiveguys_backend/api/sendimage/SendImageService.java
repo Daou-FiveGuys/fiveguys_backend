@@ -1,5 +1,6 @@
 package com.precapstone.fiveguys_backend.api.sendimage;
 
+import com.precapstone.fiveguys_backend.api.aws.AwsS3Service;
 import com.precapstone.fiveguys_backend.api.messagehistory.messagehistory.MessageHistory;
 import com.precapstone.fiveguys_backend.exception.ControlledException;
 import lombok.RequiredArgsConstructor;
@@ -12,15 +13,18 @@ import static com.precapstone.fiveguys_backend.exception.errorcode.SendImageErro
 @RequiredArgsConstructor
 public class SendImageService {
     private final SendImageRepository sendImageRepository;
+    private final AwsS3Service awsS3Service;
 
     public SendImage create(MessageHistory messageHistory, MultipartFile multipartFile) {
-        // TODO: 여기서 이미지 링크 만들기
+        var url = awsS3Service.upload(multipartFile, multipartFile.getOriginalFilename());
 
         var sendImage = SendImage.builder()
                 .messageHistory(messageHistory)
-                .url()
+                .url(url)
                 .build();
-        return null;
+
+        sendImageRepository.save(sendImage);
+        return sendImage;
     }
 
     public SendImage read(Long sendImageId) {
