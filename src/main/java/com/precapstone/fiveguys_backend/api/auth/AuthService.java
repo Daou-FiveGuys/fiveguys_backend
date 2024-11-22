@@ -12,6 +12,7 @@ import com.precapstone.fiveguys_backend.common.ResponseMessage;
 import com.precapstone.fiveguys_backend.common.auth.CustomUserDetails;
 import com.precapstone.fiveguys_backend.common.enums.LoginType;
 import com.precapstone.fiveguys_backend.common.enums.UserRole;
+import com.precapstone.fiveguys_backend.entity.AmountUsed;
 import com.precapstone.fiveguys_backend.entity.User;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
@@ -191,6 +192,10 @@ public class AuthService {
     private User register(User user){
         return userRepository.findByUserId(user.getUserId())
                 .orElseGet(() -> {
+                    var amountUsed = AmountUsed.builder().build(); // 사용량 조회를 위한 amountUsed 할당 feat.명준
+                    user.setAmountUsed(amountUsed);
+                    amountUsed.setUser(user);
+
                     userRepository.save(user);
                     try{
                         mailService.sendWelcomeEmail(user.getEmail());

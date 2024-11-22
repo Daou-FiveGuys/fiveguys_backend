@@ -1,5 +1,8 @@
 package com.precapstone.fiveguys_backend.api.message.send;
 
+import com.precapstone.fiveguys_backend.api.amountused.AmountUsedService;
+import com.precapstone.fiveguys_backend.api.amountused.AmountUsedType;
+import com.precapstone.fiveguys_backend.api.auth.JwtTokenProvider;
 import com.precapstone.fiveguys_backend.api.dto.PpurioSendDTO;
 import com.precapstone.fiveguys_backend.api.message.PpurioMessageDTO;
 import com.precapstone.fiveguys_backend.api.message.auth.PpurioAuth;
@@ -21,6 +24,8 @@ import java.util.*;
 @RequiredArgsConstructor
 public class PpurioSendService {
     private final RestTemplate restTemplate;
+    private final AmountUsedService amountUsedService;
+    private final JwtTokenProvider jwtTokenProvider;
 
     // 뿌리오 계정
     @Value("${spring.ppurio.account}")
@@ -32,9 +37,9 @@ public class PpurioSendService {
 
     private final PpurioAuth ppurioAuth;
 
-    public PpurioSendResponse message(PpurioMessageDTO ppurioMessageDTO) {
+    public PpurioSendResponse message(PpurioMessageDTO ppurioMessageDTO, String accessToken) {
         // 토큰 발급
-        String accessToken = ppurioAuth.getAccessToken();
+        String fiveguysAccessToken = ppurioAuth.getAccessToken();
 
         // 헤더 설정
         HttpHeaders headers = new HttpHeaders();
@@ -45,6 +50,11 @@ public class PpurioSendService {
 
         // 전송 데이터 생성
         HttpEntity<Map> request = new HttpEntity<>(requestBody, headers);
+
+        // 사용량 증가
+        var userId = jwtTokenProvider.getUserIdFromToken(fiveguysAccessToken);
+        if(ppurioMessageDTO.getMessageType().equals("MMS")) amountUsedService.plus(userId, AmountUsedType.IMG_SCNT, 1);
+        else amountUsedService.plus(userId, AmountUsedType.MSG_SCNT, 1);
 
         // 전송
         return restTemplate.postForObject(url+"/v1/message", request, PpurioSendResponse.class);

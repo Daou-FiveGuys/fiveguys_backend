@@ -3,6 +3,7 @@ package com.precapstone.fiveguys_backend.api.folder2;
 import com.precapstone.fiveguys_backend.api.auth.JwtTokenProvider;
 import com.precapstone.fiveguys_backend.api.user.UserService;
 import com.precapstone.fiveguys_backend.entity.Folder2;
+import com.precapstone.fiveguys_backend.entity.User;
 import com.precapstone.fiveguys_backend.exception.ControlledException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -21,12 +22,9 @@ public class Folder2Service {
     private final JwtTokenProvider jwtTokenProvider;
 
     public Folder2 create(String newFolderName, String accessToken) {
-        // [보안] 데이터의 주인이 호출한 API인지 accessToken을 통해 확인
         var userId = jwtTokenProvider.getUserIdFromToken(accessToken);
         var user = userService.findByUserId(userId)
                 .orElseThrow(() -> new ControlledException(USER_NOT_FOUND));
-        if(!user.getUserId().equals(userId))
-            throw new ControlledException(USER_AUTHORIZATION_FAILED);
 
         // 1. [예외처리] Folder name이 해당 유저에게 이미 존재하는 경우
         if(folder2Repository.findByUserAndName(user, newFolderName).isPresent())
@@ -59,8 +57,12 @@ public class Folder2Service {
         var user = userService.findByUserId(userId)
                 .orElseThrow(()-> new ControlledException(USER_NOT_FOUND));
 
+        // 폴더 조회, 없으면 새 폴더 생성
         var folder2s = folder2Repository.findByUser(user)
-                .orElseThrow(()->new ControlledException(FOLDER2_NOT_FOUND_BY_USER));
+                .orElseGet(() -> {
+                    Folder2 newFolder = create("새폴더1", accessToken);
+                    return List.of(newFolder); // 생성된 폴더를 리스트로 반환
+                });
 
         return folder2s;
     }
