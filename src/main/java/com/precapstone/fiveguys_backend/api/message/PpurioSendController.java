@@ -4,11 +4,9 @@ import com.precapstone.fiveguys_backend.api.dto.PpurioSendDTO;
 import com.precapstone.fiveguys_backend.common.CommonResponse;
 import com.precapstone.fiveguys_backend.api.message.auth.PpurioAuth;
 import com.precapstone.fiveguys_backend.api.message.send.PpurioSendService;
+import com.precapstone.fiveguys_backend.common.auth.JwtFilter;
 import lombok.RequiredArgsConstructor;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.io.IOException;
 
@@ -36,8 +34,10 @@ public class PpurioSendController {
     }
 
     @PostMapping("message")
-    public CommonResponse message(@RequestBody PpurioMessageDTO ppurioMessageDTO) {
-        var response = ppurioSendService.message(ppurioMessageDTO);
+    public CommonResponse message(@RequestBody PpurioMessageDTO ppurioMessageDTO, @RequestHeader("Authorization") String authorization) {
+        var accessToken = authorization.replace(JwtFilter.TOKEN_PREFIX, "");
+
+        var response = ppurioSendService.message(ppurioMessageDTO, accessToken);
         return CommonResponse.builder().code(200).message("문자 전송 성공").data(response).build();
     }
 }

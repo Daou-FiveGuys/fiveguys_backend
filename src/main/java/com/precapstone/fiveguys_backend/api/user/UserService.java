@@ -1,14 +1,17 @@
 package com.precapstone.fiveguys_backend.api.user;
 
+import com.precapstone.fiveguys_backend.api.amountused.AmountUsedService;
 import com.precapstone.fiveguys_backend.api.auth.AuthService;
 import com.precapstone.fiveguys_backend.api.auth.JwtTokenProvider;
 import com.precapstone.fiveguys_backend.api.dto.AuthResponseDTO;
 import com.precapstone.fiveguys_backend.api.dto.UserDTO;
 import com.precapstone.fiveguys_backend.api.dto.UserInfoResponseDTO;
 import com.precapstone.fiveguys_backend.api.email.MailService;
+import com.precapstone.fiveguys_backend.api.folder2.Folder2Service;
 import com.precapstone.fiveguys_backend.common.CommonResponse;
 import com.precapstone.fiveguys_backend.common.PasswordValidator;
 import com.precapstone.fiveguys_backend.common.enums.UserRole;
+import com.precapstone.fiveguys_backend.entity.AmountUsed;
 import com.precapstone.fiveguys_backend.entity.User;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
@@ -71,6 +74,7 @@ public class UserService {
         }
 
         LocalDateTime now = LocalDateTime.now();
+        var amountUsed = AmountUsed.builder().build(); // 사용량 조회를 위한 amountUsed 할당 feat.명준
         /**
          * 신규 회원
          */
@@ -83,8 +87,10 @@ public class UserService {
                 .createdAt(now)
                 .updatedAt(now)
                 .userId(userId)
+                .amountUsed(amountUsed)
                 .build();
 
+        amountUsed.setUser(newUser); // 사용량 조회를 위한 amountUsed 할당 feat.명준
         userRepository.save(newUser);
         try {
             mailService.sendWelcomeEmail(newUser.getEmail());
