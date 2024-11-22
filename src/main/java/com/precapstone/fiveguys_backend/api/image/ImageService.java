@@ -6,6 +6,7 @@ import ai.fal.client.SubscribeOptions;
 import ai.fal.client.queue.QueueStatus;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.gson.JsonObject;
+import com.precapstone.fiveguys_backend.api.amountused.AmountUsedService;
 import com.precapstone.fiveguys_backend.api.auth.JwtTokenProvider;
 import com.precapstone.fiveguys_backend.api.aws.AwsS3Service;
 import com.precapstone.fiveguys_backend.api.aws.ImageLinkExtractor;
@@ -49,6 +50,7 @@ public class ImageService {
     private final ImageRepository imageRepository;
     private final JwtTokenProvider jwtTokenProvider;
     private static final FalClient fal = FalClient.withEnvCredentials();
+    private final AmountUsedService amountUsedService;
 
     @Value("${spring.photoroom.api-key}")
     private String PHOTOROOM_API_KEY;

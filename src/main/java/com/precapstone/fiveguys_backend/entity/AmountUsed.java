@@ -1,7 +1,6 @@
-package com.precapstone.fiveguys_backend.api.amountused;
+package com.precapstone.fiveguys_backend.entity;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
-import com.precapstone.fiveguys_backend.entity.User;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -20,9 +19,8 @@ public class AmountUsed {
     private Long amountUsedId;
 
     // 유저 정보
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "user_id")
     @JsonBackReference
+    @OneToOne(mappedBy = "amountUsed", cascade = CascadeType.ALL)
     private User user;
 
     // 문자 발신 총 횟수

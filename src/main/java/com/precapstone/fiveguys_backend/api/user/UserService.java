@@ -10,6 +10,7 @@ import com.precapstone.fiveguys_backend.api.email.MailService;
 import com.precapstone.fiveguys_backend.common.CommonResponse;
 import com.precapstone.fiveguys_backend.common.PasswordValidator;
 import com.precapstone.fiveguys_backend.common.enums.UserRole;
+import com.precapstone.fiveguys_backend.entity.AmountUsed;
 import com.precapstone.fiveguys_backend.entity.User;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
@@ -73,6 +74,7 @@ public class UserService {
         }
 
         LocalDateTime now = LocalDateTime.now();
+        var amountUsed = AmountUsed.builder().build(); // 사용량 조회를 위한 amountUsed 할당 feat.명준
         /**
          * 신규 회원
          */
@@ -85,10 +87,11 @@ public class UserService {
                 .createdAt(now)
                 .updatedAt(now)
                 .userId(userId)
+                .amountUsed(amountUsed)
                 .build();
 
+        amountUsed.setUser(newUser);
         userRepository.save(newUser);
-        amountUsedService.create(newUser); //TODO: 사용량 조회를 위한 엔티티 생성 Feat.김명준
         try {
             mailService.sendWelcomeEmail(newUser.getEmail());
         }catch (Exception e){

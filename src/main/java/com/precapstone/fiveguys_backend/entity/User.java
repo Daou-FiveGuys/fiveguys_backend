@@ -1,5 +1,6 @@
 package com.precapstone.fiveguys_backend.entity;
 
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import com.precapstone.fiveguys_backend.common.enums.UserRole;
 import jakarta.annotation.Nullable;
 import jakarta.persistence.*;
@@ -29,4 +30,10 @@ public class User {
     private LocalDateTime createdAt;
     @Setter
     private LocalDateTime updatedAt;
+
+    @OneToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "amount_used_id")
+    @JsonManagedReference
+    private AmountUsed amountUsed;
+
 }

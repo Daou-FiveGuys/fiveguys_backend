@@ -1,5 +1,6 @@
 package com.precapstone.fiveguys_backend.api.amountused;
 
+import com.precapstone.fiveguys_backend.entity.AmountUsed;
 import com.precapstone.fiveguys_backend.entity.User;
 import com.precapstone.fiveguys_backend.exception.ControlledException;
 import lombok.RequiredArgsConstructor;
@@ -31,7 +32,10 @@ public class AmountUsedService {
         return amountUsed;
     }
 
-    // 메세지 사용량 카운트를 증가시키는 함수
+    /**
+     * 메세지 사용량 카운트를 증가시키는 함수
+     *
+     */
     public AmountUsed plus(Long amountUsedId, AmountUsedType amountUsedType, Integer plus) {
         var amountUsed = read(amountUsedId);
 
@@ -60,7 +64,7 @@ public class AmountUsedService {
 
     /**
      * 일간 이용자 카운트 초기화
-     * @return
+     *
      */
     public List<AmountUsed> initDcnt() {
         var allAmountUsed = amountUsedRepository.findAll();
@@ -69,8 +73,6 @@ public class AmountUsedService {
 
         return allAmountUsed;
     }
-
-    // 5. 일 이미지 생성 횟수 증가 (초기화 하는 배치 시스템 만들 것)
 
     public AmountUsed delete(Long amountUsedId) {
         var amountUsed = read(amountUsedId);
