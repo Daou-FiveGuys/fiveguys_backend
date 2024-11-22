@@ -1,23 +1,29 @@
 package com.precapstone.fiveguys_backend.api.amountused;
 
+import com.precapstone.fiveguys_backend.api.auth.JwtTokenProvider;
 import com.precapstone.fiveguys_backend.api.user.UserService;
 import com.precapstone.fiveguys_backend.entity.AmountUsed;
 import com.precapstone.fiveguys_backend.entity.User;
 import com.precapstone.fiveguys_backend.exception.ControlledException;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.java.Log;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
 import java.util.List;
 
 import static com.precapstone.fiveguys_backend.exception.errorcode.AmountUsedErrorCode.AMOUNT_USED_NOT_FOUND;
+import static com.precapstone.fiveguys_backend.exception.errorcode.UserErrorCode.USER_AUTHORIZATION_FAILED;
 import static com.precapstone.fiveguys_backend.exception.errorcode.UserErrorCode.USER_NOT_FOUND;
 
+@Log
 @Service
 @RequiredArgsConstructor
 public class AmountUsedService {
     public final AmountUsedRepository amountUsedRepository;
     private final UserService userService;
+    private final JwtTokenProvider jwtTokenProvider;
+    // private final DailyThread dailyThread = new DailyThread();
 
     public AmountUsed create(User user) {
         var amountUsed = AmountUsed.builder()
@@ -28,9 +34,16 @@ public class AmountUsedService {
         return amountUsed;
     }
 
-    public AmountUsed read(Long amountUsedId) {
+    public AmountUsed read(Long amountUsedId, String accessToken) {
+        var userId = jwtTokenProvider.getUserIdFromToken(accessToken);
+        var user = userService.findByUserId(userId)
+                .orElseThrow(() -> new ControlledException(USER_NOT_FOUND));
+
         var amountUsed = amountUsedRepository.findByAmountUsedId(amountUsedId)
                 .orElseThrow(()->new ControlledException(AMOUNT_USED_NOT_FOUND));
+
+        if(!user.getUserId().equals(amountUsed.getUser().getUserId()))
+            throw new ControlledException(USER_AUTHORIZATION_FAILED);
 
         return amountUsed;
     }
@@ -79,9 +92,43 @@ public class AmountUsedService {
     }
 
     public AmountUsed delete(Long amountUsedId) {
-        var amountUsed = read(amountUsedId);
+        var amountUsed = read(amountUsedId, accessToken);
 
         amountUsedRepository.deleteById(amountUsedId);
         return amountUsed;
     }
+
+    private class DailyThread implements Runnable {
+        @Override
+        public void run() {
+            while (true) {
+                try {
+                    log.info("진입!!");
+                    // 현재 시간 가져오기
+                    long currentTimeMillis = System.currentTimeMillis();
+                    java.util.Calendar calendar = java.util.Calendar.getInstance();
+                    calendar.setTimeInMillis(currentTimeMillis);
+
+                    // 다음 00시 00분까지의 대기 시간 계산
+                    calendar.add(java.util.Calendar.DAY_OF_MONTH, 1); // 다음 날로 설정
+                    calendar.set(java.util.Calendar.HOUR_OF_DAY, 0);
+                    calendar.set(java.util.Calendar.MINUTE, 0);
+                    calendar.set(java.util.Calendar.SECOND, 0);
+                    calendar.set(java.util.Calendar.MILLISECOND, 0);
+
+                    long nextMidnightMillis = calendar.getTimeInMillis();
+                    long sleepTime = nextMidnightMillis - currentTimeMillis;
+
+                    // 다음 00시 00분까지 대기
+                    Thread.sleep(sleepTime);
+
+                    // 00시 00분이 지나면 initDcnt() 호출
+                    initDcnt();
+                } catch (InterruptedException e) {
+                    throw new RuntimeException(e);
+                }
+            }
+        }
+    }
+
 }

@@ -22,12 +22,9 @@ public class Folder2Service {
     private final JwtTokenProvider jwtTokenProvider;
 
     public Folder2 create(String newFolderName, String accessToken) {
-        // [보안] 데이터의 주인이 호출한 API인지 accessToken을 통해 확인
         var userId = jwtTokenProvider.getUserIdFromToken(accessToken);
         var user = userService.findByUserId(userId)
                 .orElseThrow(() -> new ControlledException(USER_NOT_FOUND));
-        if(!user.getUserId().equals(userId))
-            throw new ControlledException(USER_AUTHORIZATION_FAILED);
 
         // 1. [예외처리] Folder name이 해당 유저에게 이미 존재하는 경우
         if(folder2Repository.findByUserAndName(user, newFolderName).isPresent())

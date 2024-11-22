@@ -14,8 +14,10 @@ public class AmountUsedController {
 
     // 사용량 조회
     @GetMapping("/{amountUsedId}")
-    public ResponseEntity read(@PathVariable Long amountUsedId) {
-        var amountUsed = amountUsedService.read(amountUsedId);
+    public ResponseEntity read(@PathVariable Long amountUsedId, @RequestHeader("Authorization") String authorization) {
+        var accessToken = authorization.replace(JwtFilter.TOKEN_PREFIX, "");
+
+        var amountUsed = amountUsedService.read(amountUsedId, accessToken);
 
         var response = CommonResponse.builder().code(200).message("사용량 조회 성공").data(amountUsed).build();
         return ResponseEntity.ok(response);
