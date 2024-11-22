@@ -1,5 +1,6 @@
 package com.precapstone.fiveguys_backend.api.user;
 
+import com.precapstone.fiveguys_backend.api.amountused.AmountUsedService;
 import com.precapstone.fiveguys_backend.api.auth.AuthService;
 import com.precapstone.fiveguys_backend.api.auth.JwtTokenProvider;
 import com.precapstone.fiveguys_backend.api.dto.AuthResponseDTO;
@@ -27,6 +28,7 @@ public class UserService {
     private final BCryptPasswordEncoder passwordEncoder;
     private final MailService mailService;
     private final JwtTokenProvider jwtTokenProvider;
+    private final AmountUsedService amountUsedService;
 
     public Optional<User> findByUserId(String userId){
         return userRepository.findByUserId(userId);
@@ -86,6 +88,7 @@ public class UserService {
                 .build();
 
         userRepository.save(newUser);
+        amountUsedService.create(newUser); //TODO: 사용량 조회를 위한 엔티티 생성 Feat.김명준
         try {
             mailService.sendWelcomeEmail(newUser.getEmail());
         }catch (Exception e){
