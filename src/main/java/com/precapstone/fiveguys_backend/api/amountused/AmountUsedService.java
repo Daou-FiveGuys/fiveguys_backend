@@ -34,6 +34,9 @@ public class AmountUsedService {
         return amountUsed;
     }
 
+    /**
+     * Controller 용
+     */
     public AmountUsed read(Long amountUsedId, String accessToken) {
         var userId = jwtTokenProvider.getUserIdFromToken(accessToken);
         var user = userService.findByUserId(userId)
@@ -44,6 +47,16 @@ public class AmountUsedService {
 
         if(!user.getUserId().equals(amountUsed.getUser().getUserId()))
             throw new ControlledException(USER_AUTHORIZATION_FAILED);
+
+        return amountUsed;
+    }
+
+    /**
+     * 서버용
+     */
+    public AmountUsed read(Long amountUsedId) {
+        var amountUsed = amountUsedRepository.findByAmountUsedId(amountUsedId)
+                .orElseThrow(()->new ControlledException(AMOUNT_USED_NOT_FOUND));
 
         return amountUsed;
     }
@@ -92,7 +105,7 @@ public class AmountUsedService {
     }
 
     public AmountUsed delete(Long amountUsedId) {
-        var amountUsed = read(amountUsedId, accessToken);
+        var amountUsed = read(amountUsedId);
 
         amountUsedRepository.deleteById(amountUsedId);
         return amountUsed;
