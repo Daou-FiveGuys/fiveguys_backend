@@ -37,16 +37,12 @@ public class AmountUsedService {
     /**
      * Controller 용
      */
-    public AmountUsed read(Long amountUsedId, String accessToken) {
+    public AmountUsed read(String accessToken) {
         var userId = jwtTokenProvider.getUserIdFromToken(accessToken);
         var user = userService.findByUserId(userId)
                 .orElseThrow(() -> new ControlledException(USER_NOT_FOUND));
 
-        var amountUsed = amountUsedRepository.findByAmountUsedId(amountUsedId)
-                .orElseThrow(()->new ControlledException(AMOUNT_USED_NOT_FOUND));
-
-        if(!user.getUserId().equals(amountUsed.getUser().getUserId()))
-            throw new ControlledException(USER_AUTHORIZATION_FAILED);
+        var amountUsed = user.getAmountUsed();
 
         return amountUsed;
     }
