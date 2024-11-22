@@ -31,6 +31,7 @@ public class MessageHistoryService {
                 .content(messageHistoryDTO.getContent())
                 .createdAt(LocalDateTime.now())
                 .user(user)
+                // TODO: sendImage 추가할 것
                 .build();
 
         return messageHistory;
