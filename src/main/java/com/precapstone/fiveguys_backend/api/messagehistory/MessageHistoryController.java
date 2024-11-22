@@ -22,9 +22,17 @@ public class MessageHistoryController {
 
     @GetMapping("/all/{userId}")
     public ResponseEntity readAll(@PathVariable Long userId) {
-        var messageHistorys = messageHistoryService.readAllByUserId(userId);
+        var messageHistories = messageHistoryService.readAllByUserId(userId);
 
-        var response = CommonResponse.builder().code(200).message("문자 기록 조회 성공").data(messageHistorys).build();
+        var response = CommonResponse.builder().code(200).message("문자 기록 조회 성공").data(messageHistories).build();
+        return ResponseEntity.ok(response);
+    }
+
+    @GetMapping("/month/{month}")
+    public ResponseEntity readMonth(@PathVariable Integer month, @PathVariable Long userId) {
+        var messageHistoriesYN = messageHistoryService.readAllByUserAboutMonth(month, userId);
+
+        var response = CommonResponse.builder().code(200).message("문자 기록 조회 성공").data(messageHistoriesYN).build();
         return ResponseEntity.ok(response);
     }
 

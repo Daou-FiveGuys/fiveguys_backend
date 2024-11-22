@@ -2,7 +2,6 @@ package com.precapstone.fiveguys_backend.api.messagehistory;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
-import com.precapstone.fiveguys_backend.api.sendImage.SendImage;
 import com.precapstone.fiveguys_backend.entity.Contact2;
 import com.precapstone.fiveguys_backend.entity.User;
 import jakarta.persistence.*;
@@ -48,8 +47,8 @@ public class MessageHistory {
     @JsonManagedReference
     private List<Contact2> contact2s;
     
-    @OneToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "send_image_id")
-    @JsonManagedReference
-    private SendImage sendImage;
+//    @OneToOne(fetch = FetchType.LAZY)
+//    @JoinColumn(name = "send_image_id")
+//    @JsonManagedReference
+//    private SendImage sendImage;
 }

@@ -1,13 +1,12 @@
 package com.precapstone.fiveguys_backend.api.messagehistory;
 
-import com.precapstone.fiveguys_backend.api.sendImage.SendImage;
-import com.precapstone.fiveguys_backend.api.sendImage.SendImageService;
 import com.precapstone.fiveguys_backend.api.user.UserService;
 import com.precapstone.fiveguys_backend.exception.ControlledException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 
 import static com.precapstone.fiveguys_backend.exception.errorcode.MessageHistoryErrorCode.MESSAGE_HISTORY_NOT_FOUND;
@@ -55,6 +54,18 @@ public class MessageHistoryService {
                 .orElseThrow(()-> new ControlledException(MESSAGE_HISTORY_NOT_FOUND));
 
         return messageHistory;
+    }
+
+    public List<Boolean> readAllByUserAboutMonth(Integer month, Long userId) {
+        var messageHistories = readAllByUserId(userId);
+
+        List<Boolean> list = new ArrayList<>(31);
+        for(var messageHistory : messageHistories) {
+            if(messageHistory.getCreatedAt().getMonth().getValue()==month) {
+                list.set(messageHistory.getCreatedAt().getDayOfMonth(), true);
+            }
+        }
+        return list;
     }
 
     public MessageHistory delete(Long messageHistoryId) {
