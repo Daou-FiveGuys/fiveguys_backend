@@ -1,5 +1,9 @@
 package com.precapstone.fiveguys_backend.api.messagehistory;
 
+import com.precapstone.fiveguys_backend.api.messagehistory.messagehistory.MessageHistory;
+import com.precapstone.fiveguys_backend.api.messagehistory.messagehistory.MessageType;
+import com.precapstone.fiveguys_backend.api.sendimage.SendImage;
+import com.precapstone.fiveguys_backend.api.sendimage.SendImageService;
 import com.precapstone.fiveguys_backend.api.user.UserService;
 import com.precapstone.fiveguys_backend.exception.ControlledException;
 import lombok.RequiredArgsConstructor;
@@ -13,21 +17,22 @@ import java.util.Collections;
 import java.util.List;
 
 import static com.precapstone.fiveguys_backend.exception.errorcode.MessageHistoryErrorCode.MESSAGE_HISTORY_NOT_FOUND;
+import static com.precapstone.fiveguys_backend.exception.errorcode.UserErrorCode.USER_NOT_FOUND;
 
 @Service
 @RequiredArgsConstructor
 public class MessageHistoryService {
     private final MessageHistoryRepository messageHistoryRepository;
     private final UserService userService;
+    private final SendImageService sendImageService;
 
-    public MessageHistory create(HessageHistoryCreateDTO messageHistoryDTO) {
+    public MessageHistory create(MessageHistoryDTO messageHistoryDTO) {
         // TODO: 1. [예외처리] 전화번호 서식이 틀린 경우
 
         // TODO: 2. [예외처리] 본문 길이 틀린 경우
 
-        var user = userService.findById(messageHistoryDTO.getUserId());
-
-        // TODO: MMS인 경우에만 전달 받음
+        var user = userService.findByUserId(messageHistoryDTO.getUserId())
+                .orElseThrow(()->new ControlledException(USER_NOT_FOUND));
 
         var messageHistory = MessageHistory.builder()
                 .messageType(messageHistoryDTO.getMessageType())
@@ -37,9 +42,16 @@ public class MessageHistoryService {
                 .content(messageHistoryDTO.getContent())
                 .createdAt(LocalDateTime.now())
                 .user(user)
-                //.sendImage(sendImage)
                 .build();
 
+        // TODO: MMS인 경우에만 전달 받음
+        SendImage sendImage;
+        if(messageHistoryDTO.getMessageType() == MessageType.MMS) {
+            sendImage = sendImageService.create(messageHistory, messageHistoryDTO.getSendImage());
+            messageHistory.setSendImage(sendImage);
+        }
+
+        messageHistoryRepository.save(messageHistory);
         return messageHistory;
     }
 

@@ -5,6 +5,7 @@ import com.precapstone.fiveguys_backend.api.message.send.option.Target;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 
@@ -17,5 +18,5 @@ public class PpurioMessageDTO {
     String fromNumber;
     List<Target> targets;
     String subject;
-    Files files;
+    MultipartFile multipartFile;
 }

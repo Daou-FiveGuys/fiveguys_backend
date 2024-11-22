@@ -1,7 +1,8 @@
-package com.precapstone.fiveguys_backend.api.messagehistory;
+package com.precapstone.fiveguys_backend.api.messagehistory.messagehistory;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
+import com.precapstone.fiveguys_backend.api.sendimage.SendImage;
 import com.precapstone.fiveguys_backend.entity.Contact2;
 import com.precapstone.fiveguys_backend.entity.User;
 import jakarta.persistence.*;
@@ -22,9 +23,9 @@ public class MessageHistory {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long messageHistoryId;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "user_id")
     @JsonBackReference
+    @JoinColumn(name = "user_id")
+    @ManyToOne(fetch = FetchType.LAZY)
     private User user;
 
     @Column(nullable = false)
@@ -42,13 +43,13 @@ public class MessageHistory {
     @Column(nullable = false)
     private LocalDateTime createdAt;
 
-    @OneToMany(fetch = FetchType.LAZY)
-    @JoinColumn(name = "contact2_id")
     @JsonManagedReference
+    @JoinColumn(name = "contact2_id")
+    @OneToMany(fetch = FetchType.LAZY)
     private List<Contact2> contact2s;
     
-//    @OneToOne(fetch = FetchType.LAZY)
-//    @JoinColumn(name = "send_image_id")
-//    @JsonManagedReference
-//    private SendImage sendImage;
+    @JsonManagedReference
+    @JoinColumn(name = "send_image_id")
+    @OneToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    private SendImage sendImage;
 }

@@ -15,6 +15,7 @@ import java.util.Map;
  */
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import org.springframework.web.multipart.MultipartFile;
 
 public class Files {
     private final String name;
@@ -30,6 +31,12 @@ public class Files {
         this.name = name;
         this.size = size;
         this.data = data;
+    }
+
+    public Files(MultipartFile file) throws IOException {
+        this.name = file.getOriginalFilename();
+        this.size = file.getSize();
+        this.data = Base64.getEncoder().encodeToString(file.getBytes());
     }
 
     // 기존 생성자 유지
