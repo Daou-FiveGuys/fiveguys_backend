@@ -6,6 +6,7 @@ import com.precapstone.fiveguys_backend.api.message.auth.PpurioAuth;
 import com.precapstone.fiveguys_backend.api.message.send.PpurioSendService;
 import com.precapstone.fiveguys_backend.common.auth.JwtFilter;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -34,10 +35,10 @@ public class PpurioSendController {
         return CommonResponse.builder().code(200).message("테스트 성공").build();
     }
 
-    @PostMapping("message")
+    @PostMapping(value = "message", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public CommonResponse message(
             @RequestPart PpurioMessageDTO ppurioMessageDTO,
-            @RequestPart MultipartFile multipartFile,
+            @RequestPart(value = "multipartFile", required = false) MultipartFile multipartFile,
             @RequestHeader("Authorization") String authorization) {
         var accessToken = authorization.replace(JwtFilter.TOKEN_PREFIX, "");
 
