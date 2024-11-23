@@ -40,7 +40,7 @@ public class MessageHistoryService {
         var messageHistory = MessageHistory.builder()
                 .messageType(messageHistoryDTO.getMessageType())
                 .fromNumber(messageHistoryDTO.getFromNumber())
-                .contact2s(messageHistoryDTO.getContact2s())
+                .contact2s(new ArrayList<>(messageHistoryDTO.getContact2s()))
                 .subject(messageHistoryDTO.getSubject())
                 .content(messageHistoryDTO.getContent())
                 .user(user)

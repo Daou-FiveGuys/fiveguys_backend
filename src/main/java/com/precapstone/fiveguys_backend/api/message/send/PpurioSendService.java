@@ -114,7 +114,6 @@ public class PpurioSendService {
     }
 
     private Map createMessageParams(PpurioMessageDTO ppurioMessageDTO, MultipartFile multipartFile) {
-
         // 각 메세지 타입에 맞게 requestBody 분리
         MessageType messageType = switch (ppurioMessageDTO.getMessageType()) {
             case "MMS" -> new MMS(ppurioAccount, ppurioMessageDTO, multipartFile);
