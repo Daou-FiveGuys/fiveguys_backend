@@ -66,6 +66,9 @@ public class GlobalExceptionHandler {
         log.error("error code: " + code + " message: " + message);
         log.error("explain: " + ex.getMessage());
 
+        // 스택 트레이스를 로그에 출력
+        log.error("Stack Trace: ", ex);
+
         return ResponseEntity.ok(CommonResponse.builder().code(code).message(message).build());
     }
 }
