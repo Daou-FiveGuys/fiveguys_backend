@@ -50,25 +50,25 @@ public class GlobalExceptionHandler {
         return ResponseEntity.ok(CommonResponse.builder().code(code).message(message).build());
     }
 
-    /**
-     * 아무 Exception을 거치치 않고 반환된 ErrorException을 제어하는 핸들러
-     * ex) 예측하지 못한 Error와 새로 제어해야 할 Exception 발생 시
-     *
-     * @param ex 반환된 Error 정보 ※ 직접적인 원인은 SpringBoot log를 통해 조회가능
-     * @return [500] 에러 원인 불명
-     */
-    @ExceptionHandler(Exception.class)
-    protected ResponseEntity handleServerException(Exception ex) {
-        var code = ERROR_NOT_FOUND.getStatus();
-        var message = ERROR_NOT_FOUND.getMessage();
-
-        log.error("#################### 예기치 못한 오류 발생 ####################");
-        log.error("error code: " + code + " message: " + message);
-        log.error("explain: " + ex.getMessage());
-
-        // 스택 트레이스를 로그에 출력
-        log.error("Stack Trace: ", ex);
-
-        return ResponseEntity.ok(CommonResponse.builder().code(code).message(message).build());
-    }
+//    /**
+//     * 아무 Exception을 거치치 않고 반환된 ErrorException을 제어하는 핸들러
+//     * ex) 예측하지 못한 Error와 새로 제어해야 할 Exception 발생 시
+//     *
+//     * @param ex 반환된 Error 정보 ※ 직접적인 원인은 SpringBoot log를 통해 조회가능
+//     * @return [500] 에러 원인 불명
+//     */
+//    @ExceptionHandler(Exception.class)
+//    protected ResponseEntity handleServerException(Exception ex) {
+//        var code = ERROR_NOT_FOUND.getStatus();
+//        var message = ERROR_NOT_FOUND.getMessage();
+//
+//        log.error("#################### 예기치 못한 오류 발생 ####################");
+//        log.error("error code: " + code + " message: " + message);
+//        log.error("explain: " + ex.getMessage());
+//
+//        // 스택 트레이스를 로그에 출력
+//        log.error("Stack Trace: ", ex);
+//
+//        return ResponseEntity.ok(CommonResponse.builder().code(code).message(message).build());
+//    }
 }
