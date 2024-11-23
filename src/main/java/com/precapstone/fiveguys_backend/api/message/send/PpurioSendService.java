@@ -62,16 +62,7 @@ public class PpurioSendService {
         else amountUsedService.plus(userId, AmountUsedType.MSG_SCNT, 1);
         
         // 전송
-        var messageHistoryDTO = MessageHistoryDTO.builder()
-                .userId(userId)
-                .content(ppurioMessageDTO.getContent())
-                .fromNumber(ppurioMessageDTO.getFromNumber())
-                // MessageType 중복 사용
-                .messageType(com.precapstone.fiveguys_backend.api.messagehistory.messagehistory.MessageType.valueOf(ppurioMessageDTO.getMessageType()))
-                .subject(ppurioMessageDTO.getSubject())
-                .contact2s(getContact2s(ppurioMessageDTO.getTargets())) // TODO: target으로 반환하는 문제 발생
-                .sendImage(ppurioMessageDTO.getMultipartFile())
-                .build();
+        var messageHistoryDTO = getMessageHistoryDTO(userId, ppurioMessageDTO);
         messageHistoryService.create(messageHistoryDTO);
         return restTemplate.postForObject(url+"/v1/message", request, PpurioSendResponse.class);
     }
@@ -139,5 +130,22 @@ public class PpurioSendService {
         return targets.stream()
                 .map(Contact2::new) // Contact2(Target target) 생성자를 사용
                 .toList();
+    }
+
+    /**
+     * PpurioMessageDTO를 MessageHistoryDIO로 변경하는 함수
+     *
+     */
+    private MessageHistoryDTO getMessageHistoryDTO(String userId, PpurioMessageDTO ppurioMessageDTO) {
+        return MessageHistoryDTO.builder()
+                .userId(userId)
+                .content(ppurioMessageDTO.getContent())
+                .fromNumber(ppurioMessageDTO.getFromNumber())
+                // MessageType 중복 사용
+                .messageType(com.precapstone.fiveguys_backend.api.messagehistory.messagehistory.MessageType.valueOf(ppurioMessageDTO.getMessageType()))
+                .subject(ppurioMessageDTO.getSubject())
+                .contact2s(getContact2s(ppurioMessageDTO.getTargets())) // TODO: target으로 반환하는 문제 발생
+                .sendImage(ppurioMessageDTO.getMultipartFile())
+                .build();
     }
 }

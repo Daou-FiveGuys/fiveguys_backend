@@ -40,8 +40,9 @@ public class MessageHistory {
     @Column(nullable = false)
     private String content;
 
+    @Builder.Default
     @Column(nullable = false)
-    private LocalDateTime createdAt;
+    private LocalDateTime createdAt = LocalDateTime.now();
 
     @JsonManagedReference
     @JoinColumn(name = "contact2_id")
