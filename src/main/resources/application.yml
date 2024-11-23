@@ -144,4 +144,4 @@ chatbot:
 flux:
   lora:
     water-color : ${WATER_COLOR_LORA}
-    city-pop : ${WATER_COLOR_LORA}
+    city-pop : ${CITY_POP_LORA}
