@@ -9,7 +9,8 @@ import lombok.Setter;
 @Setter
 public class ImageGenerateDTO {
     String prompt;
-    String imageSize;
+    int width;
+    int height;
     int numInterfaceSteps;
     int seed;
     int cfg;

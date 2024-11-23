@@ -74,7 +74,18 @@ public class ImageService {
         String userId = jwtTokenProvider.getUserIdFromToken(accessToken);
 
         var input = Map.of(
-            "prompt", imageGenerateDTO);
+            "prompt", imageGenerateDTO.prompt,
+            "image_size", Map.of(
+                "width", imageGenerateDTO.width,
+                "height", imageGenerateDTO.height
+            ),
+            "num_inference_steps", imageGenerateDTO.numInterfaceSteps,
+            "guidance_scale", imageGenerateDTO.cfg,
+            "output_format", "jpeg"
+        );
+
+        if(imageGenerateDTO.seed == -1)
+            imageGenerateDTO.seed = Math.abs(new java.util.Random().nextInt());
 
         var result = fal.subscribe("fal-ai/flux/dev",
             SubscribeOptions.<JsonObject>builder()
@@ -127,9 +138,15 @@ public class ImageService {
             }
         }
 
+        if(imageGenerateLoraDTO.seed == -1)
+            imageGenerateLoraDTO.seed = Math.abs(new java.util.Random().nextInt());
+
         var input = Map.of(
             "prompt", imageGenerateLoraDTO.prompt,
-            "image_size", imageGenerateLoraDTO.imageSize,
+            "image_size", Map.of(
+            "width", imageGenerateLoraDTO.width,
+            "height", imageGenerateLoraDTO.height
+                ),
             "num_inference_steps", imageGenerateLoraDTO.numInterfaceSteps,
             "guidance_scale", imageGenerateLoraDTO.cfg,
             "loras", List.of(

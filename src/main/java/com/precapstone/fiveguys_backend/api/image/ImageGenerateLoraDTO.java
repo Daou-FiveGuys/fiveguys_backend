@@ -10,7 +10,8 @@ import lombok.Setter;
 public class ImageGenerateLoraDTO {
     String prompt;
     String lora;
-    String imageSize;
+    int width;
+    int height;
     int numInterfaceSteps;
     int seed;
     int cfg;
