@@ -4,6 +4,7 @@ import com.precapstone.fiveguys_backend.api.message.PpurioMessageDTO;
 import com.precapstone.fiveguys_backend.api.message.send.option.Files;
 import com.precapstone.fiveguys_backend.api.message.send.option.Target;
 import com.precapstone.fiveguys_backend.exception.ControlledException;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 import java.util.List;
@@ -33,13 +34,12 @@ public class MMS extends MessageType {
         ));
     }
 
-    public MMS(String ppurioAccount, PpurioMessageDTO ppurioMessageDTO) {
+    public MMS(String ppurioAccount, PpurioMessageDTO ppurioMessageDTO, MultipartFile multipartFile) {
         super(ppurioAccount, ppurioMessageDTO.getFromNumber(), ppurioMessageDTO.getContent(), ppurioMessageDTO.getTargets());
 
-        // TODO: 프론트 주소록 및 전송 기능 수정하기
         Files files;
         try {
-            files = new Files(ppurioMessageDTO.getMultipartFile());
+            files = new Files(multipartFile);
         } catch (IOException e) { throw new ControlledException(MULTIPART_FILE_NOT_FOUND); }
 
         // 문자 메세지 길이 파악하기(더 길 시 에러메세지 발송)

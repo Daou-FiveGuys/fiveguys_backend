@@ -52,7 +52,7 @@ public class PpurioSendService {
         headers.set("Authorization", "Bearer "+ accessToken);
 
         // 바디 설정
-        var requestBody = createMessageParams(ppurioMessageDTO);
+        var requestBody = createMessageParams(ppurioMessageDTO, multipartFile);
 
         // 전송 데이터 생성
         HttpEntity<Map> request = new HttpEntity<>(requestBody, headers);
@@ -113,11 +113,11 @@ public class PpurioSendService {
         return messageType.getParams();
     }
 
-    private Map createMessageParams(PpurioMessageDTO ppurioMessageDTO) {
+    private Map createMessageParams(PpurioMessageDTO ppurioMessageDTO, MultipartFile multipartFile) {
 
         // 각 메세지 타입에 맞게 requestBody 분리
         MessageType messageType = switch (ppurioMessageDTO.getMessageType()) {
-            case "MMS" -> new MMS(ppurioAccount, ppurioMessageDTO);
+            case "MMS" -> new MMS(ppurioAccount, ppurioMessageDTO, multipartFile);
             case "LMS" -> new LMS(ppurioAccount, ppurioMessageDTO);
             case "SMS" -> new SMS(ppurioAccount, ppurioMessageDTO);
             default -> null;
