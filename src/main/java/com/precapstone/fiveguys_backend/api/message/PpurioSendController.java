@@ -35,7 +35,10 @@ public class PpurioSendController {
     }
 
     @PostMapping("message")
-    public CommonResponse message(@RequestPart PpurioMessageDTO ppurioMessageDTO,  @RequestPart(value = "multipartFile", required = false) MultipartFile multipartFile, @RequestHeader("Authorization") String authorization) {
+    public CommonResponse message(
+            @RequestPart PpurioMessageDTO ppurioMessageDTO,
+            @RequestPart MultipartFile multipartFile,
+            @RequestHeader("Authorization") String authorization) {
         var accessToken = authorization.replace(JwtFilter.TOKEN_PREFIX, "");
 
         var response = ppurioSendService.message(ppurioMessageDTO, multipartFile, accessToken);
