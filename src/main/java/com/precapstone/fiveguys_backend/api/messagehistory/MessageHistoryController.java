@@ -33,7 +33,7 @@ public class MessageHistoryController {
         return ResponseEntity.ok(response);
     }
 
-    @GetMapping("/month/{month}")
+    @GetMapping("/month/{localDate}")
     public ResponseEntity readMonth(@PathVariable LocalDate localDate, @RequestHeader("Authorization") String authorization) {
         var accessToken = authorization.replace(JwtFilter.TOKEN_PREFIX, "");
 
@@ -42,7 +42,7 @@ public class MessageHistoryController {
         return ResponseEntity.ok(response);
     }
 
-    @GetMapping("date/{date}")
+    @GetMapping("date/{localDate}")
     public ResponseEntity readDate(@PathVariable LocalDate localDate, @RequestHeader("Authorization") String authorization) {
         var accessToken = authorization.replace(JwtFilter.TOKEN_PREFIX, "");
 
