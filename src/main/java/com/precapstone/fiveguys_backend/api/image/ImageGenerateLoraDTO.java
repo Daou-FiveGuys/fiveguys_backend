@@ -7,8 +7,9 @@ import lombok.Setter;
 @Data
 @Getter
 @Setter
-public class ImageGenerateDTO {
+public class ImageGenerateLoraDTO {
     String prompt;
+    String lora;
     String imageSize;
     int numInterfaceSteps;
     int seed;

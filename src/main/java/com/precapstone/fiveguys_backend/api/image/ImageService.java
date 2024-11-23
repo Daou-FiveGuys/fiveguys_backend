@@ -58,9 +58,10 @@ public class ImageService {
     @Value("${spring.imggen.api-key}")
     private String IMGGEN_API_KEY;
 
+    @Value("${flux.lora.water-color}")
     private String WATER_COLOR_LORA_LINK;
+    @Value("${flux.lora.city-pop}")
     private String JAPANESE_STYLE_LORA_LINK;
-
 
     /**
      * 이미지 생성
@@ -110,15 +111,15 @@ public class ImageService {
      * @param authorization 인증 헤더
      * @return ResponseEntity<CommonResponse> 이미지 정보
      */
-    public CommonResponse generateWithLora(String authorization, ImageGenerateDTO imageGenerateDTO){
+    public CommonResponse generateWithLora(String authorization, ImageGenerateLoraDTO imageGenerateLoraDTO){
         String accessToken = JwtTokenProvider.stripTokenPrefix(authorization);
         String userId = jwtTokenProvider.getUserIdFromToken(accessToken);
-        String style = imageGenerateDTO.lora;
+        String style = imageGenerateLoraDTO.lora;
         String loraLink = "";
 
         switch (style){
-            case "water-color" -> loraLink = WATER_COLOR_LORA_LINK;
-            case "japanese-style" -> loraLink = JAPANESE_STYLE_LORA_LINK;
+            case "waterColor" -> loraLink = WATER_COLOR_LORA_LINK;
+            case "cityPop" -> loraLink = JAPANESE_STYLE_LORA_LINK;
             default -> {
                 return CommonResponse.builder()
                     .code(400)
@@ -127,10 +128,10 @@ public class ImageService {
         }
 
         var input = Map.of(
-            "prompt", imageGenerateDTO.prompt,
-            "image_size", imageGenerateDTO.imageSize,
-            "num_inference_steps", imageGenerateDTO.numInterfaceSteps,
-            "guidance_scale", imageGenerateDTO.cfg,
+            "prompt", imageGenerateLoraDTO.prompt,
+            "image_size", imageGenerateLoraDTO.imageSize,
+            "num_inference_steps", imageGenerateLoraDTO.numInterfaceSteps,
+            "guidance_scale", imageGenerateLoraDTO.cfg,
             "loras", List.of(
                     Map.of("path", loraLink, "scale", 1.0)
             ),
@@ -182,17 +183,17 @@ public class ImageService {
         Image image = imageRepository.findImageByRequestId(requestId).orElseThrow();
         String maskImageUrl = saveMaskImageIntoS3(multipartFile, requestId, userId);
 
+
         var input = Map.of(
-            "guidance_scale", "8",
-            "strength", 0.6,
-            "image_url", image.getUrl(),
-            "mask_url", maskImageUrl,
             "prompt", imageInpaintDTO.getPrompt(),
-            "num_inference_steps" , 50,
-            "image_size", Map.of(
-                "width", imageInpaintDTO.getWidth(),
-                "height", imageInpaintDTO.getHeight()
-            )
+            "num_inference_steps", 35,
+            "guidance_scale", 3.5,
+            "num_images", 1,
+            "enable_safety_checker", true,
+            "output_format", "jpeg",
+            "image_url", image.getUrl(),
+            "strength", 0.85,
+            "mask_url", maskImageUrl
         );
 
         try {

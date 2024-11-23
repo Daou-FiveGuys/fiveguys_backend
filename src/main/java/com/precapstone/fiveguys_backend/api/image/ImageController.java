@@ -33,8 +33,8 @@ public class ImageController {
      * @return ResponseEntity<CommonResponse> 이미지 정보
      */
     @PostMapping("/generate-lora")
-    public ResponseEntity<CommonResponse> generateImageWithLora(@RequestHeader("Authorization") String authorization, @RequestBody ImageGenerateDTO imageGenerateDTO) {
-        return ResponseEntity.ok(imageService.generateWithLora(authorization, imageGenerateDTO));
+    public ResponseEntity<CommonResponse> generateImageWithLora(@RequestHeader("Authorization") String authorization, @RequestBody ImageGenerateLoraDTO imageGenerateLoraDTO) {
+        return ResponseEntity.ok(imageService.generateWithLora(authorization, imageGenerateLoraDTO));
     }
 
 

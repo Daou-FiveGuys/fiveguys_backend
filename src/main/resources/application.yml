@@ -139,3 +139,9 @@ openai:
 chatbot:
   chatbot_id: ${CHATBOT_ID}
   chatbot_api_key: ${CHATBOT_API_KEY}
+
+
+flux:
+  lora:
+    water-color : ${WATER_COLOR_LORA}
+    city-pop : ${WATER_COLOR_LORA}
