@@ -2,6 +2,7 @@ package com.precapstone.fiveguys_backend.api.message.send.messagetype;
 
 import com.precapstone.fiveguys_backend.api.message.send.option.Target;
 import lombok.Getter;
+import lombok.RequiredArgsConstructor;
 import org.apache.commons.lang3.RandomStringUtils;
 
 import java.util.HashMap;
@@ -12,6 +13,7 @@ import java.util.Map;
  * 메세지를 전달하는 일반화된 타입
  */
 @Getter
+@RequiredArgsConstructor
 public class MessageType {
     // 메세지 전송을 위한 추가적인 속성
     protected Map<String, Object> params = new HashMap<>();

@@ -1,6 +1,8 @@
 package com.precapstone.fiveguys_backend.api.message.send.option;
 
 import com.fasterxml.jackson.annotation.JsonValue;
+import lombok.Getter;
+import lombok.Setter;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -8,6 +10,8 @@ import java.util.Map;
 /**
  * 전송할 대상 및 대상에 대한 추가 속성에 관한 클래스
  */
+@Setter
+@Getter
 public class Target {
     // 전송할 대상의 연락처
     private final String toNumber;

@@ -6,10 +6,14 @@ import com.precapstone.fiveguys_backend.api.auth.JwtTokenProvider;
 import com.precapstone.fiveguys_backend.api.dto.PpurioSendDTO;
 import com.precapstone.fiveguys_backend.api.message.PpurioMessageDTO;
 import com.precapstone.fiveguys_backend.api.message.auth.PpurioAuth;
+import com.precapstone.fiveguys_backend.api.message.send.messagetype.MessageType;
 import com.precapstone.fiveguys_backend.api.message.send.messagetype.SMS;
 import com.precapstone.fiveguys_backend.api.message.send.messagetype.MMS;
 import com.precapstone.fiveguys_backend.api.message.send.messagetype.LMS;
-import com.precapstone.fiveguys_backend.api.message.send.messagetype.MessageType;
+import com.precapstone.fiveguys_backend.api.message.send.option.Target;
+import com.precapstone.fiveguys_backend.api.messagehistory.MessageHistoryDTO;
+import com.precapstone.fiveguys_backend.api.messagehistory.MessageHistoryService;
+import com.precapstone.fiveguys_backend.entity.Contact2;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpEntity;
@@ -26,6 +30,7 @@ public class PpurioSendService {
     private final RestTemplate restTemplate;
     private final AmountUsedService amountUsedService;
     private final JwtTokenProvider jwtTokenProvider;
+    private final MessageHistoryService messageHistoryService;
 
     // 뿌리오 계정
     @Value("${spring.ppurio.account}")
@@ -37,9 +42,9 @@ public class PpurioSendService {
 
     private final PpurioAuth ppurioAuth;
 
-    public PpurioSendResponse message(PpurioMessageDTO ppurioMessageDTO, String accessToken) {
+    public PpurioSendResponse message(PpurioMessageDTO ppurioMessageDTO, String fiveguysAccessToken) {
         // 토큰 발급
-        String fiveguysAccessToken = ppurioAuth.getAccessToken();
+        String accessToken = ppurioAuth.getAccessToken();
 
         // 헤더 설정
         HttpHeaders headers = new HttpHeaders();
@@ -55,11 +60,18 @@ public class PpurioSendService {
         var userId = jwtTokenProvider.getUserIdFromToken(fiveguysAccessToken);
         if(ppurioMessageDTO.getMessageType().equals("MMS")) amountUsedService.plus(userId, AmountUsedType.IMG_SCNT, 1);
         else amountUsedService.plus(userId, AmountUsedType.MSG_SCNT, 1);
-
+        
         // 전송
+        var messageHistoryDTO = getMessageHistoryDTO(userId, ppurioMessageDTO);
+        messageHistoryService.create(messageHistoryDTO);
         return restTemplate.postForObject(url+"/v1/message", request, PpurioSendResponse.class);
     }
 
+    /**
+     * 안쓰는 코드
+     * @param ppurioSendDTO
+     * @throws IOException
+     */
     public void sendMessage(PpurioSendDTO ppurioSendDTO) throws IOException {
         // 토큰 발급
         String accessToken = ppurioAuth.getAccessToken();
@@ -79,6 +91,7 @@ public class PpurioSendService {
     }
 
     /**
+     * 안쓰는 코드
      * PpurioSendParam을 통해 전달받은 MessageType을 통해 메세지 정보를 분기 처리
      * 
      * @param ppurioSendDTO 사용자가 요청한 속성 정보
@@ -110,5 +123,29 @@ public class PpurioSendService {
         };
 
         return messageType.getParams();
+    }
+
+    private List<Contact2> getContact2s(List<Target> targets) {
+        // Target 리스트를 Contact2 리스트로 변환
+        return targets.stream()
+                .map(Contact2::new) // Contact2(Target target) 생성자를 사용
+                .toList();
+    }
+
+    /**
+     * PpurioMessageDTO를 MessageHistoryDIO로 변경하는 함수
+     *
+     */
+    private MessageHistoryDTO getMessageHistoryDTO(String userId, PpurioMessageDTO ppurioMessageDTO) {
+        return MessageHistoryDTO.builder()
+                .userId(userId)
+                .content(ppurioMessageDTO.getContent())
+                .fromNumber(ppurioMessageDTO.getFromNumber())
+                // MessageType 중복 사용
+                .messageType(com.precapstone.fiveguys_backend.api.messagehistory.messagehistory.MessageType.valueOf(ppurioMessageDTO.getMessageType()))
+                .subject(ppurioMessageDTO.getSubject())
+                .contact2s(getContact2s(ppurioMessageDTO.getTargets())) // TODO: target으로 반환하는 문제 발생
+                .sendImage(ppurioMessageDTO.getMultipartFile())
+                .build();
     }
 }
