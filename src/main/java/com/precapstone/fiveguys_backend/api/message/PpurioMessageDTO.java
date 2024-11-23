@@ -18,5 +18,4 @@ public class PpurioMessageDTO {
     String fromNumber;
     List<Target> targets;
     String subject;
-    MultipartFile multipartFile;
 }

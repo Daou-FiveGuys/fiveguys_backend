@@ -20,6 +20,7 @@ import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 import java.util.*;
@@ -42,7 +43,7 @@ public class PpurioSendService {
 
     private final PpurioAuth ppurioAuth;
 
-    public PpurioSendResponse message(PpurioMessageDTO ppurioMessageDTO, String fiveguysAccessToken) {
+    public PpurioSendResponse message(PpurioMessageDTO ppurioMessageDTO, MultipartFile multipartFile, String fiveguysAccessToken) {
         // 토큰 발급
         String accessToken = ppurioAuth.getAccessToken();
 
@@ -62,7 +63,7 @@ public class PpurioSendService {
         else amountUsedService.plus(userId, AmountUsedType.MSG_SCNT, 1);
         
         // 전송
-        var messageHistoryDTO = getMessageHistoryDTO(userId, ppurioMessageDTO);
+        var messageHistoryDTO = getMessageHistoryDTO(userId, multipartFile, ppurioMessageDTO);
         messageHistoryService.create(messageHistoryDTO);
         return restTemplate.postForObject(url+"/v1/message", request, PpurioSendResponse.class);
     }
@@ -136,7 +137,7 @@ public class PpurioSendService {
      * PpurioMessageDTO를 MessageHistoryDIO로 변경하는 함수
      *
      */
-    private MessageHistoryDTO getMessageHistoryDTO(String userId, PpurioMessageDTO ppurioMessageDTO) {
+    private MessageHistoryDTO getMessageHistoryDTO(String userId, MultipartFile multipartFile, PpurioMessageDTO ppurioMessageDTO) {
         return MessageHistoryDTO.builder()
                 .userId(userId)
                 .content(ppurioMessageDTO.getContent())
@@ -145,7 +146,7 @@ public class PpurioSendService {
                 .messageType(com.precapstone.fiveguys_backend.api.messagehistory.messagehistory.MessageType.valueOf(ppurioMessageDTO.getMessageType()))
                 .subject(ppurioMessageDTO.getSubject())
                 .contact2s(getContact2s(ppurioMessageDTO.getTargets())) // TODO: target으로 반환하는 문제 발생
-                .sendImage(ppurioMessageDTO.getMultipartFile())
+                .sendImage(multipartFile)
                 .build();
     }
 }

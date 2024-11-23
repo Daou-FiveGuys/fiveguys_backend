@@ -7,6 +7,7 @@ import com.precapstone.fiveguys_backend.api.message.send.PpurioSendService;
 import com.precapstone.fiveguys_backend.common.auth.JwtFilter;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 
@@ -34,10 +35,10 @@ public class PpurioSendController {
     }
 
     @PostMapping("message")
-    public CommonResponse message(@RequestBody PpurioMessageDTO ppurioMessageDTO, @RequestHeader("Authorization") String authorization) {
+    public CommonResponse message(@RequestPart PpurioMessageDTO ppurioMessageDTO,  @RequestPart(value = "multipartFile", required = false) MultipartFile multipartFile, @RequestHeader("Authorization") String authorization) {
         var accessToken = authorization.replace(JwtFilter.TOKEN_PREFIX, "");
 
-        var response = ppurioSendService.message(ppurioMessageDTO, accessToken);
+        var response = ppurioSendService.message(ppurioMessageDTO, multipartFile, accessToken);
         return CommonResponse.builder().code(200).message("문자 전송 성공").data(response).build();
     }
 }
