@@ -24,7 +24,12 @@ spring:
     account: ${PPURIO_ACCOUNT}
     auth: ${PPURIO_AUTHORIZATION}
 
-###  Redis
+  servlet:
+    multipart:
+      max-file-size: 10MB
+      max-request-size: 10MB
+
+  ###  Redis
 ### 서버
   data:
     redis:

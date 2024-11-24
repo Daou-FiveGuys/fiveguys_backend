@@ -45,4 +45,16 @@ public class PpurioSendController {
         var response = ppurioSendService.message(ppurioMessageDTO, multipartFile, accessToken);
         return CommonResponse.builder().code(200).message("문자 전송 성공").data(response).build();
     }
+
+    @PostMapping(value = "message-link", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public CommonResponse messageLink(
+            @RequestPart PpurioMessageDTO ppurioMessageDTO,
+            @RequestPart(value = "multipartFile", required = false) MultipartFile multipartFile,
+            @RequestHeader("Authorization") String authorization) {
+        var accessToken = authorization.replace(JwtFilter.TOKEN_PREFIX, "");
+
+        var response = ppurioSendService.messageLink(ppurioMessageDTO, multipartFile, accessToken);
+        return CommonResponse.builder().code(200).message("문자 전송 성공").data(response).build();
+    }
+
 }

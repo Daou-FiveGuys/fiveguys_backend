@@ -3,6 +3,7 @@ package com.precapstone.fiveguys_backend.api.message.send;
 import com.precapstone.fiveguys_backend.api.amountused.AmountUsedService;
 import com.precapstone.fiveguys_backend.api.amountused.AmountUsedType;
 import com.precapstone.fiveguys_backend.api.auth.JwtTokenProvider;
+import com.precapstone.fiveguys_backend.api.aws.AwsS3Service;
 import com.precapstone.fiveguys_backend.api.dto.PpurioSendDTO;
 import com.precapstone.fiveguys_backend.api.message.PpurioMessageDTO;
 import com.precapstone.fiveguys_backend.api.message.auth.PpurioAuth;
@@ -13,6 +14,7 @@ import com.precapstone.fiveguys_backend.api.message.send.messagetype.LMS;
 import com.precapstone.fiveguys_backend.api.message.send.option.Target;
 import com.precapstone.fiveguys_backend.api.messagehistory.MessageHistoryDTO;
 import com.precapstone.fiveguys_backend.api.messagehistory.MessageHistoryService;
+import com.precapstone.fiveguys_backend.common.utils.RandomStringGenerator;
 import com.precapstone.fiveguys_backend.entity.Contact2;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
@@ -32,6 +34,7 @@ public class PpurioSendService {
     private final AmountUsedService amountUsedService;
     private final JwtTokenProvider jwtTokenProvider;
     private final MessageHistoryService messageHistoryService;
+    private final AwsS3Service awsS3Service;
 
     // 뿌리오 계정
     @Value("${spring.ppurio.account}")
@@ -66,6 +69,31 @@ public class PpurioSendService {
         var messageHistoryDTO = getMessageHistoryDTO(userId, multipartFile, ppurioMessageDTO);
         messageHistoryService.create(messageHistoryDTO);
         return restTemplate.postForObject(url+"/v1/message", request, PpurioSendResponse.class);
+    }
+
+    public PpurioSendResponse messageLink(PpurioMessageDTO ppurioMessageDTO, MultipartFile multipartFile, String fiveguysAccessToken) {
+        // 토큰 발급
+        String accessToken = ppurioAuth.getAccessToken();
+
+        // 헤더 설정
+        HttpHeaders headers = new HttpHeaders();
+        headers.set("Authorization", "Bearer "+ accessToken);
+        String fileName = RandomStringGenerator.generateRandomString(20);
+        try {
+            String bucketURL = awsS3Service.upload(multipartFile,fileName  + ".jpg");
+            ppurioMessageDTO.setMessageType("LMS");
+            ppurioMessageDTO.setContent(ppurioMessageDTO.getContent() + "\n\n이미지: " + bucketURL);
+            var requestBody = createMessageParams(ppurioMessageDTO, null);
+            HttpEntity<Map> request = new HttpEntity<>(requestBody, headers);
+            var userId = jwtTokenProvider.getUserIdFromToken(fiveguysAccessToken);
+            amountUsedService.plus(userId, AmountUsedType.MSG_SCNT, 1);
+
+            var messageHistoryDTO = getMessageHistoryDTO(userId, null, ppurioMessageDTO);
+            messageHistoryService.createLink(messageHistoryDTO, bucketURL);
+            return restTemplate.postForObject(url+"/v1/message", request, PpurioSendResponse.class);
+        } catch (Exception e){
+            return null;
+        }
     }
 
     /**
@@ -148,4 +176,5 @@ public class PpurioSendService {
                 .sendImage(multipartFile)
                 .build();
     }
+
 }

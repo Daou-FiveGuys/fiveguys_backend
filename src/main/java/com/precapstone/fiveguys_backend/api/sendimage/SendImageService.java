@@ -27,12 +27,25 @@ public class SendImageService {
         return sendImage;
     }
 
+    public SendImage createLink(MessageHistory messageHistory, String url) {
+        var sendImage = SendImage.builder()
+                .messageHistory(messageHistory)
+                .url(url)
+                .build();
+        sendImageRepository.save(sendImage);
+        return sendImage;
+    }
+
+
+
+
     public SendImage read(Long sendImageId) {
         // 링크 등의 정보 반환
         var sendImage = sendImageRepository.findBySendImageId(sendImageId)
                 .orElseThrow(() -> new ControlledException(SEND_IMAGE_NOT_FOUND));
         return sendImage;
     }
+
 
     public SendImage read(MessageHistory messageHistory) {
         return messageHistory.getSendImage();

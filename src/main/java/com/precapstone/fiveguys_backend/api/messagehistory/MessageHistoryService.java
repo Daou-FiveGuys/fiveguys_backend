@@ -9,7 +9,6 @@ import com.precapstone.fiveguys_backend.api.user.UserService;
 import com.precapstone.fiveguys_backend.exception.ControlledException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
-import org.springframework.web.multipart.MultipartFile;
 
 import java.time.LocalDate;
 import java.time.LocalTime;
@@ -52,6 +51,29 @@ public class MessageHistoryService {
             sendImage = sendImageService.create(messageHistory, messageHistoryDTO.getSendImage());
             messageHistory.setSendImage(sendImage);
         }
+
+        messageHistoryRepository.save(messageHistory);
+        return messageHistory;
+    }
+
+    public MessageHistory createLink(MessageHistoryDTO messageHistoryDTO, String url) {
+        // TODO: 1. [예외처리] 전화번호 서식이 틀린 경우
+
+        // TODO: 2. [예외처리] 본문 길이 틀린 경우
+
+        var user = userService.findByUserId(messageHistoryDTO.getUserId())
+                .orElseThrow(()->new ControlledException(USER_NOT_FOUND));
+
+        var messageHistory = MessageHistory.builder()
+                .messageType(messageHistoryDTO.getMessageType())
+                .fromNumber(messageHistoryDTO.getFromNumber())
+                .contact2s(new ArrayList<>(messageHistoryDTO.getContact2s()))
+                .subject(messageHistoryDTO.getSubject())
+                .content(messageHistoryDTO.getContent())
+                .user(user)
+                .build();
+
+        sendImageService.createLink(messageHistory, url);
 
         messageHistoryRepository.save(messageHistory);
         return messageHistory;
