@@ -45,7 +45,7 @@ public class AmountUsed {
     private Integer imgGcnt = 0;
 
     // TODO: 임시코드 삭제할 것
-    @OneToMany(fetch = FetchType.EAGER, cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
     @JsonManagedReference
     private List<DailyAmount> dailyAmounts;
 

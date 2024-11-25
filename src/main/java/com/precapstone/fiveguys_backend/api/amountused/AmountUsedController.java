@@ -1,6 +1,7 @@
 package com.precapstone.fiveguys_backend.api.amountused;
 
 import com.precapstone.fiveguys_backend.api.auth.JwtTokenProvider;
+import com.precapstone.fiveguys_backend.api.dailyamount.DailyAmountService;
 import com.precapstone.fiveguys_backend.api.user.UserService;
 import com.precapstone.fiveguys_backend.common.CommonResponse;
 import com.precapstone.fiveguys_backend.common.auth.JwtFilter;
@@ -19,8 +20,7 @@ import static com.precapstone.fiveguys_backend.exception.errorcode.UserErrorCode
 @RequestMapping("/api/v1/amountUsed/")
 public class AmountUsedController {
     private final AmountUsedService amountUsedService;
-    private final JwtTokenProvider jwtTokenProvider;
-    private final UserService userService;
+    private final DailyAmountService dailyAmountService;
 
     // 사용량 조회
     @GetMapping
@@ -28,6 +28,8 @@ public class AmountUsedController {
         var accessToken = authorization.replace(JwtFilter.TOKEN_PREFIX, "");
 
         var amountUsed = amountUsedService.read(accessToken);
+        var dailyAmounts = dailyAmountService.readAddByAmountUsed(amountUsed);
+        amountUsed.setDailyAmounts(dailyAmounts); // TODO: 임시코드!! 조회수 많아서 정상 로직으로 수정해야함
 
         var response = CommonResponse.builder().code(200).message("사용량 조회 성공").data(amountUsed).build();
         return ResponseEntity.ok(response);

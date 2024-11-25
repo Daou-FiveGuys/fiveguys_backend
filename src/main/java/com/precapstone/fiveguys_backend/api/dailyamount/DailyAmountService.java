@@ -5,11 +5,11 @@ import com.precapstone.fiveguys_backend.entity.AmountUsed;
 import com.precapstone.fiveguys_backend.entity.DailyAmount;
 import com.precapstone.fiveguys_backend.exception.ControlledException;
 import lombok.RequiredArgsConstructor;
-import lombok.extern.java.Log;
-import lombok.extern.log4j.Log4j2;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.List;
 
 import static com.precapstone.fiveguys_backend.exception.errorcode.AmountUsedErrorCode.AMOUNT_USED_NOT_FOUND;
 
@@ -48,5 +48,12 @@ public class DailyAmountService {
 
         dailyAmountRepository.save(dailyAmount);
         return dailyAmount;
+    }
+
+    public List<DailyAmount> readAddByAmountUsed(AmountUsed amountUsed) {
+        var dailyAmounts = dailyAmountRepository.findByAmountUsed(amountUsed)
+                .orElseThrow(() -> new ControlledException(AMOUNT_USED_NOT_FOUND));
+
+        return dailyAmounts;
     }
 }
