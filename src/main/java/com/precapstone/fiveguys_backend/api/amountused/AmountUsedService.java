@@ -82,6 +82,8 @@ public class AmountUsedService {
             case MSG_SCNT: // 문자 전송 카운트 (문자를 전송한 인원수)
                 amountUsed.setMsgScnt(amountUsed.getMsgScnt()+plus);
                 dailyAmountService.plus(amountUsed, amountUsedType, plus);
+                amountUsed.setLastDate(LocalDateTime.now());
+                amountUsedRepository.save(amountUsed);
                 break;
             case MSG_GCNT: // 문자 생성 카운트 (문자 전송 횟수)
                 amountUsed.setMsgGcnt(amountUsed.getMsgGcnt()+plus);
@@ -93,7 +95,6 @@ public class AmountUsedService {
                 break;
             case IMG_GCNT: // 이미지 생성 카운트 (이미지 전송 횟수)
                 amountUsed.setImgGcnt(amountUsed.getImgGcnt()+plus);
-                amountUsed.setLastDate(LocalDateTime.now());
                 dailyAmountService.plus(amountUsed, amountUsedType, plus);
                 break;
             default:
