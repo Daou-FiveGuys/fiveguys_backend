@@ -13,7 +13,6 @@ import java.time.LocalDate;
 
 import static com.precapstone.fiveguys_backend.exception.errorcode.AmountUsedErrorCode.AMOUNT_USED_NOT_FOUND;
 
-@Log4j2
 @Service
 @RequiredArgsConstructor
 public class DailyAmountService {
@@ -23,7 +22,7 @@ public class DailyAmountService {
         var dailyAmount = dailyAmountRepository.findByAmountUsedAndDate(amountUsed, localDate)
                 .orElseGet(() -> dailyAmountRepository.save(DailyAmount.builder().amountUsed(amountUsed).date(localDate).build()));
 
-        log.info("AmountUsed Info: "+dailyAmount.getAmountUsed());
+        System.out.println("AmountUsed Info: "+dailyAmount.getAmountUsed());
         return dailyAmount;
     }
 

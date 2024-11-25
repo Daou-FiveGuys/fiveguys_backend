@@ -21,7 +21,6 @@ import static com.precapstone.fiveguys_backend.exception.errorcode.AmountUsedErr
 import static com.precapstone.fiveguys_backend.exception.errorcode.UserErrorCode.USER_AUTHORIZATION_FAILED;
 import static com.precapstone.fiveguys_backend.exception.errorcode.UserErrorCode.USER_NOT_FOUND;
 
-@Log
 @Service
 @RequiredArgsConstructor
 public class AmountUsedService {
@@ -49,7 +48,7 @@ public class AmountUsedService {
 
         var amountUsed = amountUsedRepository.findByUser(user)
                 .orElseThrow(()->new ControlledException(AMOUNT_USED_NOT_FOUND));
-        log.info("sons: "+amountUsed.getDailyAmounts());
+        System.out.println("sons: "+amountUsed.getDailyAmounts());
 
         return amountUsed;
     }
