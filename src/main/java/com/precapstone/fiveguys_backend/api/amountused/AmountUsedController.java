@@ -1,18 +1,26 @@
 package com.precapstone.fiveguys_backend.api.amountused;
 
+import com.precapstone.fiveguys_backend.api.auth.JwtTokenProvider;
+import com.precapstone.fiveguys_backend.api.user.UserService;
 import com.precapstone.fiveguys_backend.common.CommonResponse;
 import com.precapstone.fiveguys_backend.common.auth.JwtFilter;
+import com.precapstone.fiveguys_backend.entity.AmountUsed;
+import com.precapstone.fiveguys_backend.exception.ControlledException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDate;
 
+import static com.precapstone.fiveguys_backend.exception.errorcode.UserErrorCode.USER_NOT_FOUND;
+
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api/v1/amountUsed/")
 public class AmountUsedController {
     private final AmountUsedService amountUsedService;
+    private final JwtTokenProvider jwtTokenProvider;
+    private final UserService userService;
 
     // 사용량 조회
     @GetMapping
@@ -33,6 +41,24 @@ public class AmountUsedController {
         var dailyAmount = amountUsedService.readByDay(accessToken, localDate);
 
         var response = CommonResponse.builder().code(200).message("일일 사용량 조회 성공").data(dailyAmount).build();
+        return ResponseEntity.ok(response);
+    }
+
+    /**
+     * 긴급 함수, DateTime을 수정하기 위한 임시 API 삭제 예정
+     * @param dateTime
+     * @param authorization
+     * @return
+     */
+    @PatchMapping("{dateTime}")
+    public ResponseEntity update(@PathVariable LocalDate dateTime, @RequestHeader("Authorization") String authorization) {
+        var accessToken = authorization.replace(JwtFilter.TOKEN_PREFIX, "");
+        var amountUsed = amountUsedService.read(accessToken);
+        amountUsedService.delete(amountUsed.getAmountUsedId());
+        var userId = jwtTokenProvider.getUserIdFromToken(accessToken);
+        var user = userService.findByUserId(userId).orElse(null);
+        amountUsed = amountUsedService.create(user);
+        var response = CommonResponse.builder().code(200).message("일일 사용량 조회 성공").data(amountUsed).build();
         return ResponseEntity.ok(response);
     }
 }
