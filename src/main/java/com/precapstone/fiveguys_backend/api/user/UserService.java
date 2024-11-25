@@ -92,7 +92,6 @@ public class UserService {
 
         userRepository.save(newUser);
         amountUsed.setUser(newUser); // 사용량 조회를 위한 amountUsed 할당 feat.명준
-        amountUsedRepository.save(amountUsed);
         try {
             mailService.sendWelcomeEmail(newUser.getEmail());
         }catch (Exception e){
