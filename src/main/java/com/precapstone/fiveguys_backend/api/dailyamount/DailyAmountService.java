@@ -25,6 +25,21 @@ public class DailyAmountService {
         return dailyAmount;
     }
 
+    public List<DailyAmount> readAddByAmountUsed(AmountUsed amountUsed) {
+        var dailyAmounts = dailyAmountRepository.findByAmountUsed(amountUsed)
+                .orElseThrow(() -> new ControlledException(AMOUNT_USED_NOT_FOUND));
+
+        return dailyAmounts;
+    }
+
+    public List<DailyAmount> readByFewDay(AmountUsed amountUsed, LocalDate localDate) {
+        LocalDate endDate = localDate.plusDays(6);
+
+        var dailyAmounts = dailyAmountRepository.findByAmountUsedAndDateBetween(amountUsed, localDate, endDate);
+
+        return dailyAmounts;
+    }
+
     public DailyAmount plus(AmountUsed amountUsed, AmountUsedType amountUsedType, Integer plus) {
         var dailyAmount = read(amountUsed, LocalDate.now());
 
@@ -47,12 +62,5 @@ public class DailyAmountService {
 
         dailyAmountRepository.save(dailyAmount);
         return dailyAmount;
-    }
-
-    public List<DailyAmount> readAddByAmountUsed(AmountUsed amountUsed) {
-        var dailyAmounts = dailyAmountRepository.findByAmountUsed(amountUsed)
-                .orElseThrow(() -> new ControlledException(AMOUNT_USED_NOT_FOUND));
-
-        return dailyAmounts;
     }
 }

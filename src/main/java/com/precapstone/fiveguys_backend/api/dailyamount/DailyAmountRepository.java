@@ -16,4 +16,5 @@ public interface DailyAmountRepository extends JpaRepository<DailyAmount, Long> 
     void deleteByDailyAmountId(Long dailyAmountId);
 
     Optional<List<DailyAmount>> findByAmountUsed(AmountUsed amountUsed);
+    List<DailyAmount> findByAmountUsedAndDateBetween(AmountUsed amountUsed, LocalDate startDate, LocalDate endDate);
 }

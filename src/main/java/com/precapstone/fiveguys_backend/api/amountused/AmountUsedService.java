@@ -73,6 +73,16 @@ public class AmountUsedService {
         return dailyAmount;
     }
 
+    public List<DailyAmount> readByFewDay(String accessToken, LocalDate localDate) {
+        var userId = jwtTokenProvider.getUserIdFromToken(accessToken);
+        var amountUsed = userService.findByUserId(userId)
+                .orElseThrow(() -> new ControlledException(USER_NOT_FOUND))
+                .getAmountUsed();
+
+        var dailyAmounts = dailyAmountService.readByFewDay(amountUsed, localDate);
+        return dailyAmounts;
+    }
+
     /**
      * 메세지 사용량 카운트를 증가시키는 함수
      *
