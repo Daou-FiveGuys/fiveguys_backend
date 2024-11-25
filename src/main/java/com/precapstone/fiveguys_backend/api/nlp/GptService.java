@@ -135,15 +135,15 @@ public class GptService {
     }
 
     private String cleanString(String input) {
-        // 1. 역할 패턴 제거 (예: **텍스트**)
         input = input.replaceAll("^\\*\\*.*?\\*\\*", "");
-
-        // 2. 이스케이프 시퀀스 제거 (\n, \t)
         input = input.replaceAll("[\\n\\t]", " ").trim();
-
-        // 3. 이스케이프된 따옴표 제거 (\")
         input = input.replace("\\\"", "");
-        return input.replace("\"","");
+        input = input.replace("\"","");
+
+        if (!input.contains(":")) {
+            return input;
+        }
+        return input.substring(input.indexOf(":") + 1).trim();
     }
 
 }
