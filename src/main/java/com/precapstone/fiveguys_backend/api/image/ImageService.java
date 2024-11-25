@@ -101,7 +101,6 @@ public class ImageService {
 
         try {
             this.saveImageResultIntoDB(result, userId);
-            amountUsedService.plus(userId, AmountUsedType.IMG_GCNT, 1);
             return CommonResponse.builder()
                     .code(200)
                     .data(ImageResponseDTO.builder()
@@ -169,7 +168,6 @@ public class ImageService {
 
         try {
             this.saveImageResultIntoDB(result, userId);
-            amountUsedService.plus(userId, AmountUsedType.IMG_GCNT, 1);
             return CommonResponse.builder()
                     .code(200)
                     .data(ImageResponseDTO.builder()

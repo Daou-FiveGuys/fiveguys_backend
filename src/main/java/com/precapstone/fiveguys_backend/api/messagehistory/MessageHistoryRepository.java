@@ -1,6 +1,6 @@
 package com.precapstone.fiveguys_backend.api.messagehistory;
 
-import com.precapstone.fiveguys_backend.api.messagehistory.messagehistory.MessageHistory;
+import com.precapstone.fiveguys_backend.entity.messagehistory.MessageHistory;
 import com.precapstone.fiveguys_backend.entity.User;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;

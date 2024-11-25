@@ -1,6 +1,6 @@
 package com.precapstone.fiveguys_backend.api.messagehistory;
 
-import com.precapstone.fiveguys_backend.api.messagehistory.messagehistory.MessageType;
+import com.precapstone.fiveguys_backend.entity.messagehistory.MessageType;
 import com.precapstone.fiveguys_backend.entity.Contact2;
 import lombok.Builder;
 import lombok.Getter;

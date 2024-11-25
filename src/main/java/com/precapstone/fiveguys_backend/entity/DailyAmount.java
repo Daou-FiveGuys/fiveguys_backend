@@ -1,12 +1,10 @@
 package com.precapstone.fiveguys_backend.entity;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
-import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 import lombok.*;
 
-import java.time.LocalDateTime;
-import java.util.List;
+import java.time.LocalDate;
 
 @Entity
 @Getter
@@ -14,16 +12,11 @@ import java.util.List;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-@Table(name = "amount_used")
-public class AmountUsed {
+@Table(name = "daily_amount")
+public class DailyAmount {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long amountUsedId;
-
-    // 유저 정보
-    @JsonBackReference
-    @OneToOne(mappedBy = "amountUsed")
-    private User user;
+    private Long dailyAmountId;
 
     // 문자 발신 총 횟수
     @Builder.Default
@@ -33,23 +26,21 @@ public class AmountUsed {
     @Builder.Default
     @Column(nullable = false)
     private Integer msgGcnt = 0;
-    
-    // 이미지 발신 총 횟수
+
     @Builder.Default
     @Column(nullable = false)
     private Integer imgScnt = 0;
-    
-    // 이미지 생성 총 횟수
+
     @Builder.Default
     @Column(nullable = false)
     private Integer imgGcnt = 0;
 
-    @OneToMany(fetch = FetchType.LAZY)
-    @JsonManagedReference
-    private List<DailyAmount> dailyAmounts;
-
-    // 마지막 이미지 생성 일자
     @Builder.Default
     @Column(nullable = false)
-    private LocalDateTime lastDate = LocalDateTime.now();
+    private LocalDate date = LocalDate.now();
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "amount_used_id")
+    @JsonBackReference
+    private AmountUsed amountUsed;
 }
