@@ -1,7 +1,8 @@
 package com.precapstone.fiveguys_backend.api.sendimage;
 
 import com.precapstone.fiveguys_backend.api.aws.AwsS3Service;
-import com.precapstone.fiveguys_backend.api.messagehistory.messagehistory.MessageHistory;
+import com.precapstone.fiveguys_backend.entity.SendImage;
+import com.precapstone.fiveguys_backend.entity.messagehistory.MessageHistory;
 import com.precapstone.fiveguys_backend.exception.ControlledException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;

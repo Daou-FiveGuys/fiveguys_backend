@@ -1,7 +1,7 @@
-package com.precapstone.fiveguys_backend.api.sendimage;
+package com.precapstone.fiveguys_backend.entity;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
-import com.precapstone.fiveguys_backend.api.messagehistory.messagehistory.MessageHistory;
+import com.precapstone.fiveguys_backend.entity.messagehistory.MessageHistory;
 import jakarta.persistence.*;
 import lombok.*;
 

@@ -1,9 +1,9 @@
 package com.precapstone.fiveguys_backend.api.messagehistory;
 
 import com.precapstone.fiveguys_backend.api.auth.JwtTokenProvider;
-import com.precapstone.fiveguys_backend.api.messagehistory.messagehistory.MessageHistory;
-import com.precapstone.fiveguys_backend.api.messagehistory.messagehistory.MessageType;
-import com.precapstone.fiveguys_backend.api.sendimage.SendImage;
+import com.precapstone.fiveguys_backend.entity.messagehistory.MessageHistory;
+import com.precapstone.fiveguys_backend.entity.messagehistory.MessageType;
+import com.precapstone.fiveguys_backend.entity.SendImage;
 import com.precapstone.fiveguys_backend.api.sendimage.SendImageService;
 import com.precapstone.fiveguys_backend.api.user.UserService;
 import com.precapstone.fiveguys_backend.exception.ControlledException;

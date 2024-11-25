@@ -62,8 +62,14 @@ public class PpurioSendService {
 
         // 사용량 증가
         var userId = jwtTokenProvider.getUserIdFromToken(fiveguysAccessToken);
-        if(ppurioMessageDTO.getMessageType().equals("MMS")) amountUsedService.plus(userId, AmountUsedType.IMG_SCNT, 1);
-        else amountUsedService.plus(userId, AmountUsedType.MSG_SCNT, 1);
+        if(ppurioMessageDTO.getMessageType().equals("MMS")) {
+            amountUsedService.plus(userId, AmountUsedType.IMG_SCNT, 1);
+            amountUsedService.plus(userId, AmountUsedType.IMG_GCNT, ppurioMessageDTO.getTargets().size());
+        }
+        else {
+            amountUsedService.plus(userId, AmountUsedType.MSG_SCNT, 1);
+            amountUsedService.plus(userId, AmountUsedType.MSG_GCNT, ppurioMessageDTO.getTargets().size());
+        }
         
         // 전송
         var messageHistoryDTO = getMessageHistoryDTO(userId, multipartFile, ppurioMessageDTO);
@@ -86,7 +92,9 @@ public class PpurioSendService {
             var requestBody = createMessageParams(ppurioMessageDTO, null);
             HttpEntity<Map> request = new HttpEntity<>(requestBody, headers);
             var userId = jwtTokenProvider.getUserIdFromToken(fiveguysAccessToken);
+
             amountUsedService.plus(userId, AmountUsedType.MSG_SCNT, 1);
+            amountUsedService.plus(userId, AmountUsedType.MSG_GCNT, ppurioMessageDTO.getTargets().size());
 
             var messageHistoryDTO = getMessageHistoryDTO(userId, null, ppurioMessageDTO);
             messageHistoryService.createLink(messageHistoryDTO, bucketURL);
@@ -170,7 +178,7 @@ public class PpurioSendService {
                 .content(ppurioMessageDTO.getContent())
                 .fromNumber(ppurioMessageDTO.getFromNumber())
                 // MessageType 중복 사용
-                .messageType(com.precapstone.fiveguys_backend.api.messagehistory.messagehistory.MessageType.valueOf(ppurioMessageDTO.getMessageType()))
+                .messageType(com.precapstone.fiveguys_backend.entity.messagehistory.MessageType.valueOf(ppurioMessageDTO.getMessageType()))
                 .subject(ppurioMessageDTO.getSubject())
                 .contact2s(getContact2s(ppurioMessageDTO.getTargets())) // TODO: target으로 반환하는 문제 발생
                 .sendImage(multipartFile)
