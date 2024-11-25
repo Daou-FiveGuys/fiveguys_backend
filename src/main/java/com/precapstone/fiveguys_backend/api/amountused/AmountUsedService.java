@@ -7,8 +7,10 @@ import com.precapstone.fiveguys_backend.entity.AmountUsed;
 import com.precapstone.fiveguys_backend.entity.DailyAmount;
 import com.precapstone.fiveguys_backend.entity.User;
 import com.precapstone.fiveguys_backend.exception.ControlledException;
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.java.Log;
+import org.hibernate.Hibernate;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
@@ -40,12 +42,14 @@ public class AmountUsedService {
     /**
      * Controller 용
      */
+    @Transactional
     public AmountUsed read(String accessToken) {
         var userId = jwtTokenProvider.getUserIdFromToken(accessToken);
         var user = userService.findByUserId(userId)
                 .orElseThrow(() -> new ControlledException(USER_NOT_FOUND));
 
         var amountUsed = user.getAmountUsed();
+        Hibernate.initialize(amountUsed.getDailyAmounts());
 
         return amountUsed;
     }
@@ -53,9 +57,12 @@ public class AmountUsedService {
     /**
      * 서버용
      */
+    @Transactional
     public AmountUsed read(Long amountUsedId) {
         var amountUsed = amountUsedRepository.findByAmountUsedId(amountUsedId)
                 .orElseThrow(()->new ControlledException(AMOUNT_USED_NOT_FOUND));
+
+        Hibernate.initialize(amountUsed.getDailyAmounts());
 
         return amountUsed;
     }
