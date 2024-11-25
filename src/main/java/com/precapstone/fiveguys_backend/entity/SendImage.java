@@ -19,7 +19,7 @@ public class SendImage {
 
     @JsonBackReference
     @JoinColumn(name = "message_history_id")
-    @OneToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    @OneToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
     private MessageHistory messageHistory;
 
     @Column(columnDefinition = "TEXT", nullable = false)

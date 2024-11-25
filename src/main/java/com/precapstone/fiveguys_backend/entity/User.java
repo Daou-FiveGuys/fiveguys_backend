@@ -32,7 +32,7 @@ public class User {
     private LocalDateTime updatedAt;
 
     @Setter
-    @OneToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    @OneToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
     @JoinColumn(name = "amount_used_id")
     @JsonManagedReference
     private AmountUsed amountUsed;

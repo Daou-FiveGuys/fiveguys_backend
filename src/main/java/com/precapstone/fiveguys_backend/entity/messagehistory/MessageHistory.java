@@ -46,11 +46,11 @@ public class MessageHistory {
 
     @JsonManagedReference
     @JoinColumn(name = "contact2_id")
-    @OneToMany(fetch = FetchType.LAZY)
+    @OneToMany(fetch = FetchType.LAZY, orphanRemoval = true)
     private List<Contact2> contact2s;
     
     @JsonManagedReference
     @JoinColumn(name = "send_image_id")
-    @OneToOne(fetch = FetchType.LAZY)
+    @OneToOne(fetch = FetchType.LAZY, orphanRemoval = true)
     private SendImage sendImage;
 }

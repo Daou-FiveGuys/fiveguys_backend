@@ -44,7 +44,7 @@ public class AmountUsed {
     @Column(nullable = false)
     private Integer imgGcnt = 0;
 
-    @OneToMany(fetch = FetchType.LAZY)
+    @OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
     @JsonManagedReference
     private List<DailyAmount> dailyAmounts;
 
