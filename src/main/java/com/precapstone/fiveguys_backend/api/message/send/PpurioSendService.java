@@ -63,12 +63,12 @@ public class PpurioSendService {
         // 사용량 증가
         var userId = jwtTokenProvider.getUserIdFromToken(fiveguysAccessToken);
         if(ppurioMessageDTO.getMessageType().equals("MMS")) {
-            amountUsedService.plus(userId, AmountUsedType.IMG_SCNT, 1);
-            amountUsedService.plus(userId, AmountUsedType.IMG_GCNT, ppurioMessageDTO.getTargets().size());
+            amountUsedService.plus(userId, AmountUsedType.IMG_GCNT, 1);
+            amountUsedService.plus(userId, AmountUsedType.IMG_SCNT, ppurioMessageDTO.getTargets().size());
         }
         else {
-            amountUsedService.plus(userId, AmountUsedType.MSG_SCNT, 1);
-            amountUsedService.plus(userId, AmountUsedType.MSG_GCNT, ppurioMessageDTO.getTargets().size());
+            amountUsedService.plus(userId, AmountUsedType.MSG_GCNT, 1);
+            amountUsedService.plus(userId, AmountUsedType.MSG_SCNT, ppurioMessageDTO.getTargets().size());
         }
         
         // 전송
@@ -93,8 +93,8 @@ public class PpurioSendService {
             HttpEntity<Map> request = new HttpEntity<>(requestBody, headers);
             var userId = jwtTokenProvider.getUserIdFromToken(fiveguysAccessToken);
 
-            amountUsedService.plus(userId, AmountUsedType.MSG_SCNT, 1);
-            amountUsedService.plus(userId, AmountUsedType.MSG_GCNT, ppurioMessageDTO.getTargets().size());
+            amountUsedService.plus(userId, AmountUsedType.MSG_GCNT, 1);
+            amountUsedService.plus(userId, AmountUsedType.MSG_SCNT, ppurioMessageDTO.getTargets().size());
 
             var messageHistoryDTO = getMessageHistoryDTO(userId, null, ppurioMessageDTO);
             messageHistoryService.createLink(messageHistoryDTO, bucketURL);
