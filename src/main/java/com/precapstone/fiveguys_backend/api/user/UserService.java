@@ -1,5 +1,6 @@
 package com.precapstone.fiveguys_backend.api.user;
 
+import com.precapstone.fiveguys_backend.api.amountused.AmountUsedRepository;
 import com.precapstone.fiveguys_backend.api.auth.AuthService;
 import com.precapstone.fiveguys_backend.api.auth.JwtTokenProvider;
 import com.precapstone.fiveguys_backend.api.dto.AuthResponseDTO;
@@ -28,6 +29,7 @@ public class UserService {
     private final BCryptPasswordEncoder passwordEncoder;
     private final MailService mailService;
     private final JwtTokenProvider jwtTokenProvider;
+    private final AmountUsedRepository amountUsedRepository;
 
     public Optional<User> findByUserId(String userId){
         return userRepository.findByUserId(userId);
@@ -88,8 +90,9 @@ public class UserService {
                 .amountUsed(amountUsed)
                 .build();
 
-        amountUsed.setUser(newUser); // 사용량 조회를 위한 amountUsed 할당 feat.명준
         userRepository.save(newUser);
+        amountUsed.setUser(newUser); // 사용량 조회를 위한 amountUsed 할당 feat.명준
+        amountUsedRepository.save(amountUsed);
         try {
             mailService.sendWelcomeEmail(newUser.getEmail());
         }catch (Exception e){
@@ -156,6 +159,7 @@ public class UserService {
 
         if(!userId.contains("fiveguys_")){
             if(userId.contains(email)){
+                amountUsedRepository.delete(optionalUser.get().getAmountUsed());
                 userRepository.delete(optionalUser.get());
                 return CommonResponse.builder()
                         .code(200)
@@ -177,6 +181,7 @@ public class UserService {
                     .build();
         }
 
+        amountUsedRepository.delete(optionalUser.get().getAmountUsed());
         userRepository.delete(optionalUser.get());
         return CommonResponse.builder()
                 .code(200)
@@ -194,6 +199,7 @@ public class UserService {
                     .message("Bad request")
                     .build();
         }
+
 
         User user = userRepository.findByUserId(userId).orElseThrow();
         user.setUpdatedAt(LocalDateTime.now());
