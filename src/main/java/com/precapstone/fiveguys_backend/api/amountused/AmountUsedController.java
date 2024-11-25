@@ -10,7 +10,7 @@ import java.time.LocalDate;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/api/v1/amountController/")
+@RequestMapping("/api/v1/amountUsed/")
 public class AmountUsedController {
     private final AmountUsedService amountUsedService;
 
