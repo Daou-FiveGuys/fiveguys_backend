@@ -41,6 +41,6 @@ public class DailyAmount {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "amount_used_id")
-    @JsonBackReference
+    //@JsonBackReference
     private AmountUsed amountUsed;
 }
