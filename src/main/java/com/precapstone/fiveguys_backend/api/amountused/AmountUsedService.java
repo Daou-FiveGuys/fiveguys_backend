@@ -111,4 +111,8 @@ public class AmountUsedService {
         amountUsedRepository.deleteById(amountUsedId);
         return amountUsed;
     }
+
+    public void save(AmountUsed amountUsed) {
+        amountUsedRepository.save(amountUsed);
+    }
 }

@@ -50,5 +50,6 @@ public class AmountUsed {
 
     // 마지막 이미지 생성 일자
     @Builder.Default
+    @Column(nullable = false)
     private LocalDateTime lastDate = LocalDateTime.now();
 }

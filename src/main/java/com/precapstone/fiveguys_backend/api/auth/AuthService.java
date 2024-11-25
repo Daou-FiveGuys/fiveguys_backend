@@ -2,6 +2,7 @@ package com.precapstone.fiveguys_backend.api.auth;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.precapstone.fiveguys_backend.api.amountused.AmountUsedService;
 import com.precapstone.fiveguys_backend.api.dto.AuthResponseDTO;
 import com.precapstone.fiveguys_backend.api.dto.LoginInfoDTO;
 import com.precapstone.fiveguys_backend.api.email.MailService;
@@ -45,6 +46,7 @@ public class AuthService {
     private final RedisService redisService;
     private final BCryptPasswordEncoder passwordEncoder;
     private final MailService mailService;
+    private final AmountUsedService amountUsedService;
 
     @Value("${spring.security.oauth2.client.registration.naver.client-id}")
     private String naverClientId;
@@ -197,6 +199,7 @@ public class AuthService {
                     amountUsed.setUser(user);
 
                     userRepository.save(user);
+                    amountUsedService.save(amountUsed);
                     try{
                         mailService.sendWelcomeEmail(user.getEmail());
                     } catch (Exception e){
