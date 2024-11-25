@@ -42,14 +42,14 @@ public class AmountUsedService {
     /**
      * Controller 용
      */
-    @Transactional
     public AmountUsed read(String accessToken) {
         var userId = jwtTokenProvider.getUserIdFromToken(accessToken);
         var user = userService.findByUserId(userId)
                 .orElseThrow(() -> new ControlledException(USER_NOT_FOUND));
 
-        var amountUsed = user.getAmountUsed();
-        Hibernate.initialize(amountUsed.getDailyAmounts());
+        var amountUsed = amountUsedRepository.findByUser(user)
+                .orElseThrow(()->new ControlledException(AMOUNT_USED_NOT_FOUND));
+        log.info("sons: "+amountUsed.getDailyAmounts());
 
         return amountUsed;
     }
@@ -57,12 +57,9 @@ public class AmountUsedService {
     /**
      * 서버용
      */
-    @Transactional
     public AmountUsed read(Long amountUsedId) {
         var amountUsed = amountUsedRepository.findByAmountUsedId(amountUsedId)
                 .orElseThrow(()->new ControlledException(AMOUNT_USED_NOT_FOUND));
-
-        Hibernate.initialize(amountUsed.getDailyAmounts());
 
         return amountUsed;
     }
