@@ -1,13 +1,11 @@
 package com.precapstone.fiveguys_backend.api.user;
 
-import com.precapstone.fiveguys_backend.api.amountused.AmountUsedService;
 import com.precapstone.fiveguys_backend.api.auth.AuthService;
 import com.precapstone.fiveguys_backend.api.auth.JwtTokenProvider;
 import com.precapstone.fiveguys_backend.api.dto.AuthResponseDTO;
 import com.precapstone.fiveguys_backend.api.dto.UserDTO;
 import com.precapstone.fiveguys_backend.api.dto.UserInfoResponseDTO;
 import com.precapstone.fiveguys_backend.api.email.MailService;
-import com.precapstone.fiveguys_backend.api.folder2.Folder2Service;
 import com.precapstone.fiveguys_backend.common.CommonResponse;
 import com.precapstone.fiveguys_backend.common.PasswordValidator;
 import com.precapstone.fiveguys_backend.common.enums.UserRole;
@@ -172,7 +170,7 @@ public class UserService {
             }
         }
 
-        if(passwordEncoder.matches(password, optionalUser.get().getPassword())){
+        if(!passwordEncoder.matches(password, optionalUser.get().getPassword())){
             return CommonResponse.builder()
                     .code(401)
                     .message("Password Incorrect")
