@@ -14,6 +14,8 @@ import com.precapstone.fiveguys_backend.api.message.send.messagetype.LMS;
 import com.precapstone.fiveguys_backend.api.message.send.option.Target;
 import com.precapstone.fiveguys_backend.api.messagehistory.MessageHistoryDTO;
 import com.precapstone.fiveguys_backend.api.messagehistory.MessageHistoryService;
+import com.precapstone.fiveguys_backend.api.reservation.ReservationService;
+import com.precapstone.fiveguys_backend.api.reservation.ReservationState;
 import com.precapstone.fiveguys_backend.common.utils.RandomStringGenerator;
 import com.precapstone.fiveguys_backend.entity.Contact2;
 import lombok.RequiredArgsConstructor;
@@ -35,6 +37,7 @@ public class PpurioSendService {
     private final JwtTokenProvider jwtTokenProvider;
     private final MessageHistoryService messageHistoryService;
     private final AwsS3Service awsS3Service;
+    private final ReservationService reservationService;
 
     // 뿌리오 계정
     @Value("${spring.ppurio.account}")
@@ -190,4 +193,34 @@ public class PpurioSendService {
                 .build();
     }
 
+    public PpurioCancelResponse cancel(Long messageHistoryId, String fiveguysAccessToken) {
+        var messageHistory = messageHistoryService.read(messageHistoryId, fiveguysAccessToken);
+
+        // 토큰 발급
+        String accessToken = ppurioAuth.getAccessToken();
+
+        // 헤더 설정
+        HttpHeaders headers = new HttpHeaders();
+        headers.set("Authorization", "Bearer "+ accessToken);
+
+        // 바디 설정
+        var requestBody = cancelMessageParam(ppurioAccount, messageHistory.getMessageKey());
+
+        // 전송 데이터 생성
+        HttpEntity<Map> request = new HttpEntity<>(requestBody, headers);
+
+        // 전송
+        var ppurioCancelResponse = restTemplate.postForObject(url+"/v1/cancel", request, PpurioCancelResponse.class);
+
+        reservationService.changeType(messageHistory, ReservationState.CANCEL);
+
+        return ppurioCancelResponse;
+    }
+
+    private Map<String, String> cancelMessageParam(String ppurioAccount, String messageKey) {
+        Map<String, String> params = new HashMap<>();
+        params.put("account", ppurioAccount);
+        params.put("messageKey", messageKey);
+        return params;
+    }
 }
