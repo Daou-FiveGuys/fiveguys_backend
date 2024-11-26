@@ -45,6 +45,10 @@ public class ReservationService {
                 .filter(Objects::nonNull)            // Reservation이 null이 아닌 경우만 포함
                 .toList();
 
+        for (var reservation : reservations)
+            if (reservation.getSendTime().isBefore(LocalDateTime.now()) || reservation.getState() == ReservationState.NOTYET)
+                changeType(reservation.getMessageHistory(), ReservationState.DONE);
+
         return reservations;
     }
 

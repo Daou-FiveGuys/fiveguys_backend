@@ -33,7 +33,7 @@ public class MessageHistory {
     @OneToOne(fetch = FetchType.LAZY, mappedBy = "messageHistory")
     private SendImage sendImage;
 
-    @JsonManagedReference
+    @JsonBackReference
     @OneToOne(fetch = FetchType.LAZY, mappedBy = "messageHistory")
     private Reservation reservation;
 
