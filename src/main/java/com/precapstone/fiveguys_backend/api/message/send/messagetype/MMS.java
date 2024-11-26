@@ -26,7 +26,7 @@ public class MMS extends MessageType {
      * @throws IOException
      */
     public MMS(String ppurioAccount, String fromNumber, String message, List<Target> targets, List<String> filePaths) throws IOException {
-        super(ppurioAccount, fromNumber, message, targets);
+        super(ppurioAccount, fromNumber, message, targets, null);
 
         params.put("messageType", "MMS");
         params.put("files", List.of(
@@ -35,7 +35,7 @@ public class MMS extends MessageType {
     }
 
     public MMS(String ppurioAccount, PpurioMessageDTO ppurioMessageDTO, MultipartFile multipartFile) {
-        super(ppurioAccount, ppurioMessageDTO.getFromNumber(), ppurioMessageDTO.getContent(), ppurioMessageDTO.getTargets());
+        super(ppurioAccount, ppurioMessageDTO.getFromNumber(), ppurioMessageDTO.getContent(), ppurioMessageDTO.getTargets(), ppurioMessageDTO.getSendTime());
 
         Files files;
         try {
