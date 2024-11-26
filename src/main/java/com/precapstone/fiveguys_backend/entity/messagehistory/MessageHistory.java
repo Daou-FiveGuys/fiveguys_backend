@@ -28,6 +28,10 @@ public class MessageHistory {
     @ManyToOne(fetch = FetchType.LAZY)
     private User user;
 
+    @JsonManagedReference
+    @OneToOne(fetch = FetchType.LAZY, mappedBy = "messageHistory")
+    private SendImage sendImage;
+
     @Column(nullable = false)
     private String fromNumber;
 
@@ -45,12 +49,6 @@ public class MessageHistory {
     private LocalDateTime createdAt = LocalDateTime.now();
 
     @JsonManagedReference
-    @JoinColumn(name = "contact2_id")
-    @OneToMany(fetch = FetchType.LAZY, orphanRemoval = true)
+    @OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     private List<Contact2> contact2s;
-    
-    @JsonManagedReference
-    @JoinColumn(name = "send_image_id")
-    @OneToOne(fetch = FetchType.LAZY, orphanRemoval = true)
-    private SendImage sendImage;
 }

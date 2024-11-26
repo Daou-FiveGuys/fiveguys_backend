@@ -18,6 +18,11 @@ public class DailyAmount {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long dailyAmountId;
 
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "amount_used_id")
+    @JsonBackReference
+    private AmountUsed amountUsed;
+
     // 문자 발신 총 횟수
     @Builder.Default
     @Column(nullable = false)
@@ -38,9 +43,4 @@ public class DailyAmount {
     @Builder.Default
     @Column(nullable = false)
     private LocalDate date = LocalDate.now();
-
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "amount_used_id")
-    //@JsonBackReference
-    private AmountUsed amountUsed;
 }

@@ -29,7 +29,7 @@ public class Folder2 {
     @JsonBackReference
     private User user;
 
-    @OneToMany(fetch = FetchType.LAZY, mappedBy = "folder2", cascade = CascadeType.ALL)
+    @OneToMany(fetch = FetchType.LAZY, mappedBy= "folder2", cascade = CascadeType.ALL, orphanRemoval = true)
     @JsonManagedReference
     private List<Group2> group2s;
 }

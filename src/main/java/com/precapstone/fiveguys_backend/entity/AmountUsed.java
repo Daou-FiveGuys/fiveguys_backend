@@ -22,7 +22,8 @@ public class AmountUsed {
 
     // 유저 정보
     @JsonBackReference
-    @OneToOne(mappedBy = "amountUsed")
+    @JoinColumn(name = "user_id")
+    @OneToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     private User user;
 
     // 문자 발신 총 횟수
@@ -44,8 +45,7 @@ public class AmountUsed {
     @Column(nullable = false)
     private Integer imgGcnt = 0;
 
-    // TODO: 임시코드 삭제할 것
-    @OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToMany(fetch = FetchType.LAZY, mappedBy= "amountUsed", cascade = CascadeType.ALL, orphanRemoval = true)
     @JsonManagedReference
     private List<DailyAmount> dailyAmounts;
 
