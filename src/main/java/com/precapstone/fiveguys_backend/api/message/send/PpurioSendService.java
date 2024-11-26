@@ -184,6 +184,7 @@ public class PpurioSendService {
                             .five(target.getChangeWord().getVar5())
                             .six(target.getChangeWord().getVar6())
                             .seven(target.getChangeWord().getVar7())
+                            .eight("")
                             .build()
             );
         }
