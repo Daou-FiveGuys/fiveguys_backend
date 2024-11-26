@@ -15,14 +15,14 @@ import static com.precapstone.fiveguys_backend.api.message.send.PpurioErrorCode.
  */
 public class SMS extends MessageType {
     public SMS(String ppurioAccount, String fromNumber, String message, List targets) {
-        super(ppurioAccount, fromNumber, message, targets);
+        super(ppurioAccount, fromNumber, message, targets, null);
         // TODO: 문자 메세지 길이 파악하기
 
         params.put("messageType", "SMS");
     }
 
     public SMS(String ppurioAccount, PpurioMessageDTO ppurioMessageDTO) {
-        super(ppurioAccount, ppurioMessageDTO.getFromNumber(), ppurioMessageDTO.getContent(), ppurioMessageDTO.getTargets());
+        super(ppurioAccount, ppurioMessageDTO.getFromNumber(), ppurioMessageDTO.getContent(), ppurioMessageDTO.getTargets(), ppurioMessageDTO.getSendTime());
 
         // TODO: 문자 메세지 길이 파악하기
         if(ppurioMessageDTO.getContent().getBytes().length > 90) throw new ControlledException(CONTENT_IS_TOO_LONG);

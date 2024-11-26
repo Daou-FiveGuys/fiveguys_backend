@@ -4,6 +4,7 @@ import com.precapstone.fiveguys_backend.api.message.send.option.Target;
 import lombok.Builder;
 import lombok.Getter;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 /**
@@ -19,5 +20,5 @@ public class PpurioSendDTO {
     List<Target> targets;
     String subject;
     List<String> filePaths;
-    //TODO: 예약 시간 설정
+    LocalDateTime sendTime;
 }
