@@ -28,7 +28,7 @@ public class MessageHistoryService {
     private final SendImageService sendImageService;
     private final JwtTokenProvider jwtTokenProvider;
 
-    public MessageHistory create(MessageHistoryDTO messageHistoryDTO) {
+    public MessageHistory create(MessageHistoryDTO messageHistoryDTO, String messageKey) {
         // TODO: 1. [예외처리] 전화번호 서식이 틀린 경우
 
         // TODO: 2. [예외처리] 본문 길이 틀린 경우
@@ -43,6 +43,7 @@ public class MessageHistoryService {
                 .subject(messageHistoryDTO.getSubject())
                 .content(messageHistoryDTO.getContent())
                 .user(user)
+                .messageKey(messageKey)
                 .build();
 
         // MMS인 경우에만 전달 받음
@@ -56,7 +57,7 @@ public class MessageHistoryService {
         return messageHistory;
     }
 
-    public MessageHistory createLink(MessageHistoryDTO messageHistoryDTO, String url) {
+    public MessageHistory createLink(MessageHistoryDTO messageHistoryDTO, String url, String messageKey) {
         // TODO: 1. [예외처리] 전화번호 서식이 틀린 경우
 
         // TODO: 2. [예외처리] 본문 길이 틀린 경우
@@ -71,6 +72,7 @@ public class MessageHistoryService {
                 .subject(messageHistoryDTO.getSubject())
                 .content(messageHistoryDTO.getContent())
                 .user(user)
+                .messageKey(messageKey)
                 .build();
 
         sendImageService.createLink(messageHistory, url);

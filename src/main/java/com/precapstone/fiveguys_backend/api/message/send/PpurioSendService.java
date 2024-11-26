@@ -72,9 +72,12 @@ public class PpurioSendService {
         }
         
         // 전송
+        var ppurioSendResponse = restTemplate.postForObject(url+"/v1/message", request, PpurioSendResponse.class);
+
+        // 메세지 저장
         var messageHistoryDTO = getMessageHistoryDTO(userId, multipartFile, ppurioMessageDTO);
-        messageHistoryService.create(messageHistoryDTO);
-        return restTemplate.postForObject(url+"/v1/message", request, PpurioSendResponse.class);
+        messageHistoryService.create(messageHistoryDTO, ppurioSendResponse.getMessageKey());
+        return ppurioSendResponse;
     }
 
     public PpurioSendResponse messageLink(PpurioMessageDTO ppurioMessageDTO, MultipartFile multipartFile, String fiveguysAccessToken) {
@@ -96,9 +99,11 @@ public class PpurioSendService {
             amountUsedService.plus(userId, AmountUsedType.MSG_GCNT, 1);
             amountUsedService.plus(userId, AmountUsedType.MSG_SCNT, ppurioMessageDTO.getTargets().size());
 
+            var ppurioSendResponse = restTemplate.postForObject(url+"/v1/message", request, PpurioSendResponse.class);
+
             var messageHistoryDTO = getMessageHistoryDTO(userId, null, ppurioMessageDTO);
-            messageHistoryService.createLink(messageHistoryDTO, bucketURL);
-            return restTemplate.postForObject(url+"/v1/message", request, PpurioSendResponse.class);
+            messageHistoryService.createLink(messageHistoryDTO, bucketURL, ppurioSendResponse.getMessageKey());
+            return ppurioSendResponse;
         } catch (Exception e){
             return null;
         }

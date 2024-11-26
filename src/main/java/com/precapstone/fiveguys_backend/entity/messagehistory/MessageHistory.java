@@ -51,4 +51,7 @@ public class MessageHistory {
     @JsonManagedReference
     @OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     private List<Contact2> contact2s;
+
+    @Column(nullable = false, unique = true)
+    private String messageKey;
 }
