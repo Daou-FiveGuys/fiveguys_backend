@@ -187,13 +187,7 @@ public class PpurioSendService {
                             .build()
             );
         }
-
-        // Target 리스트를 Contact2 리스트로 변환
-        var contact2 = targets.stream()
-                .map(Contact2::new) // Contact2(Target target) 생성자를 사용
-                .toList();
-
-        return contact2;
+        return contact2s;
     }
 
     /**
