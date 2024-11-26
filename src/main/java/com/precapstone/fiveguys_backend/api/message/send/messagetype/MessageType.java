@@ -6,6 +6,7 @@ import lombok.RequiredArgsConstructor;
 import org.apache.commons.lang3.RandomStringUtils;
 
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -37,7 +38,7 @@ public class MessageType {
         params.put("targetCount", targets.size());
         params.put("targets", targets);
         params.put("refKey", RandomStringUtils.random(32, true, true));
-        if(sendTime != null) params.put("sendTime", sendTime.toString());
+        if(sendTime != null) params.put("sendTime", sendTime.format(DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss")));
     }
 
     /**
