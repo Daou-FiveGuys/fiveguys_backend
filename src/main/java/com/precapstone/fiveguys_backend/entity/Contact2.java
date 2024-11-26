@@ -86,6 +86,7 @@ public class Contact2 {
             this.five = changeWord.getVar5();
             this.six = changeWord.getVar6();
             this.seven = changeWord.getVar7();
+            this.eight = "NONE";
         } else {
             // changeWord가 null인 경우, 기본값 설정
             this.one = "";
@@ -95,6 +96,7 @@ public class Contact2 {
             this.five = "";
             this.six = "";
             this.seven = "";
+            this.eight = "NONE";
         }
     }
 

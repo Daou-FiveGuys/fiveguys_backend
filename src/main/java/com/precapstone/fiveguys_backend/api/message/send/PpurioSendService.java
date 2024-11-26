@@ -170,25 +170,12 @@ public class PpurioSendService {
     }
 
     private List<Contact2> getContact2s(List<Target> targets) {
-        var contact2s = new ArrayList<Contact2>();
+        // Target 리스트를 Contact2 리스트로 변환
+        var contact2 = targets.stream()
+                .map(Contact2::new) // Contact2(Target target) 생성자를 사용
+                .toList();
 
-        for (Target target : targets) {
-            contact2s.add(
-                    Contact2.builder()
-                            .name(target.getName())
-                            .telNum(target.getToNumber())
-                            .one(target.getChangeWord().getVar1())
-                            .two(target.getChangeWord().getVar2())
-                            .three(target.getChangeWord().getVar3())
-                            .four(target.getChangeWord().getVar4())
-                            .five(target.getChangeWord().getVar5())
-                            .six(target.getChangeWord().getVar6())
-                            .seven(target.getChangeWord().getVar7())
-                            .eight("")
-                            .build()
-            );
-        }
-        return contact2s;
+        return contact2;
     }
 
     /**
