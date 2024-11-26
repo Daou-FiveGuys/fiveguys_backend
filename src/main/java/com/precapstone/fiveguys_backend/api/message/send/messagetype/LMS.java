@@ -20,7 +20,7 @@ public class LMS extends MessageType {
      * MessageType와 동일한 방식으로 진행된다.
      */
     public LMS(String ppurioAccount, String fromNumber, String message, List<Target> targets) {
-        super(ppurioAccount, fromNumber, message, targets);
+        super(ppurioAccount, fromNumber, message, targets, null);
 
         // TODO: 문자 메세지 길이 파악하기(더 길 시 에러메세지 발송)
 
@@ -28,7 +28,7 @@ public class LMS extends MessageType {
     }
 
     public LMS(String ppurioAccount, PpurioMessageDTO ppurioMessageDTO) {
-        super(ppurioAccount, ppurioMessageDTO.getFromNumber(), ppurioMessageDTO.getContent(), ppurioMessageDTO.getTargets());
+        super(ppurioAccount, ppurioMessageDTO.getFromNumber(), ppurioMessageDTO.getContent(), ppurioMessageDTO.getTargets(), ppurioMessageDTO.getSendTime());
 
         // 문자 메세지 길이 파악하기(더 길 시 에러메세지 발송)
         if(ppurioMessageDTO.getContent().getBytes().length > 2000) throw new ControlledException(CONTENT_IS_TOO_LONG);

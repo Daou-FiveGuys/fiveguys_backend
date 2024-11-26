@@ -57,4 +57,11 @@ public class PpurioSendController {
         return CommonResponse.builder().code(200).message("문자 전송 성공").data(response).build();
     }
 
+    @PostMapping(value = "cancel/{messageHistoryId}")
+    public CommonResponse cancel(@PathVariable Long messageHistoryId, @RequestHeader("Authorization") String authorization) {
+        var accessToken = authorization.replace(JwtFilter.TOKEN_PREFIX, "");
+
+        var response = ppurioSendService.cancel(messageHistoryId, accessToken);
+        return CommonResponse.builder().code(200).message("예약 문자 취소 성공").data(response).build();
+    }
 }
