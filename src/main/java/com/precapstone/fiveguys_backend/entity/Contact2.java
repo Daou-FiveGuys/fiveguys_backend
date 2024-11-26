@@ -33,36 +33,44 @@ public class Contact2 {
     private String telNum;
 
     // [*1*] 대체 단어
+    @Builder.Default
     @Column(nullable = false)
-    private String one;
+    private String one = "";
 
     // [*2*] 대체 단어
+    @Builder.Default
     @Column(nullable = false)
-    private String two;
+    private String two = "";
 
     // [*3*] 대체 단어
+    @Builder.Default
     @Column(nullable = false)
-    private String three;
+    private String three = "";
 
     // [*4*] 대체 단어
+    @Builder.Default
     @Column(nullable = false)
-    private String four;
+    private String four = "";
 
     // [*5*] 대체 단어
+    @Builder.Default
     @Column(nullable = false)
-    private String five;
+    private String five = "";
 
     // [*6*] 대체 단어
+    @Builder.Default
     @Column(nullable = false)
-    private String six;
+    private String six = "";
 
     // [*7*] 대체 단어
+    @Builder.Default
     @Column(nullable = false)
-    private String seven;
+    private String seven = "";
 
     // [*8*] 대체 단어
+    @Builder.Default
     @Column(nullable = false)
-    private String eight;
+    private String eight = "";
 
     public Contact2(Target target) {
         this.telNum = target.getToNumber(); // Target의 toNumber -> Contact2의 telNum
