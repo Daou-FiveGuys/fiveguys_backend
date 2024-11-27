@@ -154,7 +154,11 @@ public class MessageHistoryService {
         return messageHistory;
     }
 
-    public List<MessageHistory> read(User user) {
+    public List<MessageHistory> read(String accessToken) {
+        var userId = jwtTokenProvider.getUserIdFromToken(accessToken);
+        var user = userService.findByUserId(userId)
+                .orElseThrow(() -> new ControlledException(USER_NOT_FOUND));
+
         var messageHistory = messageHistoryRepository.findByUser(user)
                 .orElseThrow(()-> new ControlledException(MESSAGE_HISTORY_NOT_FOUND_BY_USER));
 

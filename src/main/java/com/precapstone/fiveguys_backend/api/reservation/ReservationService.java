@@ -18,9 +18,6 @@ import static com.precapstone.fiveguys_backend.exception.errorcode.UserErrorCode
 @RequiredArgsConstructor
 public class ReservationService {
     private final ReservationRepository reservationRepository;
-    private final UserService userService;
-    private final MessageHistoryService messageHistoryService;
-    private final JwtTokenProvider jwtTokenProvider;
 
     public Reservation create(MessageHistory messageHistory, LocalDateTime sendTime) {
         var reservation = Reservation.builder()
@@ -32,12 +29,7 @@ public class ReservationService {
         return reservation;
     }
 
-    public List<Reservation> readAll(String accessToken) {
-        var userId = jwtTokenProvider.getUserIdFromToken(accessToken);
-        var user = userService.findByUserId(userId)
-                .orElseThrow(() -> new ControlledException(USER_NOT_FOUND));
-
-        var messageHistories = messageHistoryService.read(user);
+    public List<Reservation> readAll(List<MessageHistory> messageHistories) {
 
         // 3. MessageHistory에서 Reservation 리스트 생성
         List<Reservation> reservations = messageHistories.stream()
