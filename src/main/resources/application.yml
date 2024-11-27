@@ -154,5 +154,5 @@ flux:
     city-pop : ${CITY_POP_LORA}
 
 papago:
-  client-id : ${PAPAGO-API-KEY-ID}
-  client-secret : ${PAPAGO-API-KEY}
+  client-id : ${PAPAGO_API_KEY_ID}
+  client-secret : ${PAPAGO_API_KEY}
