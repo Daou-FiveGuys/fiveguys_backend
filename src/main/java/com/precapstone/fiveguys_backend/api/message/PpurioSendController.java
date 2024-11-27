@@ -6,6 +6,7 @@ import com.precapstone.fiveguys_backend.api.message.auth.PpurioAuth;
 import com.precapstone.fiveguys_backend.api.message.send.PpurioSendService;
 import com.precapstone.fiveguys_backend.common.auth.JwtFilter;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
@@ -18,6 +19,9 @@ import java.io.IOException;
 public class PpurioSendController {
     private final PpurioAuth ppurioAuth;
     private final PpurioSendService ppurioSendService;
+
+    @Value("${spring.ppurio.tel-num.sangjun}")
+    private String sangjunTelNum;
 
     /**
      * 이미지를 전송하는 서비스
@@ -42,6 +46,8 @@ public class PpurioSendController {
             @RequestHeader("Authorization") String authorization) {
         var accessToken = authorization.replace(JwtFilter.TOKEN_PREFIX, "");
 
+        ppurioMessageDTO.setFromNumber(sangjunTelNum);
+
         var response = ppurioSendService.message(ppurioMessageDTO, multipartFile, accessToken);
         return CommonResponse.builder().code(200).message("문자 전송 성공").data(response).build();
     }
@@ -52,6 +58,8 @@ public class PpurioSendController {
             @RequestPart(value = "multipartFile", required = false) MultipartFile multipartFile,
             @RequestHeader("Authorization") String authorization) {
         var accessToken = authorization.replace(JwtFilter.TOKEN_PREFIX, "");
+
+        ppurioMessageDTO.setFromNumber(sangjunTelNum);
 
         var response = ppurioSendService.messageLink(ppurioMessageDTO, multipartFile, accessToken);
         return CommonResponse.builder().code(200).message("문자 전송 성공").data(response).build();

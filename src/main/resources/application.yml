@@ -23,6 +23,8 @@ spring:
     base-url: https://message.ppurio.com
     account: ${PPURIO_ACCOUNT}
     auth: ${PPURIO_AUTHORIZATION}
+    tel-num:
+      sangjun: ${SANGJUN_TELNUM}
 
   servlet:
     multipart:
