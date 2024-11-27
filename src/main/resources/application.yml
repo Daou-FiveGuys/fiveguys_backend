@@ -152,3 +152,7 @@ flux:
   lora:
     water-color : ${WATER_COLOR_LORA}
     city-pop : ${CITY_POP_LORA}
+
+papago:
+  client-id : ${PAPAGO-API-KEY-ID}
+  client-secret : ${PAPAGO-API-KEY}
