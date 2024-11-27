@@ -1,6 +1,6 @@
 package com.precapstone.fiveguys_backend.api.reservation;
 
-import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import com.precapstone.fiveguys_backend.entity.messagehistory.MessageHistory;
 import jakarta.persistence.*;
 import lombok.*;
@@ -19,7 +19,7 @@ public class Reservation {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long reservationId;
 
-    @JsonBackReference
+    @JsonManagedReference
     @JoinColumn(name = "message_history_id")
     @OneToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
     private MessageHistory messageHistory;
