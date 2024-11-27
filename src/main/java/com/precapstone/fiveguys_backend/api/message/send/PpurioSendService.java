@@ -27,6 +27,7 @@ import org.springframework.web.client.RestTemplate;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
+import java.time.LocalDateTime;
 import java.util.*;
 
 @Service
@@ -78,7 +79,7 @@ public class PpurioSendService {
         var ppurioSendResponse = restTemplate.postForObject(url+"/v1/message", request, PpurioSendResponse.class);
 
         // 메세지 저장
-        var messageHistoryDTO = getMessageHistoryDTO(userId, multipartFile, ppurioMessageDTO);
+        var messageHistoryDTO = getMessageHistoryDTO(userId, multipartFile, ppurioMessageDTO, ppurioMessageDTO.getSendTime());
         messageHistoryService.create(messageHistoryDTO, ppurioSendResponse.getMessageKey());
         return ppurioSendResponse;
     }
@@ -104,7 +105,7 @@ public class PpurioSendService {
 
             var ppurioSendResponse = restTemplate.postForObject(url+"/v1/message", request, PpurioSendResponse.class);
 
-            var messageHistoryDTO = getMessageHistoryDTO(userId, null, ppurioMessageDTO);
+            var messageHistoryDTO = getMessageHistoryDTO(userId, null, ppurioMessageDTO, ppurioMessageDTO.getSendTime());
             messageHistoryService.createLink(messageHistoryDTO, bucketURL, ppurioSendResponse.getMessageKey());
             return ppurioSendResponse;
         } catch (Exception e){
@@ -182,7 +183,7 @@ public class PpurioSendService {
      * PpurioMessageDTO를 MessageHistoryDIO로 변경하는 함수
      *
      */
-    private MessageHistoryDTO getMessageHistoryDTO(String userId, MultipartFile multipartFile, PpurioMessageDTO ppurioMessageDTO) {
+    private MessageHistoryDTO getMessageHistoryDTO(String userId, MultipartFile multipartFile, PpurioMessageDTO ppurioMessageDTO, LocalDateTime sendTime) {
         return MessageHistoryDTO.builder()
                 .userId(userId)
                 .content(ppurioMessageDTO.getContent())
@@ -192,6 +193,7 @@ public class PpurioSendService {
                 .subject(ppurioMessageDTO.getSubject())
                 .contact2s(getContact2s(ppurioMessageDTO.getTargets())) // TODO: target으로 반환하는 문제 발생
                 .sendImage(multipartFile)
+                .sendTime(sendTime)
                 .build();
     }
 

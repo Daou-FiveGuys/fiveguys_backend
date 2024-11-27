@@ -1,6 +1,7 @@
 package com.precapstone.fiveguys_backend.api.messagehistory;
 
 import com.precapstone.fiveguys_backend.api.auth.JwtTokenProvider;
+import com.precapstone.fiveguys_backend.api.reservation.ReservationService;
 import com.precapstone.fiveguys_backend.entity.User;
 import com.precapstone.fiveguys_backend.entity.messagehistory.MessageHistory;
 import com.precapstone.fiveguys_backend.entity.messagehistory.MessageType;
@@ -29,6 +30,7 @@ public class MessageHistoryService {
     private final UserService userService;
     private final SendImageService sendImageService;
     private final JwtTokenProvider jwtTokenProvider;
+    private final ReservationService reservationService;
 
     public MessageHistory create(MessageHistoryDTO messageHistoryDTO, String messageKey) {
         // TODO: 1. [예외처리] 전화번호 서식이 틀린 경우
@@ -55,6 +57,8 @@ public class MessageHistoryService {
             messageHistory.setSendImage(sendImage);
         }
 
+        reservationService.create(messageHistory, messageHistoryDTO.getSendTime());
+
         messageHistoryRepository.save(messageHistory);
         return messageHistory;
     }
@@ -78,6 +82,8 @@ public class MessageHistoryService {
                 .build();
 
         sendImageService.createLink(messageHistory, url);
+
+        reservationService.create(messageHistory, messageHistoryDTO.getSendTime());
 
         messageHistoryRepository.save(messageHistory);
         return messageHistory;

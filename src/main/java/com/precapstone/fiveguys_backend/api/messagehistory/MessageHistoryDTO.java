@@ -7,6 +7,7 @@ import lombok.Getter;
 import lombok.Setter;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Setter
@@ -20,4 +21,5 @@ public class MessageHistoryDTO {
     private String subject;
     private List<Contact2> contact2s;
     private MultipartFile sendImage;
+    private LocalDateTime sendTime;
 }
