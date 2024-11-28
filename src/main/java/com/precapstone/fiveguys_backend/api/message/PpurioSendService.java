@@ -1,12 +1,13 @@
-package com.precapstone.fiveguys_backend.api.message.send;
+package com.precapstone.fiveguys_backend.api.message;
 
 import com.precapstone.fiveguys_backend.api.amountused.AmountUsedService;
 import com.precapstone.fiveguys_backend.api.amountused.AmountUsedType;
 import com.precapstone.fiveguys_backend.api.auth.JwtTokenProvider;
 import com.precapstone.fiveguys_backend.api.aws.AwsS3Service;
 import com.precapstone.fiveguys_backend.api.dto.PpurioSendDTO;
-import com.precapstone.fiveguys_backend.api.message.PpurioMessageDTO;
 import com.precapstone.fiveguys_backend.api.message.auth.PpurioAuth;
+import com.precapstone.fiveguys_backend.api.message.send.PpurioCancelResponse;
+import com.precapstone.fiveguys_backend.api.message.send.PpurioSendResponse;
 import com.precapstone.fiveguys_backend.api.message.send.messagetype.MessageType;
 import com.precapstone.fiveguys_backend.api.message.send.messagetype.SMS;
 import com.precapstone.fiveguys_backend.api.message.send.messagetype.MMS;

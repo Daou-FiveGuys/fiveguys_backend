@@ -1,10 +1,6 @@
 package com.precapstone.fiveguys_backend.api.reservation;
 
-import com.precapstone.fiveguys_backend.api.auth.JwtTokenProvider;
-import com.precapstone.fiveguys_backend.api.messagehistory.MessageHistoryService;
-import com.precapstone.fiveguys_backend.api.user.UserService;
 import com.precapstone.fiveguys_backend.entity.messagehistory.MessageHistory;
-import com.precapstone.fiveguys_backend.exception.ControlledException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 

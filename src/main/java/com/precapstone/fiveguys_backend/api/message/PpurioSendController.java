@@ -3,7 +3,6 @@ package com.precapstone.fiveguys_backend.api.message;
 import com.precapstone.fiveguys_backend.api.dto.PpurioSendDTO;
 import com.precapstone.fiveguys_backend.common.CommonResponse;
 import com.precapstone.fiveguys_backend.api.message.auth.PpurioAuth;
-import com.precapstone.fiveguys_backend.api.message.send.PpurioSendService;
 import com.precapstone.fiveguys_backend.common.auth.JwtFilter;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
@@ -70,6 +69,7 @@ public class PpurioSendController {
         var accessToken = authorization.replace(JwtFilter.TOKEN_PREFIX, "");
 
         var response = ppurioSendService.cancel(messageHistoryId, accessToken);
+
         return CommonResponse.builder().code(200).message("예약 문자 취소 성공").data(response).build();
     }
 }
