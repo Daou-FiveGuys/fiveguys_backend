@@ -5,6 +5,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.util.List;
 import java.util.Objects;
 
@@ -34,7 +35,7 @@ public class ReservationService {
                 .toList();
 
         for (var reservation : reservations)
-            if (reservation.getSendTime().isBefore(LocalDateTime.now()) && reservation.getState() == ReservationState.NOTYET)
+            if (reservation.getSendTime().isBefore(LocalDateTime.now(ZoneId.of("Asia/Seoul"))) && reservation.getState() == ReservationState.NOTYET)
                 changeType(reservation.getMessageHistory(), ReservationState.DONE);
 
         return reservations;
