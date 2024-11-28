@@ -38,7 +38,7 @@ public class ReservationService {
                 .toList();
 
         for (var reservation : reservations)
-            if (reservation.getSendTime().isBefore(LocalDateTime.now()) || reservation.getState() == ReservationState.NOTYET)
+            if (reservation.getSendTime().isBefore(LocalDateTime.now()) && reservation.getState() == ReservationState.NOTYET)
                 changeType(reservation.getMessageHistory(), ReservationState.DONE);
 
         return reservations;
