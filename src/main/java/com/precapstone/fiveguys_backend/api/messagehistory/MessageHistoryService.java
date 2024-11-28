@@ -13,6 +13,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -57,6 +58,7 @@ public class MessageHistoryService {
             messageHistory.setSendImage(sendImage);
         }
 
+        if(messageHistoryDTO.getSendTime() == null) messageHistoryDTO.setSendTime(LocalDateTime.now());
         reservationService.create(messageHistory, messageHistoryDTO.getSendTime());
 
         messageHistoryRepository.save(messageHistory);
@@ -83,6 +85,7 @@ public class MessageHistoryService {
 
         sendImageService.createLink(messageHistory, url);
 
+        if(messageHistoryDTO.getSendTime() == null) messageHistoryDTO.setSendTime(LocalDateTime.now());
         reservationService.create(messageHistory, messageHistoryDTO.getSendTime());
 
         messageHistoryRepository.save(messageHistory);
