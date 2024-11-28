@@ -21,5 +21,6 @@ public class MessageHistoryDTO {
     private String subject;
     private List<Contact2> contact2s;
     private MultipartFile sendImage;
-    private LocalDateTime sendTime;
+    @Builder.Default
+    private LocalDateTime sendTime = LocalDateTime.now();
 }
