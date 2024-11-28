@@ -7,7 +7,6 @@ import ai.fal.client.queue.QueueStatus;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.gson.JsonObject;
 import com.precapstone.fiveguys_backend.api.amountused.AmountUsedService;
-import com.precapstone.fiveguys_backend.api.amountused.AmountUsedType;
 import com.precapstone.fiveguys_backend.api.auth.JwtTokenProvider;
 import com.precapstone.fiveguys_backend.api.aws.AwsS3Service;
 import com.precapstone.fiveguys_backend.api.aws.ImageLinkExtractor;
@@ -62,6 +61,8 @@ public class ImageService {
     private String WATER_COLOR_LORA_LINK;
     @Value("${flux.lora.city-pop}")
     private String JAPANESE_STYLE_LORA_LINK;
+    @Value("${flux.lora.clear-filter}")
+    private String CLEAR_FILTER;
 
     /**
      * 이미지 생성
@@ -128,8 +129,18 @@ public class ImageService {
         String loraLink = "";
 
         switch (style){
-            case "waterColor" -> loraLink = WATER_COLOR_LORA_LINK;
-            case "cityPop" -> loraLink = JAPANESE_STYLE_LORA_LINK;
+            case "waterColor" -> {
+                loraLink = WATER_COLOR_LORA_LINK;
+                imageGenerateLoraDTO.setPrompt("water color, " + imageGenerateLoraDTO.getPrompt());
+            }
+            case "cityPop" -> {
+                loraLink = JAPANESE_STYLE_LORA_LINK;
+                imageGenerateLoraDTO.setPrompt("japaness style poster, " + imageGenerateLoraDTO.getPrompt());
+            }
+            case "clearFilter" -> {
+                loraLink = CLEAR_FILTER;
+                imageGenerateLoraDTO.setPrompt("japanese clear filter, " + imageGenerateLoraDTO.getPrompt());
+            }
             default -> {
                 return CommonResponse.builder()
                     .code(400)
