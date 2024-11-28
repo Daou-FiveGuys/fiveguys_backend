@@ -138,7 +138,7 @@ jwt:
 frontend:
   local-domain: http://localhost
   server-domain: http://hansung-fiveguys.duckdns.org
-  cloud-front-domain: http://d2stuqjdxeqx1n.cloudfront.net
+  cloud-front-domain: http://hansung.paletter.click
 
 openai:
   url: https://api.openai.com/v1/chat/completions
